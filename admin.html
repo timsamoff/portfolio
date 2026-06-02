@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Workspace | Admin</title>
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="dark">
+    <header>
+        <div class="header-container">
+            <div class="logo-zone">
+                <h1>Portfolio Management Cockpit</h1>
+                <p class="subtitle" style="color: var(--text-muted);" id="status-msg">Detecting configuration files...</p>
+            </div>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <a href="index.html" target="_blank" class="filter-btn" style="text-decoration: none; line-height: 20px;">👁️ View Live Site</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="portfolio-container">
+        <div class="admin-workspace">
+            <form id="add-project-form" class="admin-form">
+                <h3 id="form-action-title">Insert New Project</h3>
+                <input type="hidden" id="form-edit-index" value="">
+                
+                <div class="form-group">
+                    <label>Project Title</label>
+                    <input type="text" id="form-title" required placeholder="e.g., Marathon Sod Rebrand">
+                </div>
+                <div class="form-group">
+                    <label>Category Identifier</label>
+                    <select id="form-category">
+                        <option value="brand">brand</option>
+                        <option value="production">production</option>
+                        <option value="games">games</option>
+                        <option value="web">web</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Display Tag Label</label>
+                    <input type="text" id="form-tag" required placeholder="e.g., Brand Identity">
+                </div>
+                <div class="form-group">
+                    <label>Image Resource Path</label>
+                    <input type="text" id="form-image" required placeholder="images/portfolio_page_4.png">
+                </div>
+                <div class="form-group">
+                    <label>Project Narrative Summary</label>
+                    <textarea id="form-description" required placeholder="Provide concise project background documentation... URLs will turn into clickable links automatically."></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" id="submit-btn" class="filter-btn active" style="width: 100%;">Add to Layout Stack</button>
+                    <button type="button" id="cancel-edit-btn" class="filter-btn" style="display: none; border-color: var(--accent-red); color: var(--accent-red);">Cancel</button>
+                </div>
+            </form>
+
+            <div class="sorting-zone">
+                <h3>Arrange Project Priority <span style="font-size:0.75rem; text-transform:none; color:var(--text-muted); font-weight:normal;">(Click a row to edit, drag rows to reorder)</span></h3>
+                <ul id="sortable-list" class="sortable-list"></ul>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let localProjectCache = [];
+        const sortableListElement = document.getElementById('sortable-list');
+        const statusMsg = document.getElementById('status-msg');
+        const addForm = document.getElementById('add-project-form');
+        
+        const formActionTitle = document.getElementById('form-action-title');
+        const formEditIndex = document.getElementById('form-edit-index');
+        const submitBtn = document.getElementById('submit-btn');
+        const cancelEditBtn = document.getElementById('cancel-edit-btn');
+
+        // Helper function to turn raw URLs into clickable anchor tags
+        function linkify(text) {
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return text.replace(urlRegex, function(url) {
+                return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+            });
+        }
+
+        // Auto-Load configurations from local projects.json file
+        fetch('projects.json')
+            .then(res => {
+                if (!res.ok) throw new Error();
+                return res.json();
+            })
+            .then(data => {
+                localProjectCache = data;
+                renderAdminView();
+                updateStatus("Connected locally. Auto-write enabled.", "#34d399");
+            })
+            .catch(() => {
+                updateStatus("projects.json not detected. Creating fresh list on first save.", "#f59e0b");
+            });
+
+        // Write to local file system via node server.js api endpoint
+        function saveToDiskLocally() {
+            fetch('http://localhost:3001/api/save-projects', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(localProjectCache)
+            })
+            .then(res => res.json())
+            .then(res => {
+                if(res.success) {
+                    updateStatus("Changes auto-saved to projects.json!", "#34d399");
+                } else {
+                    updateStatus("Write Error: " + res.error, "#d32f2f");
+                }
+            })
+            .catch(() => updateStatus("Server connection lost.", "#d32f2f"));
+        }
+
+        function updateStatus(text, color) {
+            statusMsg.textContent = text;
+            statusMsg.style.color = color;
+        }
+
+        // Render Dashboard Row Elements
+        function renderAdminView() {
+            sortableListElement.innerHTML = '';
+            localProjectCache.forEach((project, index) => {
+                const li = document.createElement('li');
+                li.className = 'sort-item';
+                li.draggable = true;
+                li.setAttribute('data-index', index);
+                
+                // Layout splitting content text interaction panel from the sorting handles
+                li.innerHTML = `
+                    <div class="sort-content" style="flex-grow:1; cursor:pointer;">
+                        <strong>${project.title}</strong> 
+                        <small style="color:var(--text-muted); margin-left:0.5rem;">(${project.tag})</small>
+                        <div class="link-preview-pane" style="font-size:0.75rem; margin-top:0.25rem; opacity:0.85; max-width:400px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            ${linkify(project.description)}
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:1.2rem; align-items:center;">
+                        <span class="delete-item-btn" style="cursor:pointer; color:var(--text-muted); font-weight:bold; font-size:1.1rem; padding: 0 0.25rem;" data-index="${index}" title="Delete Project">✕</span>
+                        <span class="sort-handle" style="cursor:grab; padding: 0 0.25rem;">☰</span>
+                    </div>
+                `;
+                
+                // Wire up clicking the row's text content wrapper to load values back into the form
+                li.querySelector('.sort-content').addEventListener('click', (e) => {
+                    // Prevent form triggering if they intentionally click a parsed hyperlink link inside the description preview
+                    if (e.target.tagName === 'A') return;
+                    loadProjectIntoForm(index);
+                });
+                
+                // Wire up deletion confirmation routine button
+                li.querySelector('.delete-item-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if(confirm(`Remove "${project.title}" from layout grid permanently?`)) {
+                        localProjectCache.splice(index, 1);
+                        renderAdminView();
+                        saveToDiskLocally();
+                        resetFormState();
+                    }
+                });
+
+                // Native HTML5 Drag and drop event listeners
+                li.addEventListener('dragstart', () => li.classList.add('dragging'));
+                li.addEventListener('dragend', () => {
+                    li.classList.remove('dragging');
+                    recalculateCacheOrder();
+                });
+                sortableListElement.appendChild(li);
+            });
+        }
+
+        // Dragover grid spacing item positioning tracking calculations
+        sortableListElement.addEventListener('dragover', e => {
+            e.preventDefault();
+            const afterElement = getDragAfterElement(sortableListElement, e.clientY);
+            const draggingItem = document.querySelector('.dragging');
+            if (afterElement == null) {
+                sortableListElement.appendChild(draggingItem);
+            } else {
+                sortableListElement.insertBefore(draggingItem, afterElement);
+            }
+        });
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.sort-item:not(.dragging)')];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        function recalculateCacheOrder() {
+            const currentRows = [...sortableListElement.querySelectorAll('.sort-item')];
+            localProjectCache = currentRows.map(row => localProjectCache[row.getAttribute('data-index')]);
+            currentRows.forEach((row, i) => row.setAttribute('data-index', i));
+            saveToDiskLocally();
+        }
+
+        // Form Action Routing Controls (Inserts & Updates)
+        addForm.addEventListener('submit', e => {
+            e.preventDefault();
+            
+            const projectData = {
+                title: document.getElementById('form-title').value,
+                category: document.getElementById('form-category').value,
+                tag: document.getElementById('form-tag').value,
+                image: document.getElementById('form-image').value,
+                description: document.getElementById('form-description').value
+            };
+
+            const editIndex = formEditIndex.value;
+
+            if (editIndex !== "") {
+                // Update targeted entry values inside the local cache block array
+                localProjectCache[editIndex] = projectData;
+            } else {
+                // Add completely fresh item records to bottom layout priority stack
+                localProjectCache.push(projectData);
+            }
+
+            renderAdminView();
+            saveToDiskLocally();
+            resetFormState();
+        });
+
+        // Pull active parameters back up into matching layout fields
+        function loadProjectIntoForm(index) {
+            const target = localProjectCache[index];
+            formActionTitle.textContent = "Modify Selected Entry";
+            formEditIndex.value = index;
+            
+            document.getElementById('form-title').value = target.title;
+            document.getElementById('form-category').value = target.category;
+            document.getElementById('form-tag').value = target.tag;
+            document.getElementById('form-image').value = target.image;
+            document.getElementById('form-description').value = target.description;
+
+            submitBtn.textContent = "Update Portfolio Project";
+            cancelEditBtn.style.display = "inline-block";
+            
+            // Highlight row boundaries using a targeted border modifier class frame configuration
+            document.querySelectorAll('.sort-item').forEach(el => el.style.borderColor = 'var(--border-color)');
+            document.querySelector(`.sort-item[data-index="${index}"]`).style.borderColor = 'var(--accent-red)';
+        }
+
+        function resetFormState() {
+            addForm.reset();
+            formEditIndex.value = "";
+            formActionTitle.textContent = "Insert New Project";
+            submitBtn.textContent = "Add to Layout Stack";
+            cancelEditBtn.style.display = "none";
+            document.querySelectorAll('.sort-item').forEach(el => el.style.borderColor = 'var(--border-color)');
+        }
+
+        cancelEditBtn.addEventListener('click', resetFormState);
+    </script>
+</body>
+</html>

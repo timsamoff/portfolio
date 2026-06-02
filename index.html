@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tim Samoff | Portfolio</title>
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo-zone">
+                <h1>Tim Samoff</h1>
+                <p class="subtitle">Multimedia Production & Design Since 1988</p>
+            </div>
+            <button id="theme-toggle" aria-label="Toggle light and dark mode">
+                <svg class="sun-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="4.22" x2="19.78" y2="5.64"></line></svg>
+                <svg class="moon-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </button>
+        </div>
+        <nav class="filter-nav">
+            <button class="filter-btn active" data-filter="all">All Projects</button>
+            <button class="filter-btn" data-filter="brand">Brand & Identity</button>
+            <button class="filter-btn" data-filter="production">Production & Installation</button>
+            <button class="filter-btn" data-filter="games">Game Design</button>
+            <button class="filter-btn" data-filter="web">Web & Interactive</button>
+        </nav>
+    </header>
+
+    <main class="portfolio-container">
+        <div class="portfolio-grid" id="portfolio-grid"></div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Tim Samoff. Built with high-contrast structural semantics.</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
