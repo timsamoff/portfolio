@@ -3,63 +3,56 @@
     "title": "Marathon Sod Rebrand",
     "category": "brand",
     "tag": "Brand Identity",
-    "image": "images/portfolio_page_4.png",
+    "image": "media/marathon_01.png",
     "description": "A comprehensive identity overhaul for Southland Sod Farms, modernizing a 15-year-old brand identity across print advertising, logos, and retail packaging layouts."
   },
   {
     "title": "Maemo Summit Collateral",
     "category": "brand",
     "tag": "Brand Identity",
-    "image": "images/portfolio_page_5.png",
+    "image": "media/maemo_01.jpg",
     "description": "Event branding, spatial identity vectors, and custom apparel design developed for the global open-source community platform summit."
   },
   {
-    "title": "POP Displays & Assembly",
+    "title": "Yamaha POP Displays & Assembly",
     "category": "production",
     "tag": "Production",
-    "image": "images/portfolio_page_6.png",
-    "description": "Structural point-of-purchase design layouts, spatial mockups, and step-by-step user documentation assembly systems engineered for Yamaha hardware assets."
+    "image": "media/yamaha_01.png",
+    "description": "Structural point-of-purchase design layouts, spatial mockups, and step-by-step user documentation assembly systems engineered for Yamaha musical instruments."
   },
   {
-    "title": "The Idea of Ambient Learning",
+    "title": "EMBARQ Art Installation",
     "category": "production",
     "tag": "Installation Art",
-    "image": "images/portfolio_page_8.png",
-    "description": "An environmental design installations overhaul for the Embarq corporate headquarters. Engineered budget iterations, technical materials, and abstract visuals to foster communication passively via spatial canvas installation art."
+    "image": "media/embarq_breezeway_01.jpg",
+    "description": "An environmental design installations overhaul for the EMBARQ corporate headquarters. Engineered budget iterations, technical materials, and abstract visuals to foster communication passively via spatial canvas installation art."
   },
   {
-    "title": "Commercial Software Production",
+    "title": "Commercial Game Design",
     "category": "games",
     "tag": "Game Design",
-    "image": "images/portfolio_page_9.png",
+    "image": "media/tdk_01.jpg",
     "description": "Oversaw the technical production, pipeline coordination, and release engineering of over forty retail commercial entertainment software titles across major media brands."
   },
   {
-    "title": "MeeGo Platform Mobile Projects",
+    "title": "Maemo/MeeGo Platform Mobile Projects",
     "category": "games",
     "tag": "Game Design",
-    "image": "images/portfolio_page_10.png",
-    "description": "Collaborated with a global developer collective to code open-source minigames. Features included Plonk, a steampunk multi-touch clone, and Gaberin, a responsive physics-based juggling simulator."
+    "image": "media/gaberln_01.png",
+    "description": "Collaborated with a global developer collective to code open-source games. Projects included Plonk, a steampunk multi-touch clone, and Gaberin, a responsive physics-based juggling simulator."
   },
   {
     "title": "Babylon 5 Entertainment Utility",
     "category": "web",
     "tag": "Interactive UI",
-    "image": "images/portfolio_page_11.png",
-    "description": "A legacy graphical user interface mimicking sci-fi control displays. Programmed and optimized within severe hardware limits using custom 4-bit color depth index palettes."
+    "image": "media/b5_01.jpg",
+    "description": "UI design mimicking the sci-fi control displays from the television series Babylon 5. Programmed and optimized within severe hardware limits using custom 4-bit color depth index palettes."
   },
   {
     "title": "Published Web Solutions",
     "category": "web",
     "tag": "Web Design",
-    "image": "images/portfolio_page_12.png",
-    "description": "Custom production frameworks and interface design active since 1993, including showcase layouts chosen for national design critique publication honors."
-  },
-  {
-    "title": "Test",
-    "category": "brand",
-    "tag": "Brand Identity",
-    "image": "images/something.jpg",
-    "description": "This is a description. http://website.com"
+    "image": "media/tswl_01.jpg",
+    "description": "Custom production frameworks and interface design since 1993, including showcase layouts chosen for international design critique publication honors."
   }
 ]
