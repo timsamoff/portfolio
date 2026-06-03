@@ -6,6 +6,8 @@
     <title>Tim Samoff | Portfolio</title>
     <link rel="icon" type="image/png" href="favicon.png" />
     <link rel="stylesheet" href="style.css">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 </head>
 <body>
     <header>
@@ -36,6 +38,23 @@
         <p>&copy; 2026 Tim Samoff. Built with high-contrast structural semantics.</p>
     </footer>
 
+    <!-- Custom Modal -->
+    <div id="media-modal" class="media-modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div class="modal-swiper-container">
+                <div class="swiper modal-swiper">
+                    <div class="swiper-wrapper" id="modal-swiper-wrapper"></div>
+                    <div class="swiper-button-prev"></div>
+                    <div class="swiper-button-next"></div>
+                    <div class="swiper-pagination"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
