@@ -8,16 +8,22 @@
       "media/ms_01.png",
       "https://youtu.be/r8h8g72ntxM?si=WUz9T6fyMjVuAUzx"
     ],
-    "description": "A comprehensive identity overhaul for Southland Sod Farms, modernizing a 15-year-old brand identity across print advertising, logos, and retail packaging layouts.\n\nA comprehensive identity overhaul for Southland Sod Farms, modernizing a 15-year-old brand identity across print advertising, logos, and retail packaging layouts.\n\nA comprehensive identity overhaul for Southland Sod Farms, modernizing a 15-year-old brand identity across print advertising, logos, and retail packaging layouts."
+    "description": "A comprehensive identity overhaul for Southland Sod Farms, modernizing a 15-year-old brand identity across print advertising, logos, and retail packaging layouts.\n\nA comprehensive identity overhaul for Southland Sod Farms, modernizing a 15-year-old brand identity across print advertising, logos, and retail packaging layouts.\n\nA comprehensive identity overhaul for Southland Sod Farms, modernizing a 15-year-old brand identity across print advertising, logos, and retail packaging layouts.",
+    "imageAlign": "top"
   },
   {
     "title": "Maemo Summit Collateral",
     "category": "brand",
     "tag": "Brand Identity",
     "media": [
-      "media/maemo_01.jpg"
+      "media/maemo_01.jpg",
+      "media/gaberln-logo.png",
+      "media/plonk_gameplay.png",
+      "media/plonk_paddle.png",
+      "media/plonk_title_panel_logo.png"
     ],
-    "description": "Event branding, spatial identity vectors, and custom apparel design developed for the global open-source community platform summit."
+    "description": "Event branding, spatial identity vectors, and custom apparel design developed for the global open-source community platform summit.",
+    "imageAlign": "center"
   },
   {
     "title": "Yamaha POP Displays & Assembly",
@@ -26,7 +32,8 @@
     "media": [
       "media/yamaha_01.png"
     ],
-    "description": "Structural point-of-purchase design layouts, spatial mockups, and step-by-step user documentation assembly systems engineered for Yamaha musical instruments."
+    "description": "Structural point-of-purchase design layouts, spatial mockups, and step-by-step user documentation assembly systems engineered for Yamaha musical instruments.",
+    "imageAlign": "top"
   },
   {
     "title": "EMBARQ Art Installation",
@@ -42,18 +49,28 @@
     "category": "games",
     "tag": "Game Design",
     "media": [
-      "media/tdk_01.jpg"
+      "media/abyss_01.jpg",
+      "media/b5_01.jpg",
+      "media/b5_02.jpg",
+      "media/casper_01.jpg",
+      "media/landtime_01.jpg"
     ],
-    "description": "Oversaw the technical production, pipeline coordination, and release engineering of over forty retail commercial entertainment software titles across major media brands."
+    "description": "Oversaw the technical production, pipeline coordination, and release engineering of over forty retail commercial entertainment software titles across major media brands.",
+    "imageAlign": "top"
   },
   {
     "title": "Maemo/MeeGo Platform Mobile Projects",
     "category": "games",
     "tag": "Game Design",
     "media": [
-      "media/gaberln_01.png"
+      "media/gaberln_01.png",
+      "media/gaberln-logo.png",
+      "media/plonk_gameplay.png",
+      "media/plonk_paddle.png",
+      "media/plonk_title_panel_logo.png"
     ],
-    "description": "Collaborated with a global developer collective to code open-source games. Projects included Plonk, a steampunk multi-touch clone, and Gaberin, a responsive physics-based juggling simulator."
+    "description": "Collaborated with a global developer collective to code open-source games. Projects included Plonk, a steampunk multi-touch clone, and Gaberin, a responsive physics-based juggling simulator.",
+    "imageAlign": "center"
   },
   {
     "title": "Babylon 5 Entertainment Utility",

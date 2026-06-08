@@ -84,18 +84,28 @@ document.addEventListener('DOMContentLoaded', () => {
         return match ? `https://player.vimeo.com/video/${match[1]}` : null;
     }
 
-    // Thumbnail with forced crop
-    function generateThumbnailHtml(mediaUrl) {
+    // Get CSS object-position value based on alignment setting
+    function getObjectPosition(alignSetting) {
+        switch(alignSetting) {
+            case 'top': return 'top';
+            case 'bottom': return 'bottom';
+            default: return 'center';
+        }
+    }
+
+    // Thumbnail with forced crop and dynamic alignment
+    function generateThumbnailHtml(mediaUrl, alignSetting = 'center') {
         const isVideo = isVideoUrl(mediaUrl);
+        const objectPosition = getObjectPosition(alignSetting);
         
         if (!isVideo) {
-            return `<img src="${mediaUrl}" alt="Portfolio media">`;
+            return `<img src="${mediaUrl}" alt="Portfolio media" style="object-position: ${objectPosition};">`;
         }
         
         const youtubeEmbed = getYouTubeEmbedUrl(mediaUrl);
         if (youtubeEmbed) {
             const videoId = youtubeEmbed.split('/embed/')[1];
-            return `<img src="https://img.youtube.com/vi/${videoId}/mqdefault.jpg" alt="YouTube thumbnail">`;
+            return `<img src="https://img.youtube.com/vi/${videoId}/mqdefault.jpg" alt="YouTube thumbnail" style="object-position: ${objectPosition};">`;
         }
         
         if (getVimeoEmbedUrl(mediaUrl)) {
@@ -178,17 +188,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     mediaArray = project.image ? [project.image] : [];
                 }
                 
+                // Get alignment setting (default to 'center')
+                const imageAlign = project.imageAlign || 'center';
+                
                 const article = document.createElement('article');
                 article.className = 'portfolio-item';
                 article.setAttribute('data-category', project.category);
                 
                 let thumbnailHtml = '';
                 if (mediaArray.length === 1) {
-                    thumbnailHtml = `<div class="item-image">${generateThumbnailHtml(mediaArray[0])}</div>`;
+                    thumbnailHtml = `<div class="item-image">${generateThumbnailHtml(mediaArray[0], imageAlign)}</div>`;
                 } else if (mediaArray.length > 1) {
                     let swiperSlides = '';
                     mediaArray.forEach((mediaUrl) => {
-                        swiperSlides += `<div class="swiper-slide">${generateThumbnailHtml(mediaUrl)}</div>`;
+                        swiperSlides += `<div class="swiper-slide">${generateThumbnailHtml(mediaUrl, imageAlign)}</div>`;
                     });
                     thumbnailHtml = `
                         <div class="item-image card-swiper-container">

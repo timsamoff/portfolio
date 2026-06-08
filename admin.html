@@ -43,13 +43,32 @@
                     <label>Display Tag Label</label>
                     <input type="text" id="form-tag" required placeholder="e.g., Brand Identity">
                 </div>
+                
+                <!-- NEW: Image Crop Alignment Option -->
+                <div class="form-group">
+                    <label>Image Crop Alignment</label>
+                    <select id="form-image-align">
+                        <option value="center">Center (Default)</option>
+                        <option value="top">Top</option>
+                        <option value="bottom">Bottom</option>
+                    </select>
+                    <small style="color: var(--text-muted); display: block; margin-top: 0.3rem;">🎨 Controls how portrait/landscape images are cropped in the card preview</small>
+                </div>
+                
                 <div class="form-group">
                     <label>Media Resources</label>
+                    
+                    <!-- Input row with Add button that handles both text and file selection -->
                     <div class="media-input-row">
                         <input type="text" id="media-input" placeholder="media/image.jpg, https://youtu.be/..., video.mp4">
                         <button type="button" id="add-media-btn" class="filter-btn" style="padding: 0 1rem;">+ Add</button>
                     </div>
+                    
+                    <!-- Hidden file input for multi-select -->
+                    <input type="file" id="multi-file-input" multiple accept="image/*,video/mp4,video/webm,video/quicktime,video/x-msvideo,.mov,.ogg" style="display: none;">
+                    
                     <div id="media-badges" class="media-badges-container"></div>
+                    
                     <div class="media-paste-area">
                         <button type="button" id="toggle-paste-btn" class="btn-small">📋 Paste Multiple URLs</button>
                         <div id="paste-area" style="display: none; margin-top: 0.5rem;">
@@ -57,7 +76,10 @@
                             <button type="button" id="process-paste-btn" class="btn-small" style="margin-top: 0.3rem;">Add All</button>
                         </div>
                     </div>
-                    <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">💡 Supports images, video files (.mp4/.webm), YouTube and Vimeo links. Drag ⋮⋮ to reorder.</small>
+                    <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">
+                        💡 Type a relative path or URL and click Add, or click the Add button to select files from your computer (multi-select supported). 
+                        Drag ⋮⋮ to reorder media items.
+                    </small>
                 </div>
                 <div class="form-group">
                     <label>Project Narrative Summary</label>

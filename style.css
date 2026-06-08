@@ -52,7 +52,9 @@ body {
     transition: background 0.2s ease, color 0.2s ease;
 }
 
-/* Typography */
+/* ========================================
+   TYPOGRAPHY
+   ======================================== */
 h1 {
     font-size: 1.8rem;
     font-weight: 600;
@@ -63,13 +65,21 @@ h1 {
     color: transparent;
 }
 
+h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
 .subtitle {
     font-size: 0.85rem;
     color: var(--text-muted);
     margin-top: 0.2rem;
 }
 
-/* Header & Layout */
+/* ========================================
+   HEADER & LAYOUT
+   ======================================== */
 header {
     max-width: 1400px;
     margin: 0 auto 2rem auto;
@@ -86,12 +96,19 @@ header {
     margin-bottom: 1.5rem;
 }
 
+.logo-zone {
+    flex: 1;
+}
+
 .header-actions {
     display: flex;
     align-items: center;
     gap: 0.75rem;
 }
 
+/* ========================================
+   BUTTONS & CONTROLS
+   ======================================== */
 .contact-btn {
     display: flex;
     align-items: center;
@@ -112,14 +129,6 @@ header {
     background: var(--accent-red);
     border-color: var(--accent-red);
     color: white;
-}
-
-/* Filter Navigation */
-.filter-nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-top: 1rem;
 }
 
 .filter-btn {
@@ -145,7 +154,68 @@ header {
     color: var(--text-primary);
 }
 
-/* Portfolio Grid */
+.btn-small {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.8rem;
+    background: var(--filter-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+
+.btn-small:hover {
+    background: var(--border-color);
+    color: var(--text-primary);
+}
+
+#theme-toggle {
+    background: var(--filter-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: all 0.2s;
+}
+
+#theme-toggle:hover {
+    background: var(--border-color);
+}
+
+/* Theme icons */
+.sun-icon, .moon-icon {
+    transition: opacity 0.2s;
+}
+
+[data-theme="dark"] .sun-icon,
+[data-theme="light"] .moon-icon {
+    display: none;
+}
+
+[data-theme="dark"] .moon-icon,
+[data-theme="light"] .sun-icon {
+    display: block;
+}
+
+/* ========================================
+   FILTER NAVIGATION
+   ======================================== */
+.filter-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+/* ========================================
+   PORTFOLIO GRID & CARDS
+   ======================================== */
 .portfolio-container {
     max-width: 1400px;
     margin: 0 auto;
@@ -158,7 +228,6 @@ header {
     margin: 2rem 0;
 }
 
-/* Portfolio Card */
 .portfolio-item {
     background: var(--card-bg);
     border-radius: 20px;
@@ -177,9 +246,7 @@ header {
     box-shadow: var(--shadow-sm);
 }
 
-/* ========================================
-   FORCED IMAGE CROP - FIXED HEIGHT
-   ======================================== */
+/* Card images - forced crop with dynamic alignment */
 .item-image {
     position: relative;
     height: 220px;
@@ -198,7 +265,6 @@ header {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center;
     display: block;
 }
 
@@ -213,7 +279,85 @@ header {
     font-size: 0.9rem;
 }
 
-/* Mini carousel on cards */
+/* Card content */
+.item-content {
+    padding: 1.3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+    position: relative;
+}
+
+.category-tag {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    color: var(--accent-red);
+}
+
+.item-content h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0;
+}
+
+/* ========================================
+   CARD DESCRIPTION WITH CONSTRAINED HEIGHT & STYLIZED SCROLLBAR
+   ======================================== */
+.item-content p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    word-break: break-word;
+    white-space: pre-wrap;
+    
+    /* Constrain height and add scrollbar */
+    max-height: 120px;
+    overflow-y: auto;
+    
+    /* Padding for better scrollbar aesthetics */
+    padding-right: 6px;
+    
+    /* Custom scrollbar styling - Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-red) var(--border-color);
+}
+
+/* Webkit scrollbar styling (Chrome, Safari, Edge) */
+.item-content p::-webkit-scrollbar {
+    width: 6px;
+}
+
+.item-content p::-webkit-scrollbar-track {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+.item-content p::-webkit-scrollbar-thumb {
+    background: var(--accent-red);
+    border-radius: 3px;
+    transition: background 0.2s;
+}
+
+.item-content p::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-red-hover);
+}
+
+/* Ensure links inside scrollable area remain interactive */
+.item-content p a {
+    color: var(--accent-red);
+    text-decoration: none;
+    display: inline-block;
+}
+
+.item-content p a:hover {
+    text-decoration: underline;
+}
+
+/* ========================================
+   CARD SWIPER (MINI CAROUSEL)
+   ======================================== */
 .card-swiper-container {
     position: relative;
     width: 100%;
@@ -269,47 +413,8 @@ header {
     bottom: 8px;
 }
 
-/* Item Content */
-.item-content {
-    padding: 1.3rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    flex: 1;
-}
-
-.category-tag {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 600;
-    color: var(--accent-red);
-}
-
-.item-content h3 {
-    font-size: 1.25rem;
-    font-weight: 600;
-}
-
-.item-content p {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    line-height: 1.6;
-    word-break: break-word;
-    white-space: pre-wrap;
-}
-
-.item-content p a {
-    color: var(--accent-red);
-    text-decoration: none;
-}
-
-.item-content p a:hover {
-    text-decoration: underline;
-}
-
 /* ========================================
-   CUSTOM MODAL STYLES
+   CUSTOM MODAL (FULLSCREEN MEDIA VIEWER)
    ======================================== */
 .media-modal {
     display: none;
@@ -413,7 +518,7 @@ header {
 }
 
 /* ========================================
-   ADMIN WORKSPACE STYLES
+   ADMIN WORKSPACE
    ======================================== */
 .admin-workspace {
     display: grid;
@@ -429,6 +534,14 @@ header {
     padding: 1.8rem;
 }
 
+.sorting-zone {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 28px;
+    padding: 1.8rem;
+}
+
+/* Form groups */
 .form-group {
     margin-bottom: 1.2rem;
 }
@@ -454,6 +567,14 @@ header {
     color: var(--text-primary);
     font-size: 0.9rem;
     font-family: inherit;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent-red);
 }
 
 .form-group textarea {
@@ -461,13 +582,104 @@ header {
     resize: vertical;
 }
 
-.sorting-zone {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 28px;
-    padding: 1.8rem;
+/* ========================================
+   ADMIN MEDIA MANAGER (FILE PICKER + BADGES)
+   ======================================== */
+/* Media input row */
+.media-input-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
+.media-input-row input {
+    flex: 1;
+}
+
+/* Media badges container */
+.media-badges-container {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    min-height: 60px;
+}
+
+.media-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 0.3rem 0.6rem 0.3rem 0.8rem;
+    margin: 0.25rem;
+    font-size: 0.75rem;
+    font-family: monospace;
+    transition: all 0.2s;
+}
+
+.media-badge:hover {
+    border-color: var(--accent-red);
+}
+
+.media-badge.dragging-over {
+    border: 2px dashed var(--accent-red);
+    background: rgba(229, 72, 77, 0.1);
+}
+
+.media-badge-icon {
+    font-size: 0.9rem;
+}
+
+.media-badge-text {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text-secondary);
+}
+
+.media-badge-edit,
+.media-badge-delete {
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    padding: 0 2px;
+}
+
+.media-badge-edit:hover,
+.media-badge-delete:hover {
+    opacity: 1;
+    color: var(--accent-red);
+}
+
+/* Paste area */
+.media-paste-area {
+    margin-top: 0.5rem;
+}
+
+.media-paste-textarea {
+    width: 100%;
+    font-size: 0.8rem;
+    font-family: monospace;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 0.5rem;
+    color: var(--text-primary);
+    resize: vertical;
+}
+
+.media-paste-textarea:focus {
+    outline: none;
+    border-color: var(--accent-red);
+}
+
+/* ========================================
+   SORTABLE PROJECT LIST (ADMIN)
+   ======================================== */
 .sortable-list {
     list-style: none;
     margin-top: 1rem;
@@ -500,154 +712,17 @@ header {
     color: var(--text-muted);
 }
 
+.sort-handle:active {
+    cursor: grabbing;
+}
+
+.delete-item-btn {
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
 .delete-item-btn:hover {
     color: var(--accent-red) !important;
-}
-
-/* Media badges styles for admin panel */
-.media-badges-container {
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    border-radius: 14px;
-    padding: 0.5rem;
-    margin-top: 0.5rem;
-    min-height: 60px;
-}
-
-.media-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    padding: 0.3rem 0.6rem 0.3rem 0.8rem;
-    margin: 0.25rem;
-    font-size: 0.75rem;
-    font-family: monospace;
-    transition: all 0.2s;
-}
-
-.media-badge:hover {
-    border-color: var(--accent-red);
-}
-
-.media-badge-icon {
-    font-size: 0.9rem;
-}
-
-.media-badge-text {
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: var(--text-secondary);
-}
-
-.media-badge-edit {
-    cursor: pointer;
-    opacity: 0.6;
-    transition: opacity 0.2s;
-    padding: 0 2px;
-}
-
-.media-badge-edit:hover {
-    opacity: 1;
-    color: var(--accent-red);
-}
-
-.media-badge-delete {
-    cursor: pointer;
-    opacity: 0.6;
-    transition: opacity 0.2s;
-    padding: 0 2px;
-    font-weight: bold;
-}
-
-.media-badge-delete:hover {
-    opacity: 1;
-    color: var(--accent-red);
-}
-
-.media-input-row {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.media-input-row input {
-    flex: 1;
-}
-
-.media-input-row button {
-    padding: 0 1rem;
-    white-space: nowrap;
-}
-
-.media-paste-area {
-    margin-top: 0.5rem;
-}
-
-.media-paste-textarea {
-    width: 100%;
-    font-size: 0.8rem;
-    font-family: monospace;
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    padding: 0.5rem;
-    color: var(--text-primary);
-    resize: vertical;
-}
-
-.media-paste-textarea:focus {
-    outline: none;
-    border-color: var(--accent-red);
-}
-
-.btn-small {
-    font-size: 0.75rem;
-    padding: 0.3rem 0.8rem;
-    background: var(--filter-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    cursor: pointer;
-    color: var(--text-secondary);
-}
-
-.btn-small:hover {
-    background: var(--border-color);
-    color: var(--text-primary);
-}
-
-/* ========================================
-   THEME TOGGLE BUTTON
-   ======================================== */
-#theme-toggle {
-    background: var(--filter-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 50%;
-    width: 42px;
-    height: 42px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: var(--text-primary);
-}
-
-.sun-icon, .moon-icon {
-    transition: opacity 0.2s;
-}
-
-[data-theme="dark"] .sun-icon,
-[data-theme="light"] .moon-icon {
-    display: none;
-}
-
-[data-theme="dark"] .moon-icon,
-[data-theme="light"] .sun-icon {
-    display: block;
 }
 
 /* ========================================
@@ -669,18 +744,35 @@ footer {
     body {
         padding: 1rem;
     }
+    
     .admin-workspace {
         grid-template-columns: 1fr;
         gap: 1.5rem;
     }
+    
     .portfolio-grid {
         gap: 1.25rem;
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     }
+    
     .item-image {
         height: 180px;
         min-height: 180px;
         max-height: 180px;
+    }
+    
+    .media-upload-row {
+        flex-direction: column;
+    }
+    
+    .media-upload-row .file-input-wrapper,
+    .media-upload-row > div:last-child {
+        flex: auto;
+        width: 100%;
+    }
+    
+    .item-content p {
+        max-height: 100px;
     }
 }
 
@@ -688,11 +780,30 @@ footer {
     .filter-nav {
         gap: 0.5rem;
     }
+    
     .filter-btn {
         padding: 0.4rem 1rem;
         font-size: 0.75rem;
     }
+    
     .portfolio-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .header-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .header-actions {
+        align-self: flex-end;
+    }
+    
+    .media-badge-text {
+        max-width: 120px;
+    }
+    
+    .item-content p {
+        max-height: 100px;
     }
 }
