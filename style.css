@@ -289,12 +289,22 @@ header {
     position: relative;
 }
 
+/* Filter chips - clickable category tags */
 .category-tag {
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 600;
     color: var(--accent-red);
+    cursor: pointer;
+    transition: opacity 0.2s;
+    display: inline-block;
+    width: fit-content;
+}
+
+.category-tag:hover {
+    opacity: 0.7;
+    text-decoration: underline;
 }
 
 .item-content h3 {
@@ -353,6 +363,34 @@ header {
 
 .item-content p a:hover {
     text-decoration: underline;
+}
+
+/* ========================================
+   SHARE HINT ON CARDS - CLICKABLE VERSION
+   ======================================== */
+.share-hint {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: var(--accent-red);
+    color: white;
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    border-radius: 20px;
+    opacity: 0;
+    transition: opacity 0.2s, background 0.2s, transform 0.2s;
+    pointer-events: auto;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.portfolio-item:hover .share-hint {
+    opacity: 0.9;
+}
+
+.share-hint:hover {
+    background: var(--accent-red-hover);
+    transform: scale(1.02);
 }
 
 /* ========================================
@@ -479,7 +517,7 @@ header {
 
 .modal-media-container img {
     max-width: 100%;
-    max-height: 90vh;
+    max-height: 100%;
     width: auto;
     height: auto;
     object-fit: contain;
@@ -489,7 +527,7 @@ header {
 .modal-media-container iframe {
     width: 100%;
     height: 100%;
-    max-height: 90vh;
+    object-fit: contain;
 }
 
 .modal-swiper .swiper-button-prev,
@@ -517,6 +555,19 @@ header {
     background: var(--accent-red, #ff4444);
 }
 
+/* Video progress indicator */
+.video-progress-indicator {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: var(--accent-red);
+    width: 0%;
+    transition: width 0.3s;
+    z-index: 10;
+    pointer-events: none;
+}
+
 /* ========================================
    ADMIN WORKSPACE
    ======================================== */
@@ -539,6 +590,27 @@ header {
     border: 1px solid var(--border-color);
     border-radius: 28px;
     padding: 1.8rem;
+}
+
+/* Admin search */
+.admin-search {
+    margin-bottom: 1rem;
+}
+
+.admin-search-input {
+    width: 100%;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 0.7rem 1rem;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    transition: border-color 0.2s;
+}
+
+.admin-search-input:focus {
+    outline: none;
+    border-color: var(--accent-red);
 }
 
 /* Form groups */
@@ -580,6 +652,48 @@ header {
 .form-group textarea {
     min-height: 110px;
     resize: vertical;
+}
+
+/* ========================================
+   ADMIN DESCRIPTION SCROLLBAR - STYLED LIKE PORTFOLIO
+   ======================================== */
+.form-group textarea {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-red) var(--border-color);
+}
+
+.form-group textarea::-webkit-scrollbar {
+    width: 8px;
+}
+
+.form-group textarea::-webkit-scrollbar-track {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+.form-group textarea::-webkit-scrollbar-thumb {
+    background: var(--accent-red);
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.form-group textarea::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-red-hover);
+}
+
+/* Character counter */
+#char-counter {
+    text-align: right;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+    transition: color 0.2s;
+}
+
+/* Checkbox styling */
+.form-group input[type="checkbox"] {
+    width: auto;
+    margin-right: 0.5rem;
 }
 
 /* ========================================
@@ -641,6 +755,7 @@ header {
     color: var(--text-secondary);
 }
 
+.media-badge-preview,
 .media-badge-edit,
 .media-badge-delete {
     cursor: pointer;
@@ -649,6 +764,7 @@ header {
     padding: 0 2px;
 }
 
+.media-badge-preview:hover,
 .media-badge-edit:hover,
 .media-badge-delete:hover {
     opacity: 1;
@@ -761,16 +877,6 @@ footer {
         max-height: 180px;
     }
     
-    .media-upload-row {
-        flex-direction: column;
-    }
-    
-    .media-upload-row .file-input-wrapper,
-    .media-upload-row > div:last-child {
-        flex: auto;
-        width: 100%;
-    }
-    
     .item-content p {
         max-height: 100px;
     }
@@ -805,5 +911,10 @@ footer {
     
     .item-content p {
         max-height: 100px;
+    }
+    
+    .share-hint {
+        font-size: 0.6rem;
+        padding: 3px 6px;
     }
 }

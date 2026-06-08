@@ -30,21 +30,49 @@
                     <label>Project Title</label>
                     <input type="text" id="form-title" required placeholder="e.g., Marathon Sod Rebrand">
                 </div>
+                
                 <div class="form-group">
                     <label>Category Identifier</label>
-                    <select id="form-category">
-                        <option value="brand">brand</option>
-                        <option value="production">production</option>
-                        <option value="games">games</option>
-                        <option value="web">web</option>
-                    </select>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <select id="form-category" style="flex: 1;">
+                            <option value="brand">brand</option>
+                            <option value="production">production</option>
+                            <option value="games">games</option>
+                            <option value="web">web</option>
+                        </select>
+                        <button type="button" id="manage-categories-btn" class="btn-small" style="white-space: nowrap;">⚙️ Manage</button>
+                    </div>
+                    <small style="color: var(--text-muted); display: block; margin-top: 0.3rem;">📁 Select existing category or add new ones below</small>
                 </div>
+                
+                <!-- Category Management Panel -->
+                <div id="category-manager" style="display: none; background: var(--bg-primary); border-radius: 14px; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--border-color);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <strong style="font-size: 0.85rem;">Manage Categories</strong>
+                        <button type="button" id="close-category-manager" class="btn-small" style="padding: 0.2rem 0.5rem;">✕ Close</button>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                        <input type="text" id="new-category-name" placeholder="New category name (e.g., illustration)" style="flex: 1; padding: 0.5rem; border-radius: 10px; background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-primary);">
+                        <button type="button" id="add-category-btn" class="filter-btn" style="padding: 0.5rem 1rem;">+ Add</button>
+                    </div>
+                    <div id="categories-list" style="display: flex; flex-wrap: wrap; gap: 0.5rem;"></div>
+                    <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">💡 Click a category to delete it (only removes from dropdown, won't affect existing projects)</small>
+                </div>
+                
                 <div class="form-group">
                     <label>Display Tag Label</label>
                     <input type="text" id="form-tag" required placeholder="e.g., Brand Identity">
                 </div>
                 
-                <!-- NEW: Image Crop Alignment Option -->
+                <!-- Draft/Publish Toggle -->
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+                        <input type="checkbox" id="form-published" checked style="width: auto; cursor: pointer;">
+                        <span>Publish Project (visible on live site)</span>
+                    </label>
+                    <small style="color: var(--text-muted); display: block; margin-top: 0.3rem;">📌 Uncheck to save as draft (only visible in admin)</small>
+                </div>
+                
                 <div class="form-group">
                     <label>Image Crop Alignment</label>
                     <select id="form-image-align">
@@ -84,7 +112,7 @@
                 <div class="form-group">
                     <label>Project Narrative Summary</label>
                     <textarea id="form-description" required placeholder="Provide concise project background documentation... URLs will turn into clickable links automatically.&#10;&#10;Use Shift+Enter for line breaks.&#10;Supports multiple paragraphs."></textarea>
-                    <small style="color: var(--text-muted); display: block; margin-top: 0.3rem;">💡 Use Shift+Enter for line breaks. URLs become clickable links automatically.</small>
+                    <div id="char-counter" style="text-align: right; font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;"></div>
                 </div>
                 <div style="display: flex; gap: 1rem;">
                     <button type="submit" id="submit-btn" class="filter-btn active" style="width: 100%;">Add to Layout Stack</button>
@@ -94,6 +122,9 @@
 
             <div class="sorting-zone">
                 <h3>Arrange Project Priority <span style="font-size:0.75rem; text-transform:none; color:var(--text-muted); font-weight:normal;">(Click a row to edit, drag rows to reorder)</span></h3>
+                <div class="admin-search">
+                    <input type="text" id="admin-search-input" placeholder="🔍 Filter projects by title..." class="admin-search-input">
+                </div>
                 <ul id="sortable-list" class="sortable-list"></ul>
             </div>
         </div>

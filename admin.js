@@ -3,6 +3,136 @@ let localProjectCache = [];
 let currentMediaArray = [];
 let draggedItemIndex = null;
 let draggedMediaIndexForReorder = null;
+let currentSearchTerm = '';
+let availableCategories = [];
+
+// Format category for display (convert underscores to spaces, capitalize)
+function formatCategoryForDisplay(cat) {
+    return cat
+        .replace(/_/g, ' ')
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+}
+
+// Load categories from localStorage or use defaults from projects
+function loadCategories() {
+    const saved = localStorage.getItem('portfolio_categories');
+    if (saved && JSON.parse(saved).length > 0) {
+        availableCategories = JSON.parse(saved);
+    } else if (localProjectCache.length > 0) {
+        // Extract unique categories from existing projects
+        const cats = [...new Set(localProjectCache.map(p => p.category).filter(c => c))];
+        availableCategories = cats.length > 0 ? cats : ['brand', 'production', 'games', 'web'];
+        saveCategories();
+    } else {
+        availableCategories = ['brand', 'production', 'games', 'web'];
+    }
+    updateCategoryDropdown();
+}
+
+function saveCategories() {
+    localStorage.setItem('portfolio_categories', JSON.stringify(availableCategories));
+    updateCategoryDropdown();
+}
+
+function updateCategoryDropdown() {
+    const categorySelect = document.getElementById('form-category');
+    if (!categorySelect) return;
+    
+    const currentValue = categorySelect.value;
+    categorySelect.innerHTML = '';
+    
+    availableCategories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = formatCategoryForDisplay(cat);
+        categorySelect.appendChild(option);
+    });
+    
+    if (availableCategories.includes(currentValue)) {
+        categorySelect.value = currentValue;
+    }
+}
+
+function renderCategoriesList() {
+    const container = document.getElementById('categories-list');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    availableCategories.forEach(cat => {
+        const badge = document.createElement('div');
+        badge.className = 'media-badge';
+        badge.style.cursor = 'pointer';
+        badge.innerHTML = `
+            <span>${escapeHtml(formatCategoryForDisplay(cat))}</span>
+            <span class="media-badge-delete" data-category="${escapeHtml(cat)}" style="margin-left: 0.5rem;">✕</span>
+        `;
+        badge.querySelector('.media-badge-delete').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (confirm(`Delete category "${formatCategoryForDisplay(cat)}"? This will only remove it from the dropdown. Projects with this category will keep it.`)) {
+                availableCategories = availableCategories.filter(c => c !== cat);
+                saveCategories();
+                renderCategoriesList();
+            }
+        });
+        container.appendChild(badge);
+    });
+    
+    if (availableCategories.length === 0) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.75rem; padding: 0.5rem;">No categories yet. Add one above!</div>';
+    }
+}
+
+// Category management UI
+const manageBtn = document.getElementById('manage-categories-btn');
+const categoryManager = document.getElementById('category-manager');
+const closeCategoryManager = document.getElementById('close-category-manager');
+const addCategoryBtn = document.getElementById('add-category-btn');
+const newCategoryName = document.getElementById('new-category-name');
+
+if (manageBtn && categoryManager) {
+    manageBtn.addEventListener('click', () => {
+        renderCategoriesList();
+        categoryManager.style.display = categoryManager.style.display === 'none' ? 'block' : 'none';
+    });
+}
+
+if (closeCategoryManager) {
+    closeCategoryManager.addEventListener('click', () => {
+        categoryManager.style.display = 'none';
+    });
+}
+
+if (addCategoryBtn && newCategoryName) {
+    addCategoryBtn.addEventListener('click', () => {
+        // Convert input to category key (lowercase, underscores for spaces)
+        let rawInput = newCategoryName.value.trim();
+        if (!rawInput) {
+            alert('Please enter a category name');
+            return;
+        }
+        // Convert to key format: lowercase, spaces to underscores
+        const newCat = rawInput.toLowerCase().replace(/\s+/g, '_');
+        
+        if (!availableCategories.includes(newCat)) {
+            availableCategories.push(newCat);
+            saveCategories();
+            renderCategoriesList();
+            newCategoryName.value = '';
+            updateStatus(`Category "${formatCategoryForDisplay(newCat)}" added`, '#34d399');
+        } else {
+            alert('Category already exists!');
+        }
+    });
+    
+    newCategoryName.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            addCategoryBtn.click();
+        }
+    });
+}
+
 const sortableListElement = document.getElementById('sortable-list');
 const statusMsg = document.getElementById('status-msg');
 const addForm = document.getElementById('add-project-form');
@@ -24,6 +154,13 @@ const processPasteBtn = document.getElementById('process-paste-btn');
 // Hidden file input for multi-select
 const multiFileInput = document.getElementById('multi-file-input');
 
+// Character counter
+const descriptionTextarea = document.getElementById('form-description');
+const charCounter = document.getElementById('char-counter');
+
+// Admin search
+const adminSearchInput = document.getElementById('admin-search-input');
+
 // Helper function to detect media type for icon
 function getMediaIcon(url) {
     if (!url) return '📄';
@@ -35,13 +172,40 @@ function getMediaIcon(url) {
     return '🔗';
 }
 
-// Get relative path from file object (preserves media/ folder structure)
+// Validate and preview media URL
+function validateAndPreviewMediaUrl(url) {
+    if (!url || !url.trim()) return null;
+    const trimmedUrl = url.trim();
+    
+    const isImage = trimmedUrl.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i);
+    const isYouTube = trimmedUrl.includes('youtube.com') || trimmedUrl.includes('youtu.be');
+    const isVimeo = trimmedUrl.includes('vimeo.com');
+    
+    if (isImage) {
+        return { type: 'image', url: trimmedUrl, preview: trimmedUrl };
+    } else if (isYouTube) {
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+        const match = trimmedUrl.match(regExp);
+        const videoId = match && match[2].length === 11 ? match[2] : null;
+        if (videoId) {
+            return { type: 'youtube', url: trimmedUrl, preview: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`, videoId };
+        }
+    } else if (isVimeo) {
+        return { type: 'vimeo', url: trimmedUrl, preview: null };
+    } else if (trimmedUrl.match(/\.(mp4|webm|mov|ogg)$/i)) {
+        return { type: 'video', url: trimmedUrl, preview: null };
+    }
+    
+    return { type: 'link', url: trimmedUrl, preview: null };
+}
+
+// Get relative path from file object
 function getRelativePathFromFile(file) {
     let cleanName = file.name.replace(/[#?&]/g, '_').replace(/\s+/g, '_');
     return `media/${cleanName}`;
 }
 
-// Process multiple files from input and add to media list
+// Process multiple files from input
 function addFilesToMediaList(files) {
     if (!files || files.length === 0) return;
     let addedCount = 0;
@@ -64,24 +228,32 @@ function addFilesToMediaList(files) {
     } else if (files.length > 0) {
         alert("All selected files were already in the media list (duplicates ignored).");
     }
-    // Reset file input to allow re-selecting same files again later
     multiFileInput.value = '';
 }
 
-// Handle Add button click - checks if input has text, if not opens file picker
+// Handle Add button click
 function handleAddButtonClick() {
     const textValue = mediaInput.value.trim();
     
     if (textValue !== '') {
-        // Text field has content - add as text/URL
-        addMediaItem(textValue);
+        const validation = validateAndPreviewMediaUrl(textValue);
+        if (validation) {
+            let confirmMessage = `Add this media?\n\nType: ${validation.type}\nURL: ${validation.url}`;
+            if (validation.preview) {
+                confirmMessage += `\n\nPreview available after adding.`;
+            }
+            if (confirm(confirmMessage)) {
+                addMediaItem(textValue);
+            }
+        } else {
+            addMediaItem(textValue);
+        }
     } else {
-        // Text field is empty - open file picker for multi-select
         multiFileInput.click();
     }
 }
 
-// Add single media item (manual text entry)
+// Add single media item
 function addMediaItem(url) {
     if (!url || !url.trim()) return;
     const trimmedUrl = url.trim();
@@ -95,7 +267,7 @@ function addMediaItem(url) {
     }
 }
 
-// Add multiple media items via paste area
+// Add multiple media items via paste
 function addMultipleMediaItems(urlsText) {
     const lines = urlsText.split(/\r?\n/);
     let added = 0;
@@ -130,7 +302,30 @@ if (multiFileInput) {
     });
 }
 
-// Make media badges draggable for reordering
+// Character counter for description
+if (descriptionTextarea && charCounter) {
+    function updateCharCount() {
+        const length = descriptionTextarea.value.length;
+        charCounter.textContent = `${length} characters (recommended: 300-800)`;
+        if (length > 800) {
+            charCounter.style.color = 'var(--accent-red)';
+        } else {
+            charCounter.style.color = 'var(--text-muted)';
+        }
+    }
+    descriptionTextarea.addEventListener('input', updateCharCount);
+    updateCharCount();
+}
+
+// Admin search functionality
+if (adminSearchInput) {
+    adminSearchInput.addEventListener('input', (e) => {
+        currentSearchTerm = e.target.value.toLowerCase();
+        renderAdminView();
+    });
+}
+
+// Make media badges draggable
 function makeMediaBadgesDraggable() {
     const badges = document.querySelectorAll('.media-badge');
     
@@ -190,6 +385,9 @@ function renderMediaBadges() {
     }
     
     currentMediaArray.forEach((media, index) => {
+        const validation = validateAndPreviewMediaUrl(media);
+        const previewBadge = validation && validation.preview ? '🔍' : '';
+        
         const badge = document.createElement('div');
         badge.className = 'media-badge';
         badge.setAttribute('data-index', index);
@@ -197,9 +395,38 @@ function renderMediaBadges() {
             <span class="drag-handle" style="cursor: grab; opacity: 0.5; margin-right: 4px;">⋮⋮</span>
             <span class="media-badge-icon">${getMediaIcon(media)}</span>
             <span class="media-badge-text" title="${escapeHtml(media)}">${media.length > 45 ? media.substring(0, 42) + '...' : media}</span>
+            ${previewBadge ? `<span class="media-badge-preview" data-url="${escapeHtml(media)}" style="cursor: pointer; opacity: 0.6;" title="Preview">🔍</span>` : ''}
             <span class="media-badge-edit" data-index="${index}" title="Edit URL/Path">✏️</span>
             <span class="media-badge-delete" data-index="${index}" title="Delete">✕</span>
         `;
+        
+        const previewSpan = badge.querySelector('.media-badge-preview');
+        if (previewSpan) {
+            previewSpan.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const url = previewSpan.getAttribute('data-url');
+                const validation = validateAndPreviewMediaUrl(url);
+                if (validation && validation.preview) {
+                    const previewModal = document.createElement('div');
+                    previewModal.style.cssText = `
+                        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                        background: rgba(0,0,0,0.9); z-index: 20000;
+                        display: flex; align-items: center; justify-content: center;
+                        cursor: pointer;
+                    `;
+                    previewModal.innerHTML = `
+                        <div style="max-width: 90%; max-height: 90%;">
+                            <img src="${validation.preview}" style="max-width: 100%; max-height: 80vh; border-radius: 8px;">
+                            <p style="color: white; text-align: center; margin-top: 1rem;">${validation.url}</p>
+                        </div>
+                    `;
+                    previewModal.addEventListener('click', () => previewModal.remove());
+                    document.body.appendChild(previewModal);
+                } else {
+                    alert(`Preview not available for:\n${url}`);
+                }
+            });
+        }
         
         badge.querySelector('.media-badge-edit').addEventListener('click', (e) => {
             e.stopPropagation();
@@ -255,7 +482,6 @@ if (processPasteBtn) {
     });
 }
 
-// Helper function to turn raw URLs into clickable anchor tags
 function linkify(text) {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     return text.replace(urlRegex, function(url) {
@@ -263,7 +489,7 @@ function linkify(text) {
     });
 }
 
-// Auto-Load configurations from local projects.json file
+// Load projects
 fetch('projects.json')
     .then(res => {
         if (!res.ok) throw new Error();
@@ -273,14 +499,16 @@ fetch('projects.json')
         localProjectCache = data;
         renderAdminView();
         updateStatus("Connected locally. Auto-write enabled.", "#34d399");
+        loadCategories();
     })
     .catch(() => {
         updateStatus("projects.json not detected. Creating fresh list on first save.", "#f59e0b");
         localProjectCache = [];
         renderAdminView();
+        loadCategories();
     });
 
-// Write to local file system via node server.js api endpoint
+// Save to disk
 function saveToDiskLocally() {
     fetch('http://localhost:3001/api/save-projects', {
         method: 'POST',
@@ -305,37 +533,42 @@ function updateStatus(text, color) {
     }
 }
 
-// Helper to get media preview text for admin list
 function getMediaPreview(mediaArray) {
     if (!mediaArray || mediaArray.length === 0) return "No media";
     const icons = mediaArray.map(m => getMediaIcon(m)).join(' ');
     return `${icons} ${mediaArray.length} media item(s)`;
 }
 
-// Escape HTML helper
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
 }
 
-// Render Dashboard Row Elements
+// Render Admin View with search and draft status
 function renderAdminView() {
     if (!sortableListElement) return;
     sortableListElement.innerHTML = '';
-    localProjectCache.forEach((project, index) => {
+    
+    const filteredProjects = currentSearchTerm 
+        ? localProjectCache.filter(project => project.title.toLowerCase().includes(currentSearchTerm))
+        : [...localProjectCache];
+    
+    filteredProjects.forEach((project, filteredIndex) => {
+        const originalIndex = localProjectCache.findIndex(p => p === project);
         const li = document.createElement('li');
         li.className = 'sort-item';
         li.draggable = true;
-        li.setAttribute('data-index', index);
+        li.setAttribute('data-index', originalIndex);
         
         const mediaArray = project.media ? (Array.isArray(project.media) ? project.media : [project.media]) : [];
         const mediaPreview = getMediaPreview(mediaArray);
         const alignHint = project.imageAlign ? ` (${project.imageAlign})` : '';
+        const draftBadge = project.published === false ? ' [DRAFT]' : '';
         
         li.innerHTML = `
             <div class="sort-content" style="flex-grow:1; cursor:pointer;">
-                <strong>${escapeHtml(project.title)}</strong> 
+                <strong>${escapeHtml(project.title)}${draftBadge}</strong> 
                 <small style="color:var(--text-muted); margin-left:0.5rem;">(${escapeHtml(project.tag)})</small>
                 <div style="font-size:0.7rem; color:var(--accent-red); margin-top:0.2rem;">${mediaPreview}${alignHint}</div>
                 <div class="link-preview-pane" style="font-size:0.75rem; margin-top:0.25rem; opacity:0.85; max-width:400px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
@@ -343,20 +576,20 @@ function renderAdminView() {
                 </div>
             </div>
             <div style="display:flex; gap:1.2rem; align-items:center;">
-                <span class="delete-item-btn" style="cursor:pointer; color:var(--text-muted); font-weight:bold; font-size:1.1rem; padding: 0 0.25rem;" data-index="${index}" title="Delete Project">✕</span>
+                <span class="delete-item-btn" style="cursor:pointer; color:var(--text-muted); font-weight:bold; font-size:1.1rem; padding: 0 0.25rem;" data-index="${originalIndex}" title="Delete Project">✕</span>
                 <span class="sort-handle" style="cursor:grab; padding: 0 0.25rem;">☰</span>
             </div>
         `;
         
         li.querySelector('.sort-content').addEventListener('click', (e) => {
             if (e.target.tagName === 'A') return;
-            loadProjectIntoForm(index);
+            loadProjectIntoForm(originalIndex);
         });
         
         li.querySelector('.delete-item-btn').addEventListener('click', (e) => {
             e.stopPropagation();
             if(confirm(`Remove "${project.title}" from layout grid permanently?`)) {
-                localProjectCache.splice(index, 1);
+                localProjectCache.splice(originalIndex, 1);
                 renderAdminView();
                 saveToDiskLocally();
                 resetFormState();
@@ -370,9 +603,13 @@ function renderAdminView() {
         });
         sortableListElement.appendChild(li);
     });
+    
+    if (filteredProjects.length === 0 && currentSearchTerm) {
+        sortableListElement.innerHTML = `<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No projects match "${escapeHtml(currentSearchTerm)}"</div>`;
+    }
 }
 
-// Drag and drop sorting for projects
+// Drag and drop sorting
 if (sortableListElement) {
     sortableListElement.addEventListener('dragover', e => {
         e.preventDefault();
@@ -406,7 +643,7 @@ function recalculateCacheOrder() {
     saveToDiskLocally();
 }
 
-// Form Action Routing Controls (Inserts & Updates)
+// Form handling
 if (addForm) {
     addForm.addEventListener('submit', e => {
         e.preventDefault();
@@ -417,7 +654,8 @@ if (addForm) {
             tag: document.getElementById('form-tag').value,
             media: [...currentMediaArray],
             description: document.getElementById('form-description').value,
-            imageAlign: document.getElementById('form-image-align').value  // NEW: save alignment preference
+            imageAlign: document.getElementById('form-image-align').value,
+            published: document.getElementById('form-published').checked
         };
 
         projectData.media = projectData.media.filter(m => m && m.trim());
@@ -445,7 +683,9 @@ function loadProjectIntoForm(index) {
     document.getElementById('form-category').value = target.category;
     document.getElementById('form-tag').value = target.tag;
     
-    // Load image alignment (default to 'center' if not set)
+    const publishedCheckbox = document.getElementById('form-published');
+    publishedCheckbox.checked = target.published !== false;
+    
     const alignSelect = document.getElementById('form-image-align');
     if (target.imageAlign) {
         alignSelect.value = target.imageAlign;
@@ -457,6 +697,7 @@ function loadProjectIntoForm(index) {
     renderMediaBadges();
     
     document.getElementById('form-description').value = target.description;
+    if (charCounter) updateCharCount();
 
     submitBtn.textContent = "Update Portfolio Project";
     cancelEditBtn.style.display = "inline-block";
@@ -477,10 +718,12 @@ function resetFormState() {
     if (mediaInput) mediaInput.value = '';
     if (pasteUrls) pasteUrls.value = '';
     if (pasteArea) pasteArea.style.display = 'none';
-    // Reset alignment to default
     const alignSelect = document.getElementById('form-image-align');
     if (alignSelect) alignSelect.value = 'center';
+    const publishedCheckbox = document.getElementById('form-published');
+    if (publishedCheckbox) publishedCheckbox.checked = true;
     document.querySelectorAll('.sort-item').forEach(el => el.style.borderColor = 'var(--border-color)');
+    if (charCounter) updateCharCount();
 }
 
 if (cancelEditBtn) {
