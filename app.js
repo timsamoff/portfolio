@@ -366,7 +366,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const visibleProjects = projects.filter(project => project.published !== false);
         
         if (visibleProjects.length === 0) {
-            grid.innerHTML = '<div style="text-align: center; padding: 3rem; color: var(--text-muted); grid-column: 1 / -1; width: 100%;">📭 No published projects yet. Go to the admin panel to publish projects.</div>';
+            grid.innerHTML = `<div style="text-align: center; padding: 3rem; color: var(--text-muted); grid-column: 1 / -1; width: 100%;">
+                📭 No published projects yet. <a href="admin.html" target="_blank" style="color: var(--accent-red); text-decoration: none; border-bottom: 1px dotted var(--accent-red);">Go to the admin panel</a> to add some.
+            </div>`;
             return;
         }
         
