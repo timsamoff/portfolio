@@ -12,10 +12,10 @@
         <div class="header-container">
             <div class="logo-zone">
                 <h1>Portfolio Management Cockpit</h1>
-                <p class="subtitle" style="color: var(--text-muted);" id="status-msg">Detecting configuration files...</p>
+                <p class="subtitle" style="color: var(--text-muted);">Connected locally. Auto-write enabled.</p>
             </div>
             <div style="display: flex; gap: 1rem; align-items: center;">
-                <a href="index.html" target="_blank" class="filter-btn" style="text-decoration: none; line-height: 20px;">👁️ View Live Site</a>
+                <a href="index.html" target="_blank" class="filter-btn" style="text-decoration: none; line-height: 20px; white-space: nowrap;">👁️ View Live Site</a>
             </div>
         </div>
     </header>
@@ -23,7 +23,10 @@
     <main class="portfolio-container">
         <div class="admin-workspace">
             <form id="add-project-form" class="admin-form">
-                <h3 id="form-action-title">Insert New Project</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 id="form-action-title" style="margin-bottom: 0;">New Portfolio Project</h3>
+                    <button type="button" id="new-project-btn" class="filter-btn" style="padding: 0.4rem 1rem; display: none;">✨ New Project</button>
+                </div>
                 <input type="hidden" id="form-edit-index" value="">
                 
                 <div class="form-group">
@@ -86,13 +89,11 @@
                 <div class="form-group">
                     <label>Media Resources</label>
                     
-                    <!-- Input row with Add button that handles both text and file selection -->
                     <div class="media-input-row">
                         <input type="text" id="media-input" placeholder="media/image.jpg, https://youtu.be/..., video.mp4">
                         <button type="button" id="add-media-btn" class="filter-btn" style="padding: 0 1rem;">+ Add</button>
                     </div>
                     
-                    <!-- Hidden file input for multi-select -->
                     <input type="file" id="multi-file-input" multiple accept="image/*,video/mp4,video/webm,video/quicktime,video/x-msvideo,.mov,.ogg" style="display: none;">
                     
                     <div id="media-badges" class="media-badges-container"></div>
@@ -109,15 +110,14 @@
                         Drag ⋮⋮ to reorder media items.
                     </small>
                 </div>
+                
                 <div class="form-group">
                     <label>Project Narrative Summary</label>
                     <textarea id="form-description" required placeholder="Provide concise project background documentation... URLs will turn into clickable links automatically.&#10;&#10;Use Shift+Enter for line breaks.&#10;Supports multiple paragraphs."></textarea>
                     <div id="char-counter" style="text-align: right; font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;"></div>
                 </div>
-                <div style="display: flex; gap: 1rem;">
-                    <button type="submit" id="submit-btn" class="filter-btn active" style="width: 100%;">Add to Layout Stack</button>
-                    <button type="button" id="cancel-edit-btn" class="filter-btn" style="display: none; border-color: var(--accent-red); color: var(--accent-red);">Cancel</button>
-                </div>
+                
+                <button type="submit" id="submit-btn" class="filter-btn active" style="width: 100%; margin-top: 0.5rem;">+ Add Portfolio Project</button>
             </form>
 
             <div class="sorting-zone">

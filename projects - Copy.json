@@ -1,7 +1,7 @@
 [
   {
     "title": "Marathon Sod Rebrand",
-    "category": "",
+    "category": "brand_&_identity",
     "tag": "Brand Identity",
     "media": [
       "media/marathon_01.png",
@@ -81,14 +81,14 @@
   },
   {
     "title": "Babylon 5 Entertainment Utility",
-    "category": "",
+    "category": "web_&_interactive",
     "tag": "Interactive UI",
     "media": [
       "media/b5_01.jpg"
     ],
     "description": "UI design mimicking the sci-fi control displays from the television series Babylon 5. Programmed and optimized within severe hardware limits using custom 4-bit color depth index palettes.",
     "imageAlign": "center",
-    "published": false
+    "published": true
   },
   {
     "title": "Published Web Solutions",
@@ -112,19 +112,6 @@
       "https://youtu.be/dQw4w9WgXcQ"
     ],
     "description": "This project demonstrates multiple media items including images and a YouTube video. Click to open the full carousel modal. https://example.com",
-    "imageAlign": "center",
-    "published": false
-  },
-  {
-    "title": "Marathon Sod Rebrand",
-    "category": "",
-    "tag": "Brand Identity",
-    "media": [
-      "media/marathon_01.png",
-      "media/ms_01.png",
-      "https://youtu.be/r8h8g72ntxM?si=WUz9T6fyMjVuAUzx"
-    ],
-    "description": "A comprehensive identity overhaul for Southland Sod Farms, modernizing a 15-year-old brand identity across print advertising, logos, and retail packaging layouts.\n\nA comprehensive identity overhaul for Southland Sod Farms, modernizing a 15-year-old brand identity across print advertising, logos, and retail packaging layouts.\n\nA comprehensive identity overhaul for Southland Sod Farms, modernizing a 15-year-old brand identity across print advertising, logos, and retail packaging layouts.",
     "imageAlign": "center",
     "published": false
   }

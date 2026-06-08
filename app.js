@@ -354,184 +354,210 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const grid = document.getElementById('portfolio-grid');
-    if (!grid) return;
-
-    fetch('projects.json')
-        .then(response => response.json())
-        .then(projects => {
-            console.log('Projects loaded:', projects);
-            
-            const visibleProjects = projects.filter(project => project.published !== false);
-            
-            if (visibleProjects.length === 0) {
-                grid.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No published projects yet. Check admin panel to publish projects.</div>';
-                return;
+    // Function to load and display projects (called from both localStorage and JSON)
+    function loadProjects(projects) {
+        console.log('Projects loaded:', projects.length);
+        
+        const grid = document.getElementById('portfolio-grid');
+        if (!grid) return;
+        
+        grid.innerHTML = '';
+        
+        const visibleProjects = projects.filter(project => project.published !== false);
+        
+        if (visibleProjects.length === 0) {
+            grid.innerHTML = '<div style="text-align: center; padding: 3rem; color: var(--text-muted); grid-column: 1 / -1; width: 100%;">📭 No published projects yet. Go to the admin panel to publish projects.</div>';
+            return;
+        }
+        
+        // Create all portfolio items
+        visibleProjects.forEach((project, visibleIdx) => {
+            const originalIndex = projects.findIndex(p => p === project);
+            let mediaArray = project.media;
+            if (!mediaArray || mediaArray.length === 0) {
+                mediaArray = project.image ? [project.image] : [];
             }
             
-            // First, create all portfolio items
-            visibleProjects.forEach((project, visibleIdx) => {
-                const originalIndex = projects.findIndex(p => p === project);
-                let mediaArray = project.media;
-                if (!mediaArray || mediaArray.length === 0) {
-                    mediaArray = project.image ? [project.image] : [];
-                }
-                
-                const imageAlign = project.imageAlign || 'center';
-                
-                const article = document.createElement('article');
-                article.className = 'portfolio-item';
-                article.setAttribute('data-category', project.category);
-                article.setAttribute('data-project-id', originalIndex);
-                
-                let thumbnailHtml = '';
-                if (mediaArray.length === 1) {
-                    thumbnailHtml = `<div class="item-image">${generateThumbnailHtml(mediaArray[0], imageAlign)}</div>`;
-                } else if (mediaArray.length > 1) {
-                    let swiperSlides = '';
-                    mediaArray.forEach((mediaUrl) => {
-                        swiperSlides += `<div class="swiper-slide">${generateThumbnailHtml(mediaUrl, imageAlign)}</div>`;
-                    });
-                    thumbnailHtml = `
-                        <div class="item-image card-swiper-container">
-                            <div class="swiper card-swiper-${originalIndex}">
-                                <div class="swiper-wrapper">${swiperSlides}</div>
-                                <div class="swiper-button-prev card-swiper-prev-${originalIndex}"></div>
-                                <div class="swiper-button-next card-swiper-next-${originalIndex}"></div>
-                                <div class="swiper-pagination card-swiper-pagination-${originalIndex}"></div>
-                            </div>
+            const imageAlign = project.imageAlign || 'center';
+            
+            const article = document.createElement('article');
+            article.className = 'portfolio-item';
+            article.setAttribute('data-category', project.category);
+            article.setAttribute('data-project-id', originalIndex);
+            
+            let thumbnailHtml = '';
+            if (mediaArray.length === 1) {
+                thumbnailHtml = `<div class="item-image">${generateThumbnailHtml(mediaArray[0], imageAlign)}</div>`;
+            } else if (mediaArray.length > 1) {
+                let swiperSlides = '';
+                mediaArray.forEach((mediaUrl) => {
+                    swiperSlides += `<div class="swiper-slide">${generateThumbnailHtml(mediaUrl, imageAlign)}</div>`;
+                });
+                thumbnailHtml = `
+                    <div class="item-image card-swiper-container">
+                        <div class="swiper card-swiper-${originalIndex}">
+                            <div class="swiper-wrapper">${swiperSlides}</div>
+                            <div class="swiper-button-prev card-swiper-prev-${originalIndex}"></div>
+                            <div class="swiper-button-next card-swiper-next-${originalIndex}"></div>
+                            <div class="swiper-pagination card-swiper-pagination-${originalIndex}"></div>
                         </div>
-                    `;
-                } else {
-                    thumbnailHtml = `<div class="item-image"><div class="no-media">No media</div></div>`;
+                    </div>
+                `;
+            } else {
+                thumbnailHtml = `<div class="item-image"><div class="no-media">No media</div></div>`;
+            }
+            
+            article.innerHTML = `
+                ${thumbnailHtml}
+                <div class="item-content">
+                    <span class="category-tag" data-category-filter="${escapeHtml(project.category)}">${escapeHtml(project.tag)}</span>
+                    <h3>${escapeHtml(project.title)}</h3>
+                    <p>${linkify(project.description)}</p>
+                </div>
+                <div class="share-hint">🔗 Click to Share</div>
+            `;
+            
+            article.addEventListener('click', (e) => {
+                if (e.target.closest('.share-hint')) return;
+                if (e.target.closest('.swiper-button-prev') || e.target.closest('.swiper-button-next')) {
+                    e.stopPropagation();
+                    return;
+                }
+                if (e.target.tagName === 'A') {
+                    e.stopPropagation();
+                    return;
                 }
                 
-                article.innerHTML = `
-                    ${thumbnailHtml}
-                    <div class="item-content">
-                        <span class="category-tag" data-category-filter="${escapeHtml(project.category)}">${escapeHtml(project.tag)}</span>
-                        <h3>${escapeHtml(project.title)}</h3>
-                        <p>${linkify(project.description)}</p>
-                    </div>
-                    <div class="share-hint">🔗 Click to Share</div>
-                `;
-                
-                article.addEventListener('click', (e) => {
-                    if (e.target.closest('.share-hint')) return;
-                    if (e.target.closest('.swiper-button-prev') || e.target.closest('.swiper-button-next')) {
-                        e.stopPropagation();
-                        return;
-                    }
-                    if (e.target.tagName === 'A') {
-                        e.stopPropagation();
-                        return;
-                    }
+                if (mediaArray.length > 0) {
+                    openMediaModal(mediaArray, 0, originalIndex);
+                    const shareUrl = generateShareUrl(originalIndex, 0, mediaArray);
+                    window.history.pushState({}, '', shareUrl);
+                }
+            });
+            
+            const shareHint = article.querySelector('.share-hint');
+            if (shareHint) {
+                shareHint.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    const shareUrl = generateShareUrl(originalIndex, 0, mediaArray);
+                    const copied = await copyToClipboard(shareUrl);
                     
-                    if (mediaArray.length > 0) {
-                        openMediaModal(mediaArray, 0, originalIndex);
-                        const shareUrl = generateShareUrl(originalIndex, 0, mediaArray);
-                        window.history.pushState({}, '', shareUrl);
+                    if (copied) {
+                        showCardNotification(article, '✓ Copied!');
+                    } else {
+                        showCardNotification(article, 'Failed to copy', true);
                     }
                 });
-                
-                const shareHint = article.querySelector('.share-hint');
-                if (shareHint) {
-                    shareHint.addEventListener('click', async (e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        const shareUrl = generateShareUrl(originalIndex, 0, mediaArray);
-                        const copied = await copyToClipboard(shareUrl);
-                        
-                        if (copied) {
-                            showCardNotification(article, '✓ Copied!');
-                        } else {
-                            showCardNotification(article, 'Failed to copy', true);
+            }
+            
+            grid.appendChild(article);
+        });
+        
+        // Store all portfolio items for filtering
+        allPortfolioItems = document.querySelectorAll('.portfolio-item');
+        
+        // Get unique categories from projects and generate pills
+        const categories = [...new Set(visibleProjects.map(p => p.category))].sort((a, b) => a.localeCompare(b));
+        
+        const filterNav = document.querySelector('.filter-nav');
+        if (filterNav) {
+            let pillsHtml = `<button class="filter-btn active" data-filter="all">All Projects</button>`;
+            categories.forEach(cat => {
+                const displayName = formatCategoryForDisplay(cat);
+                pillsHtml += `<button class="filter-btn" data-filter="${escapeHtml(cat)}">${escapeHtml(displayName)}</button>`;
+            });
+            filterNav.innerHTML = pillsHtml;
+        }
+        
+        // Initialize swipers for cards with multiple media
+        projects.forEach((project, idx) => {
+            if (project.published === false) return;
+            const mediaArray = project.media || (project.image ? [project.image] : []);
+            if (mediaArray.length > 1) {
+                const swiperContainer = document.querySelector(`.card-swiper-${idx}`);
+                if (swiperContainer) {
+                    new Swiper(`.card-swiper-${idx}`, {
+                        loop: true,
+                        navigation: {
+                            nextEl: `.card-swiper-next-${idx}`,
+                            prevEl: `.card-swiper-prev-${idx}`,
+                        },
+                        pagination: {
+                            el: `.card-swiper-pagination-${idx}`,
+                            clickable: true,
+                        },
+                        autoplay: false,
+                    });
+                }
+            }
+        });
+        
+        // Setup category tag click handlers
+        document.querySelectorAll('.category-tag').forEach(tag => {
+            const newTag = tag.cloneNode(true);
+            tag.parentNode.replaceChild(newTag, tag);
+            
+            newTag.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const category = newTag.getAttribute('data-category-filter');
+                if (category) {
+                    const filterButtons = document.querySelectorAll('.filter-nav .filter-btn');
+                    filterButtons.forEach(btn => {
+                        const btnFilter = btn.getAttribute('data-filter');
+                        if (btnFilter === category) {
+                            btn.click();
+                            btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }
                     });
                 }
-                
-                grid.appendChild(article);
             });
-            
-            // Store all portfolio items for filtering
-            allPortfolioItems = document.querySelectorAll('.portfolio-item');
-            
-            // Get unique categories from projects and generate pills AFTER items exist
-            const categories = [...new Set(visibleProjects.map(p => p.category))].sort((a, b) => a.localeCompare(b));
-            
-            const filterNav = document.querySelector('.filter-nav');
-            if (filterNav) {
-                let pillsHtml = `<button class="filter-btn active" data-filter="all">All Projects</button>`;
-                categories.forEach(cat => {
-                    const displayName = formatCategoryForDisplay(cat);
-                    pillsHtml += `<button class="filter-btn" data-filter="${escapeHtml(cat)}">${escapeHtml(displayName)}</button>`;
-                });
-                filterNav.innerHTML = pillsHtml;
-            }
-            
-            // Initialize swipers for cards with multiple media
-            projects.forEach((project, idx) => {
-                if (project.published === false) return;
-                const mediaArray = project.media || (project.image ? [project.image] : []);
-                if (mediaArray.length > 1) {
-                    const swiperContainer = document.querySelector(`.card-swiper-${idx}`);
-                    if (swiperContainer) {
-                        new Swiper(`.card-swiper-${idx}`, {
-                            loop: true,
-                            navigation: {
-                                nextEl: `.card-swiper-next-${idx}`,
-                                prevEl: `.card-swiper-prev-${idx}`,
-                            },
-                            pagination: {
-                                el: `.card-swiper-pagination-${idx}`,
-                                clickable: true,
-                            },
-                            autoplay: false,
-                        });
-                    }
-                }
-            });
-            
-            // Setup category tag click handlers
-            document.querySelectorAll('.category-tag').forEach(tag => {
-                const newTag = tag.cloneNode(true);
-                tag.parentNode.replaceChild(newTag, tag);
-                
-                newTag.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const category = newTag.getAttribute('data-category-filter');
-                    if (category) {
-                        const filterButtons = document.querySelectorAll('.filter-nav .filter-btn');
-                        filterButtons.forEach(btn => {
-                            const btnFilter = btn.getAttribute('data-filter');
-                            if (btnFilter === category) {
-                                btn.click();
-                                btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            }
-                        });
-                    }
-                });
-            });
-            
-            // Setup filtering AFTER everything is in place
-            setupFiltering();
-            
-            // Check for share URL on load
-            const shareData = parseShareUrl();
-            if (shareData && shareData.p !== undefined && !modalManuallyClosed) {
-                const targetProject = projects[shareData.p];
-                if (targetProject && targetProject.published !== false) {
-                    const mediaArray = targetProject.media || [];
-                    if (mediaArray.length > 0) {
-                        setTimeout(() => {
-                            openMediaModal(mediaArray, shareData.m || 0, shareData.p);
-                        }, 500);
-                    }
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error loading projects:', error);
-            grid.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--accent-red);">Error loading projects. Make sure projects.json exists.</div>';
         });
+        
+        // Setup filtering
+        setupFiltering();
+        
+        // Check for share URL on load
+        const shareData = parseShareUrl();
+        if (shareData && shareData.p !== undefined && !modalManuallyClosed) {
+            const targetProject = projects[shareData.p];
+            if (targetProject && targetProject.published !== false) {
+                const mediaArray = targetProject.media || [];
+                if (mediaArray.length > 0) {
+                    setTimeout(() => {
+                        openMediaModal(mediaArray, shareData.m || 0, shareData.p);
+                    }, 500);
+                }
+            }
+        }
+    }
+
+    // Try to load from localStorage first (for admin edits), fallback to projects.json
+    const grid = document.getElementById('portfolio-grid');
+    if (!grid) return;
+
+    const localData = localStorage.getItem('portfolio_projects');
+    if (localData && localData !== '[]') {
+        try {
+            const projects = JSON.parse(localData);
+            console.log('Loaded from localStorage');
+            loadProjects(projects);
+        } catch(e) {
+            console.error('Error parsing localStorage', e);
+            // Fallback to JSON
+            fetch('projects.json')
+                .then(response => response.json())
+                .then(data => loadProjects(data))
+                .catch(error => console.error('Error loading projects:', error));
+        }
+    } else {
+        // Fallback to projects.json
+        fetch('projects.json')
+            .then(response => response.json())
+            .then(data => loadProjects(data))
+            .catch(error => {
+                console.error('Error loading projects:', error);
+                grid.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--accent-red);">Error loading projects. Make sure projects.json exists.</div>';
+            });
+    }
 });
