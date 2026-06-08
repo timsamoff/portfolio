@@ -31,9 +31,14 @@ yarn-error.log*
 .env.local
 .env.*.local
 
+<<<<<<< HEAD
 # Server files
 save-server.js
 server.js
+=======
+# Server files (if you want to exclude your save-server)
+save-server.js
+>>>>>>> 06d540a1cb698d880b37645d34fd6c4aa9079e43
 node_modules/
 
 # Temporary files
