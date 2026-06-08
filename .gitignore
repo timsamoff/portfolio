@@ -1,0 +1,42 @@
+# Admin files - keep private
+admin.html
+admin.js
+
+# Backup files
+*.bak
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.swp
+*.swo
+
+# Editor files
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Server files
+save-server.js
+server.js
+node_modules/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
