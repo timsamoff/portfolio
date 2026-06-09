@@ -306,7 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100);
     }
 
-    // Format category for display (convert underscores to spaces, capitalize)
+    // Format category for display
     function formatCategoryForDisplay(cat) {
         return cat
             .replace(/_/g, ' ')
@@ -354,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Function to load and display projects (called from both localStorage and JSON)
+    // Load projects directly from projects.json (no localStorage)
     function loadProjects(projects) {
         console.log('Projects loaded:', projects.length);
         
@@ -534,32 +534,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Try to load from localStorage first (for admin edits), fallback to projects.json
+    // Load projects directly from projects.json (no localStorage check)
     const grid = document.getElementById('portfolio-grid');
     if (!grid) return;
 
-    const localData = localStorage.getItem('portfolio_projects');
-    if (localData && localData !== '[]') {
-        try {
-            const projects = JSON.parse(localData);
-            console.log('Loaded from localStorage');
-            loadProjects(projects);
-        } catch(e) {
-            console.error('Error parsing localStorage', e);
-            // Fallback to JSON
-            fetch('projects.json')
-                .then(response => response.json())
-                .then(data => loadProjects(data))
-                .catch(error => console.error('Error loading projects:', error));
-        }
-    } else {
-        // Fallback to projects.json
-        fetch('projects.json')
-            .then(response => response.json())
-            .then(data => loadProjects(data))
-            .catch(error => {
-                console.error('Error loading projects:', error);
-                grid.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--accent-red);">Error loading projects. Make sure projects.json exists.</div>';
-            });
-    }
+    fetch('projects.json')
+        .then(response => response.json())
+        .then(data => loadProjects(data))
+        .catch(error => {
+            console.error('Error loading projects:', error);
+            grid.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--accent-red);">Error loading projects. Make sure projects.json exists.</div>';
+        });
 });
