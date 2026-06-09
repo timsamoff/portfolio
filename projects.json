@@ -1,21 +1,20 @@
 [
   {
     "title": "Marathon Sod Rebrand",
-    "category": "brand_&_identity",
-    "tag": "Rebrand",
+    "category": "",
+    "cardHeading": "Rebrand",
     "media": [
       "media/marathon_01.png",
-      "media/ms_01.png",
-      "https://youtu.be/r8h8g72ntxM?si=WUz9T6fyMjVuAUzx"
+      "media/ms_01.png"
     ],
     "description": "A comprehensive identity overhaul for Southland Sod Farms, modernizing a 15-year-old brand identity across print advertising, logos, and retail packaging layouts.\n\nA comprehensive identity overhaul for Southland Sod Farms, modernizing a 15-year-old brand identity across print advertising, logos, and retail packaging layouts.\n\nA comprehensive identity overhaul for Southland Sod Farms, modernizing a 15-year-old brand identity across print advertising, logos, and retail packaging layouts.",
     "imageAlign": "center",
-    "published": false
+    "published": true
   },
   {
     "title": "Maemo Summit Collateral",
     "category": "brand_&_identity",
-    "tag": "Major Event Collateral",
+    "cardHeading": "Major Event Collateral",
     "media": [
       "media/maemo_01.jpg",
       "media/gaberln-logo.png",
@@ -25,34 +24,34 @@
     ],
     "description": "Event branding, spatial identity vectors, and custom apparel design developed for the global open-source community platform summit.",
     "imageAlign": "center",
-    "published": false
+    "published": true
   },
   {
     "title": "Yamaha POP Displays & Assembly",
     "category": "production_&_installation",
-    "tag": "Production",
+    "cardHeading": "Production",
     "media": [
       "media/yamaha_01.png"
     ],
     "description": "Structural point-of-purchase design layouts, spatial mockups, and step-by-step user documentation assembly systems engineered for Yamaha musical instruments.",
     "imageAlign": "top",
-    "published": false
+    "published": true
   },
   {
     "title": "EMBARQ Art Installation",
     "category": "production_&_installation",
-    "tag": "Installation Art",
+    "cardHeading": "Installation Art",
     "media": [
       "media/embarq_breezeway_01.jpg"
     ],
     "description": "An environmental design installations overhaul for the EMBARQ corporate headquarters. Engineered budget iterations, technical materials, and abstract visuals to foster communication passively via spatial canvas installation art.",
     "imageAlign": "center",
-    "published": false
+    "published": true
   },
   {
     "title": "Commercial Game Design",
     "category": "game_design",
-    "tag": "Game Design",
+    "cardHeading": "Game Design",
     "media": [
       "media/abyss_01.jpg",
       "media/b5_01.jpg",
@@ -62,12 +61,12 @@
     ],
     "description": "Oversaw the technical production, pipeline coordination, and release engineering of over forty retail commercial entertainment software titles across major media brands.",
     "imageAlign": "top",
-    "published": false
+    "published": true
   },
   {
     "title": "Maemo/MeeGo Platform Mobile Projects",
     "category": "game_design",
-    "tag": "Game Design",
+    "cardHeading": "Game Design",
     "media": [
       "media/gaberln_01.png",
       "media/gaberln-logo.png",
@@ -82,7 +81,7 @@
   {
     "title": "Babylon 5 Entertainment Utility",
     "category": "",
-    "tag": "Interactive UI",
+    "cardHeading": "Interactive UI",
     "media": [
       "media/b5_01.jpg"
     ],
@@ -93,7 +92,7 @@
   {
     "title": "Published Web Solutions",
     "category": "web_&_interactive",
-    "tag": "Web Design",
+    "cardHeading": "Web Design",
     "media": [
       "media/tswl_01.jpg"
     ],
@@ -104,7 +103,7 @@
   {
     "title": "Demo Project with Multiple Media",
     "category": "brand_&_identity",
-    "tag": "Multimedia Demo",
+    "cardHeading": "Multimedia Demo",
     "media": [
       "media/marathon_01.png",
       "media/maemo_01.jpg",
@@ -118,7 +117,7 @@
   {
     "title": "Marathon Sod Rebrand",
     "category": "",
-    "tag": "Brand Identity",
+    "cardHeading": "Brand Identity",
     "media": [
       "media/marathon_01.png",
       "media/ms_01.png",

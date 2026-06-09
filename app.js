@@ -308,11 +308,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Format category for display
     function formatCategoryForDisplay(cat) {
-        return cat
-            .replace(/_/g, ' ')
-            .split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
+        if (!cat) return '';
+        return cat.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ').replace(/&/g, '&');
     }
 
     function escapeHtml(text) {
@@ -348,13 +345,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const itemCategory = item.getAttribute('data-category');
             if (currentFilterValue === 'all') {
                 item.style.display = 'flex';
+            } else if (currentFilterValue === 'uncategorized') {
+                // Show projects with empty category or category === 'uncategorized'
+                item.style.display = (!itemCategory || itemCategory === 'uncategorized' || itemCategory === '') ? 'flex' : 'none';
             } else {
                 item.style.display = (itemCategory === currentFilterValue) ? 'flex' : 'none';
             }
         });
     }
 
-    // Load projects directly from projects.json (no localStorage)
+    // Load projects directly from projects.json
     function loadProjects(projects) {
         console.log('Projects loaded:', projects.length);
         
@@ -384,7 +384,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const article = document.createElement('article');
             article.className = 'portfolio-item';
-            article.setAttribute('data-category', project.category);
+            // For Uncategorized, store as empty string or 'uncategorized' for filtering
+            article.setAttribute('data-category', project.category || 'uncategorized');
             article.setAttribute('data-project-id', originalIndex);
             
             let thumbnailHtml = '';
@@ -409,10 +410,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 thumbnailHtml = `<div class="item-image"><div class="no-media">No media</div></div>`;
             }
             
+            // Display "Uncategorized" for empty category
+            const displayHeading = project.cardHeading || project.tag || '';
+            const displayCategory = project.category ? formatCategoryForDisplay(project.category) : 'Uncategorized';
+            
             article.innerHTML = `
                 ${thumbnailHtml}
                 <div class="item-content">
-                    <span class="category-tag" data-category-filter="${escapeHtml(project.category)}">${escapeHtml(project.tag)}</span>
+                    <span class="category-tag" data-category-filter="${escapeHtml(project.category || 'uncategorized')}">${escapeHtml(displayCategory)}</span>
                     <h3>${escapeHtml(project.title)}</h3>
                     <p>${linkify(project.description)}</p>
                 </div>
@@ -459,12 +464,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // Store all portfolio items for filtering
         allPortfolioItems = document.querySelectorAll('.portfolio-item');
         
-        // Get unique categories from projects and generate pills
-        const categories = [...new Set(visibleProjects.map(p => p.category))].sort((a, b) => a.localeCompare(b));
+        // Get unique categories from projects (exclude empty)
+        const categories = [...new Set(visibleProjects.map(p => p.category).filter(c => c && c !== ''))].sort((a, b) => a.localeCompare(b));
         
         const filterNav = document.querySelector('.filter-nav');
         if (filterNav) {
             let pillsHtml = `<button class="filter-btn active" data-filter="all">All Projects</button>`;
+            
+            // Add Uncategorized pill
+            pillsHtml += `<button class="filter-btn" data-filter="uncategorized">Uncategorized</button>`;
+            
             categories.forEach(cat => {
                 const displayName = formatCategoryForDisplay(cat);
                 pillsHtml += `<button class="filter-btn" data-filter="${escapeHtml(cat)}">${escapeHtml(displayName)}</button>`;
@@ -534,7 +543,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Load projects directly from projects.json (no localStorage check)
+    // Load projects directly from projects.json
     const grid = document.getElementById('portfolio-grid');
     if (!grid) return;
 
