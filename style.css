@@ -340,7 +340,7 @@ header {
     white-space: pre-wrap;
     
     /* Constrain height and add scrollbar */
-    max-height: 120px;
+    max-height: 165px;
     overflow-y: auto;
     
     /* Padding for better scrollbar aesthetics */
@@ -919,6 +919,29 @@ header {
     color: var(--accent-red) !important;
 }
 
+/* Row action buttons (move up/down/top/bottom, delete) */
+.row-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    user-select: none;
+    transition: background 0.15s, color 0.15s;
+    flex-shrink: 0;
+}
+.row-btn:hover {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+.move-top-btn:hover, .move-bottom-btn:hover {
+    color: var(--accent-red);
+}
+
 /* ========================================
    FOOTER
    ======================================== */
@@ -956,7 +979,7 @@ footer {
     }
     
     .item-content p {
-        max-height: 100px;
+        max-height: 160px;
     }
 }
 
@@ -988,7 +1011,7 @@ footer {
     }
     
     .item-content p {
-        max-height: 100px;
+        max-height: 160px;
     }
     
     .share-hint {
@@ -1082,6 +1105,29 @@ footer {
 .rich-text-description a {
     color: var(--accent-red);
     text-decoration: underline;
+}
+
+/* Award badge — rendered from <award>text</award> in descriptions */
+.award-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    font-size: 0.78em;
+    font-variant: small-caps;
+    letter-spacing: 0.04em;
+    color: #b8860b;
+    background: rgba(184, 134, 11, 0.1);
+    border: 1px solid rgba(184, 134, 11, 0.35);
+    border-radius: 4px;
+    padding: 0.1em 0.5em 0.15em;
+    white-space: nowrap;
+    vertical-align: middle;
+    line-height: 1.4;
+}
+[data-theme="dark"] .award-badge {
+    color: #f0c040;
+    background: rgba(240, 192, 64, 0.1);
+    border-color: rgba(240, 192, 64, 0.3);
 }
 
 .rich-text-container {

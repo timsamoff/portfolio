@@ -168,6 +168,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 textNode.parentNode.replaceChild(span, textNode);
             });
 
+            // Transform <award>text</award> into styled badge spans
+            tmp.querySelectorAll('award').forEach(el => {
+                const badge = document.createElement('span');
+                badge.className = 'award-badge';
+                badge.innerHTML = '🏆 ' + el.innerHTML;
+                el.parentNode.replaceChild(badge, el);
+            });
+
             return tmp.innerHTML;
         }
 
@@ -498,22 +506,27 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             
             article.addEventListener('click', (e) => {
-                if (e.target.closest('.share-hint')) return;
-                if (e.target.closest('.swiper-button-prev') || e.target.closest('.swiper-button-next')) {
-                    e.stopPropagation();
-                    return;
-                }
-                if (e.target.tagName === 'A') {
-                    e.stopPropagation();
-                    return;
-                }
-                
-                if (mediaArray.length > 0) {
-                    openMediaModal(mediaArray, 0, originalIndex);
-                    const shareUrl = generateShareUrl(originalIndex, 0, mediaArray);
-                    window.history.pushState({}, '', shareUrl);
-                }
-            });
+            // Block clicks on ANY Swiper interactive elements
+            if (e.target.closest('.share-hint')) return;
+            if (e.target.closest('.swiper-button-prev') || e.target.closest('.swiper-button-next')) {
+                e.stopPropagation();
+                return;
+            }
+            if (e.target.closest('.swiper-pagination') || e.target.closest('.swiper-pagination-bullet')) {
+                e.stopPropagation();
+                return;
+            }
+            if (e.target.tagName === 'A') {
+                e.stopPropagation();
+                return;
+            }
+            
+            if (mediaArray.length > 0) {
+                openMediaModal(mediaArray, 0, originalIndex);
+                const shareUrl = generateShareUrl(originalIndex, 0, mediaArray);
+                window.history.pushState({}, '', shareUrl);
+            }
+        });
             
             const shareHint = article.querySelector('.share-hint');
             if (shareHint) {

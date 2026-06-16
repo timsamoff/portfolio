@@ -2,6 +2,7 @@
 admin.html
 admin.js
 fix-links.js
+fix-json-quote.js
 
 # Backup files
 backups/

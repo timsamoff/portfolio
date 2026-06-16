@@ -169,7 +169,7 @@
       "media/game/b5_app_01.png",
       "media/game/b5_02.jpg"
     ],
-    "description": "Two “entertainment utilities” based on the Ba5 brand. UI design, game design, etc.\n\n<strong>Roles:</strong> Producer, UX Designer, QA\n\nFamily Software Recommended Award",
+    "description": "Two “entertainment utilities” based on the Ba5 brand. UI design, game design, etc.\n\n<strong>Roles:</strong> Producer, UX Designer, QA\n\n<award>Family Software Recommended Award</award>",
     "imageAlign": "center",
     "published": true
   },
@@ -178,7 +178,8 @@
     "category": "web_design_&_development",
     "cardHeading": "Web Design",
     "media": [
-      "media/web/adkoc_web_01.png",
+      "media/web/tswl_web_01.jpg",
+      "media/web/tswl_web_02.png",
       "media/web/amahoro_web_01.png",
       "media/web/code_web_01.jpg",
       "media/web/emailincarnate_web_01.png",
@@ -189,12 +190,11 @@
       "media/web/hermes_web_01.png",
       "media/web/hlc_web_01.png",
       "media/web/kcdr_web_01.png",
+      "media/web/adkoc_web_01.png",
       "media/web/nelly_web_01.jpg",
-      "media/web/tdk_web_01.jpg",
-      "media/web/tswl_web_01.jpg",
-      "media/web/tswl_web_02.png"
+      "media/web/tdk_web_01.jpg"
     ],
-    "description": "Custom production frameworks and interface design since 1993, including showcase layouts chosen for international design critique publication honors.",
+    "description": "Custom production frameworks and interface design since 1993, including showcase layouts chosen for international design critique publication honors.\n\n<award>”Sketchy” Tim Samoff // Weblog featured in the Web Design Idea Book</award>",
     "imageAlign": "top",
     "published": true
   },
@@ -385,7 +385,7 @@
     "media": [
       "media/game/tlbt.jpg"
     ],
-    "description": "Edutainment title based on <em>The Land Before Time</em>.\n\n<strong>Roles:</strong> Game Designer, UX Designer, QA\n\nNewsweek Editors’ Choice",
+    "description": "Edutainment title based on <em>The Land Before Time</em>.\n\n<strong>Roles:</strong> Game Designer, UX Designer, QA\n\n<award>Newsweek Editors’ Choice</award>",
     "imageAlign": "center",
     "published": true
   },
@@ -396,7 +396,7 @@
     "media": [
       "media/game/at_01.webp"
     ],
-    "description": "Edutainment title based on <em>An American Tale</em>.\n\n<strong>Roles:</strong> Game Design, UX Design, QA\n\nExcellence in Educational Software",
+    "description": "Edutainment title based on <em>An American Tale</em>.\n\n<strong>Roles:</strong> Game Design, UX Design, QA\n\n<award>Excellence in Educational Software</award>",
     "imageAlign": "center",
     "published": true
   },
