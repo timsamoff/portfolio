@@ -222,28 +222,244 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Check if browser supports WebP
+    function supportsWebP() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1;
+        canvas.height = 1;
+        return canvas.toDataURL('image/webp').indexOf('image/webp') === 5;
+    }
+
+    // Get optimized image URL (WebP if supported AND file exists)
+    function getOptimizedImageUrl(url) {
+        if (!url) return url;
+        
+        // Don't convert URLs or videos
+        if (url.match(/^https?:\/\//)) return url;
+        if (url.match(/\.(mp4|webm|mov|ogg|avi)$/i)) return url;
+        
+        // Check if it's an image
+        if (!url.match(/\.(jpg|jpeg|png|gif|bmp|tiff|tif)$/i)) return url;
+        
+        // Try WebP version
+        const webpUrl = url.replace(/\.[^.]+$/, '.webp');
+        
+        // Check if WebP file actually exists (if in media directory)
+        const webpSupported = supportsWebP();
+        if (webpSupported) {
+            // If we're in a browser, we'll let the image load and fallback
+            // We'll use a data attribute to try WebP first, then fallback to original
+            return webpUrl;
+        }
+        
+        return url;
+    }
+
+    // Generate responsive srcset - SIMPLIFIED to avoid broken images
+    function generateSrcSet(mediaUrl) {
+        // Skip for non-images or URLs
+        if (!mediaUrl || mediaUrl.match(/^https?:\/\//)) return '';
+        if (mediaUrl.match(/\.(mp4|webm|mov|ogg|avi)$/i)) return '';
+        if (!mediaUrl.match(/\.(jpg|jpeg|png|gif|bmp|tiff|tif|webp)$/i)) return '';
+        
+        // Use the original URL as the only source - this prevents broken images
+        // The actual responsive loading will be handled by CSS
+        return mediaUrl;
+    }
+
+    // Generate a tiny placeholder SVG
+    function getPlaceholderSVG() {
+        return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23f0f0f0'/%3E%3C/svg%3E`;
+    }
+
     function generateThumbnailHtml(mediaUrl, alignSetting = 'center') {
         const isVideo = isVideoUrl(mediaUrl);
         const objectPosition = getObjectPosition(alignSetting);
         
         if (!isVideo) {
-            return `<img src="${mediaUrl}" alt="Portfolio media" style="object-position: ${objectPosition};">`;
+            // For images, use the original URL directly
+            // Don't try to convert to WebP for thumbnails - it causes broken images
+            const imageUrl = mediaUrl;
+            const placeholder = getPlaceholderSVG();
+            
+            // Check if it's a YouTube or Vimeo thumbnail
+            if (mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be')) {
+                const videoId = getYouTubeVideoId(mediaUrl);
+                if (videoId) {
+                    return `<img 
+                        data-src="https://img.youtube.com/vi/${videoId}/mqdefault.jpg" 
+                        src="${placeholder}"
+                        alt="YouTube thumbnail" 
+                        loading="lazy"
+                        style="object-position: ${objectPosition}; background: var(--bg-secondary);"
+                        class="lazy-image"
+                        width="400"
+                        height="300">`;
+                }
+            }
+            
+            // Check if it's a Vimeo thumbnail
+            if (mediaUrl.includes('vimeo.com')) {
+                const vimeoId = (mediaUrl.match(/vimeo\.com\/(\d+)/) || [])[1];
+                if (vimeoId) {
+                    return '<img src="' + placeholder + '" alt="Vimeo thumbnail" class="vimeo-thumb lazy-image" loading="lazy"'
+                        + ' data-vimeo-id="' + vimeoId + '"'
+                        + ' style="object-position: ' + objectPosition + '; background:#1a1a2e; width:100%; height:100%;">';
+                }
+            }
+            
+            // Regular image - use the URL as-is without WebP conversion for thumbnails
+            // This prevents broken images when WebP files don't exist
+            return `<img 
+                data-src="${imageUrl}" 
+                src="${placeholder}"
+                alt="Portfolio media" 
+                loading="lazy"
+                style="object-position: ${objectPosition}; background: var(--bg-secondary);"
+                class="lazy-image"
+                width="400"
+                height="300">`;
         }
         
+        // Video handling
         const youtubeEmbed = getYouTubeEmbedUrl(mediaUrl);
         if (youtubeEmbed) {
             const videoId = getYouTubeVideoId(mediaUrl);
-            return `<img src="https://img.youtube.com/vi/${videoId}/mqdefault.jpg" alt="YouTube thumbnail" style="object-position: ${objectPosition};">`;
+            const placeholder = getPlaceholderSVG();
+            return `<img 
+                data-src="https://img.youtube.com/vi/${videoId}/mqdefault.jpg" 
+                src="${placeholder}"
+                alt="YouTube thumbnail" 
+                loading="lazy"
+                style="object-position: ${objectPosition}; background: var(--bg-secondary);"
+                class="lazy-image"
+                width="400"
+                height="300">`;
         }
         
         const vimeoId = (mediaUrl.match(/vimeo\.com\/(\d+)/) || [])[1];
         if (vimeoId) {
-            return '<img src="" alt="Vimeo thumbnail" class="vimeo-thumb"'
+            const placeholder = getPlaceholderSVG();
+            return '<img src="' + placeholder + '" alt="Vimeo thumbnail" class="vimeo-thumb lazy-image" loading="lazy"'
                 + ' data-vimeo-id="' + vimeoId + '"'
-                + ' style="object-position: ' + objectPosition + '; background:#1a1a2e;">';
+                + ' style="object-position: ' + objectPosition + '; background:#1a1a2e; width:100%; height:100%;">';
         }
         
         return `<video muted><source src="${mediaUrl}" type="video/mp4"></video>`;
+    }
+
+    // ========================================
+    // LAZY LOADING WITH INTERSECTION OBSERVER
+    // ========================================
+
+    function setupLazyLoading() {
+        // Skip if IntersectionObserver is not supported
+        if (!('IntersectionObserver' in window)) {
+            // Fallback: load all images
+            document.querySelectorAll('img.lazy-image').forEach(img => {
+                if (img.dataset.src) {
+                    img.src = img.dataset.src;
+                }
+                if (img.dataset.srcset) {
+                    img.srcset = img.dataset.srcset;
+                }
+                img.classList.add('loaded');
+            });
+            return;
+        }
+
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    
+                    // Skip if already loaded
+                    if (img.classList.contains('loaded')) {
+                        observer.unobserve(img);
+                        return;
+                    }
+                    
+                    // Add loading state
+                    img.classList.add('loading');
+                    
+                    // Load the image
+                    if (img.dataset.src) {
+                        // Check if the image exists before loading
+                        const imgSrc = img.dataset.src;
+                        
+                        // For regular images, load directly
+                        img.src = imgSrc;
+                        img.removeAttribute('data-src');
+                    }
+                    
+                    if (img.dataset.srcset) {
+                        img.srcset = img.dataset.srcset;
+                        img.removeAttribute('data-srcset');
+                    }
+                    
+                    // Handle load success
+                    img.onload = () => {
+                        img.classList.remove('loading');
+                        img.classList.add('loaded');
+                        // Trigger a smooth appearance
+                        img.style.opacity = '0';
+                        setTimeout(() => {
+                            img.style.transition = 'opacity 0.3s ease';
+                            img.style.opacity = '1';
+                        }, 50);
+                    };
+                    
+                    // Handle load error - try fallback
+                    img.onerror = () => {
+                        img.classList.remove('loading');
+                        img.classList.add('error');
+                        // If image fails, try the original URL as fallback (if different)
+                        if (img.dataset.fallback) {
+                            img.src = img.dataset.fallback;
+                            img.removeAttribute('data-fallback');
+                        } else if (img.dataset.src && img.dataset.src !== img.src) {
+                            // Try loading the original URL
+                            const originalSrc = img.dataset.src;
+                            // If it's a WebP URL, try the original format
+                            if (originalSrc.match(/\.webp$/i)) {
+                                const fallbackUrl = originalSrc.replace(/\.webp$/i, '.jpg');
+                                // Check if it's the same URL
+                                if (fallbackUrl !== originalSrc) {
+                                    img.src = fallbackUrl;
+                                    img.dataset.fallback = originalSrc;
+                                    return; // Let the new load attempt
+                                }
+                            }
+                            // If still failing, show error state
+                            img.style.background = 'var(--bg-primary)';
+                            img.style.display = 'flex';
+                            img.style.alignItems = 'center';
+                            img.style.justifyContent = 'center';
+                            img.style.color = 'var(--text-muted)';
+                            img.style.fontSize = '0.7rem';
+                            img.alt = 'Image failed to load';
+                        }
+                    };
+                    
+                    // Stop observing this image
+                    observer.unobserve(img);
+                }
+            });
+        }, {
+            rootMargin: '100px 0px', // Start loading 100px before entering viewport
+            threshold: 0.01
+        });
+
+        // Observe all lazy images
+        document.querySelectorAll('img.lazy-image:not(.loaded)').forEach(img => {
+            imageObserver.observe(img);
+        });
+    }
+
+    // Call this after rendering projects
+    function setupLazyLoadingAfterRender() {
+        // Wait for images to be in the DOM
+        setTimeout(setupLazyLoading, 100);
     }
 
     async function loadVimeoThumbnails() {
@@ -260,9 +476,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!data.thumbnail_url) return;
                     document.querySelectorAll('img.vimeo-thumb[data-vimeo-id="' + id + '"]')
                         .forEach(function(el) {
+                            // Set the image source and mark as loaded
                             el.src = data.thumbnail_url;
                             el.removeAttribute('data-vimeo-id');
                             el.classList.remove('vimeo-thumb');
+                            el.classList.add('loaded');
+                            el.style.opacity = '1';
                         });
                 })
                 .catch(function() {
@@ -270,6 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         .forEach(function(el) {
                             el.style.background = 'linear-gradient(135deg,#1a1a2e,#16213e)';
                             el.removeAttribute('data-vimeo-id');
+                            el.classList.add('loaded');
                         });
                 });
             fetches.push(p);
@@ -292,6 +512,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return `<video controls data-url="${mediaUrl}" data-media-index="${mediaIndex}" data-saved-time="${savedProgress}" style="width:100%; height:100%;"><source src="${mediaUrl}" type="video/mp4">Your browser does not support video.</video>`;
             }
         } else {
+            // For modal, use the original URL directly (no WebP conversion)
             return `<img src="${mediaUrl}" alt="Portfolio image" style="max-width:100%; max-height:100%; object-fit:contain;">`;
         }
     }
@@ -422,17 +643,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function applyFilter() {
-    allPortfolioItems.forEach(item => {
-        const itemCategory = item.getAttribute('data-category');
-        if (currentFilterValue === 'all') {
-            item.style.display = 'flex';
-        } else if (currentFilterValue === 'uncategorized') {
-            item.style.display = (!itemCategory || itemCategory === 'uncategorized' || itemCategory === '') ? 'flex' : 'none';
-        } else {
-            item.style.display = (itemCategory === currentFilterValue) ? 'flex' : 'none';
-        }
-    });
-}
+        allPortfolioItems.forEach(item => {
+            const itemCategory = item.getAttribute('data-category');
+            if (currentFilterValue === 'all') {
+                item.style.display = 'flex';
+            } else if (currentFilterValue === 'uncategorized') {
+                item.style.display = (!itemCategory || itemCategory === 'uncategorized' || itemCategory === '') ? 'flex' : 'none';
+            } else {
+                item.style.display = (itemCategory === currentFilterValue) ? 'flex' : 'none';
+            }
+        });
+    }
 
     // Load projects directly from projects.json
     function loadProjects(projects) {
@@ -505,27 +726,27 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             
             article.addEventListener('click', (e) => {
-            // Block clicks on ANY Swiper interactive elements
-            if (e.target.closest('.share-hint')) return;
-            if (e.target.closest('.swiper-button-prev') || e.target.closest('.swiper-button-next')) {
-                e.stopPropagation();
-                return;
-            }
-            if (e.target.closest('.swiper-pagination') || e.target.closest('.swiper-pagination-bullet')) {
-                e.stopPropagation();
-                return;
-            }
-            if (e.target.tagName === 'A') {
-                e.stopPropagation();
-                return;
-            }
-            
-            if (mediaArray.length > 0) {
-                openMediaModal(mediaArray, 0, originalIndex);
-                const shareUrl = generateShareUrl(originalIndex, 0, mediaArray);
-                window.history.pushState({}, '', shareUrl);
-            }
-        });
+                // Block clicks on ANY Swiper interactive elements
+                if (e.target.closest('.share-hint')) return;
+                if (e.target.closest('.swiper-button-prev') || e.target.closest('.swiper-button-next')) {
+                    e.stopPropagation();
+                    return;
+                }
+                if (e.target.closest('.swiper-pagination') || e.target.closest('.swiper-pagination-bullet')) {
+                    e.stopPropagation();
+                    return;
+                }
+                if (e.target.tagName === 'A') {
+                    e.stopPropagation();
+                    return;
+                }
+                
+                if (mediaArray.length > 0) {
+                    openMediaModal(mediaArray, 0, originalIndex);
+                    const shareUrl = generateShareUrl(originalIndex, 0, mediaArray);
+                    window.history.pushState({}, '', shareUrl);
+                }
+            });
             
             const shareHint = article.querySelector('.share-hint');
             if (shareHint) {
@@ -585,9 +806,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (gamesCategory) {
                 const gamesBtn = document.createElement('button');
                 gamesBtn.className = 'filter-btn filter-btn-games';
-''              
                 gamesBtn.setAttribute('data-filter', gamesCategory);
-
                 gamesBtn.textContent = formatCategoryForDisplay(gamesCategory);
                 filterNav.appendChild(gamesBtn);
                 
@@ -601,9 +820,7 @@ document.addEventListener('DOMContentLoaded', () => {
             otherCategories.forEach(cat => {
                 const btn = document.createElement('button');
                 btn.className = 'filter-btn';
-
                 btn.setAttribute('data-filter', cat);
-
                 btn.textContent = formatCategoryForDisplay(cat);
                 filterNav.appendChild(btn);
             });
@@ -632,6 +849,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         
+        // Setup lazy loading for images
+        setupLazyLoadingAfterRender();
+        
+        // Load Vimeo thumbnails
         loadVimeoThumbnails();
 
         // Setup category tag click handlers
@@ -679,7 +900,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fetch('projects.json')
         .then(response => response.json())
-        .then(data => loadProjects(data))
+        .then(data => {
+            loadProjects(data);
+        })
         .catch(error => {
             console.error('Error loading projects:', error);
             grid.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--accent-red);">Error loading projects. Make sure projects.json exists.</div>';

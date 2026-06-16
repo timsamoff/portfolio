@@ -4,9 +4,9 @@
     "category": "app_design_&_development",
     "cardHeading": "Webapp",
     "media": [
-      "media/app/cs_01.png",
-      "media/app/cs_02.png",
-      "media/app/cs_03.png"
+      "media/app/cs_01.webp",
+      "media/app/cs_02.webp",
+      "media/app/cs_03.webp"
     ],
     "description": "A DIY guitar pedal circuit database and search tool. Scrape, organize, and discover effects pedal layouts from the DIY community.\n\nLocal admin saves to JSON for static site publishing.\n\n<a href=\"https://samoff.com/circuit-scout\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
@@ -17,10 +17,10 @@
     "category": "app_design_&_development",
     "cardHeading": "Web app",
     "media": [
-      "media/app/written_01.png",
-      "media/app/written_02.png",
-      "media/app/written_03.png",
-      "media/app/written_04.png"
+      "media/app/written_01.webp",
+      "media/app/written_02.webp",
+      "media/app/written_03.webp",
+      "media/app/written_04.webp"
     ],
     "description": "Embedded editor that converts simple plain-text markup into publication-ready, accessible HTML with sophisticated typographic features like drop caps, ligatures, footnotes, and more.\n\n<a href=\"https://samoff.com/written/app\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
@@ -31,9 +31,9 @@
     "category": "app_design_&_development",
     "cardHeading": "Webapp",
     "media": [
-      "media/app/tsp_01.png",
-      "media/app/tsp_02.png",
-      "media/app/tsp_03.png"
+      "media/app/tsp_01.webp",
+      "media/app/tsp_02.webp",
+      "media/app/tsp_03.webp"
     ],
     "description": "A simple one-page web-based portfolio.\n\nLocal admin saves to JSON for static site publishing.\n\n<a href=\"https://samoff.com/portfolio/demo/\"target=\"_blank\" rel=\"noopener noreferrer\">Demo site with admin...</a>",
     "imageAlign": "center",
@@ -55,7 +55,7 @@
     "category": "game_design_&_development",
     "cardHeading": "Unity",
     "media": [
-      "media/game/lg_01.jpg"
+      "media/game/lg_01.webp"
     ],
     "description": "Humor-filled endless runner made in Unity during Global Game Jam 2024.\n\n<a href=\"https://timsamoff.itch.io/loosey-goosey\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
@@ -66,10 +66,10 @@
     "category": "game_design_&_development",
     "cardHeading": "Concentration",
     "media": [
-      "media/game/up_01.png",
-      "media/game/up_03.jpg",
-      "media/game/up_03.png",
-      "media/game/up_04.png"
+      "media/game/up_01.webp",
+      "media/game/up_03.webp",
+      "media/game/up_03.webp",
+      "media/game/up_04.webp"
     ],
     "description": "A Concentration clone, but it’s zombies! Made in Unity.\n\nArt by <a href=\"https://www.thomasthesen.art/\"target=\"_blank\" rel=\"noopener noreferrer\">Thomas Paul Thesen</a>.\n\n<a href=\"https://timsamoff.itch.io/up\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
@@ -102,9 +102,9 @@
     "category": "digital_art_&_design",
     "cardHeading": "Digital Art",
     "media": [
-      "media/digital/girl_dig_01.jpg",
-      "media/digital/bug_dig_01.jpg",
-      "media/digital/pepper_dig_01.jpg"
+      "media/digital/girl_dig_01.webp",
+      "media/digital/bug_dig_01.webp",
+      "media/digital/pepper_dig_01.webp"
     ],
     "description": "Random pieces of digital art.",
     "imageAlign": "center",
@@ -126,10 +126,10 @@
     "category": "brand_&_identity",
     "cardHeading": "Major Event Collateral",
     "media": [
-      "media/brand/maesum_01.jpg",
-      "media/brand/maesum_02.jpg",
-      "media/brand/maesum_03.jpg",
-      "media/brand/maesum_04.jpg"
+      "media/brand/maesum_01.webp",
+      "media/brand/maesum_02.webp",
+      "media/brand/maesum_03.webp",
+      "media/brand/maesum_04.webp"
     ],
     "description": "Event branding, spatial identity vectors, and custom apparel design developed for the global open-source community platform summit.",
     "imageAlign": "center",
@@ -140,9 +140,9 @@
     "category": "production_&_installation",
     "cardHeading": "Installation Art",
     "media": [
-      "media/installation/eq_bw_01.jpg",
-      "media/installation/eq_bw_02.jpg",
-      "media/installation/eq_bw_03.jpg"
+      "media/installation/eq_bw_01.webp",
+      "media/installation/eq_bw_02.webp",
+      "media/installation/eq_bw_03.webp"
     ],
     "description": "An environmental design installations overhaul for the EMBARQ corporate headquarters. Engineered budget iterations, technical materials, and abstract visuals to foster communication passively via spatial canvas installation art.",
     "imageAlign": "center",
@@ -153,7 +153,7 @@
     "category": "brand_&_identity",
     "cardHeading": "Rebrand",
     "media": [
-      "media/brand/marathon_01.png"
+      "media/brand/marathon_01.webp"
     ],
     "description": "A comprehensive identity overhaul for Southland Sod Farms, modernizing a 15-year-old brand identity across print advertising, logos, and retail packaging layouts.",
     "imageAlign": "top",
@@ -164,11 +164,11 @@
     "category": "production_&_installation",
     "cardHeading": "Production",
     "media": [
-      "media/brand/yampop_01.png",
-      "media/brand/yampop_02.png",
-      "media/brand/yampop_03.png",
-      "media/brand/yampop_04.png",
-      "media/brand/yampop_05.png"
+      "media/brand/yampop_01.webp",
+      "media/brand/yampop_02.webp",
+      "media/brand/yampop_03.webp",
+      "media/brand/yampop_04.webp",
+      "media/brand/yampop_05.webp"
     ],
     "description": "Structural point-of-purchase design layouts, spatial mockups, and step-by-step user documentation assembly systems engineered for Yamaha musical instruments.",
     "imageAlign": "top",
@@ -190,7 +190,7 @@
     "category": "game_design_&_development",
     "cardHeading": "Game Production & Design",
     "media": [
-      "media/game/tdk-all.png"
+      "media/game/tdk-all.webp"
     ],
     "description": "Senior Producer and Game Designer on over forty retail commercial entertainment and edutainment games across major media brands.\n\n<strong>Roles:</strong> Senior Producer, Game Designer, Level Designer, Artist, UX Designer, QA",
     "imageAlign": "center",
@@ -201,9 +201,9 @@
     "category": "user_experience",
     "cardHeading": "Interactive UI",
     "media": [
-      "media/game/b5_01.jpg",
-      "media/game/b5_app_01.png",
-      "media/game/b5_02.jpg"
+      "media/game/b5_01.webp",
+      "media/game/b5_app_01.webp",
+      "media/game/b5_02.webp"
     ],
     "description": "Two “entertainment utilities” based on the Ba5 brand. UI design, game design, etc.\n\n<strong>Roles:</strong> Producer, UX Designer, QA\n\n<award>Family Software Recommended Award</award>",
     "imageAlign": "center",
@@ -214,21 +214,21 @@
     "category": "web_design_&_development",
     "cardHeading": "Web Design",
     "media": [
-      "media/web/tswl_web_01.jpg",
-      "media/web/tswl_web_02.png",
-      "media/web/amahoro_web_01.png",
-      "media/web/code_web_01.jpg",
-      "media/web/emailincarnate_web_01.png",
-      "media/web/eq_elearn_web_01.png",
-      "media/web/fluxtopia_web.png",
-      "media/web/gmsf_web_01.png",
-      "media/web/hensley_web_01.png",
-      "media/web/hermes_web_01.png",
-      "media/web/hlc_web_01.png",
-      "media/web/kcdr_web_01.png",
-      "media/web/adkoc_web_01.png",
-      "media/web/nelly_web_01.jpg",
-      "media/web/tdk_web_01.jpg"
+      "media/web/tswl_web_01.webp",
+      "media/web/tswl_web_02.webp",
+      "media/web/amahoro_web_01.webp",
+      "media/web/code_web_01.webp",
+      "media/web/emailincarnate_web_01.webp",
+      "media/web/eq_elearn_web_01.webp",
+      "media/web/fluxtopia_web.webp",
+      "media/web/gmsf_web_01.webp",
+      "media/web/hensley_web_01.webp",
+      "media/web/hermes_web_01.webp",
+      "media/web/hlc_web_01.webp",
+      "media/web/kcdr_web_01.webp",
+      "media/web/adkoc_web_01.webp",
+      "media/web/nelly_web_01.webp",
+      "media/web/tdk_web_01.webp"
     ],
     "description": "Custom production frameworks and interface design since 1993, including showcase layouts chosen for international design critique publication honors.\n\n<award>”Sketchy” Tim Samoff // Weblog featured in the Web Design Idea Book</award>",
     "imageAlign": "top",
@@ -239,16 +239,16 @@
     "category": "brand_&_identity",
     "cardHeading": "Miscellaneous Logos",
     "media": [
-      "media/brand/l_D_logo_01.png",
-      "media/brand/compass_logo_01.png",
-      "media/brand/deblet_logo_01.png",
-      "media/brand/gaberln_logo_01.png",
-      "media/brand/hb_logo_01.png",
-      "media/brand/hermes-logo_01.png",
-      "media/brand/maesum_logo_01.png",
-      "media/brand/plonk_logo_01.png",
-      "media/brand/tp_logo.png",
-      "media/brand/yam_logo_01.png"
+      "media/brand/l_D_logo_01.webp",
+      "media/brand/compass_logo_01.webp",
+      "media/brand/deblet_logo_01.webp",
+      "media/brand/gaberln_logo_01.webp",
+      "media/brand/hb_logo_01.webp",
+      "media/brand/hermes-logo_01.webp",
+      "media/brand/maesum_logo_01.webp",
+      "media/brand/plonk_logo_01.webp",
+      "media/brand/tp_logo.webp",
+      "media/brand/yam_logo_01.webp"
     ],
     "description": "A variety of logos designed for clients and projects over the years.",
     "imageAlign": "center",
@@ -281,7 +281,7 @@
     "category": "brand_&_identity",
     "cardHeading": "Mevl",
     "media": [
-      "media/brand/mevl_01.png"
+      "media/brand/mevl_01.webp"
     ],
     "description": "",
     "imageAlign": "center",
@@ -292,7 +292,7 @@
     "category": "game_design_&_development",
     "cardHeading": "Text-based",
     "media": [
-      "media/game/3drag_01.jpg"
+      "media/game/3drag_01.webp"
     ],
     "description": "<em>Three Dragons</em> is a text-based micro-RPG based on a European folktale about “two brothers and an old man with a white beard.” Made in https://twinery.org/, it is a short-form experience with deep branching interactions, a real-time battle mechanic, and a distinct moral message.\n\n<a href=\"https://timsamoff.itch.io/three-dragons\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
@@ -303,7 +303,7 @@
     "category": "game_design_&_development",
     "cardHeading": "Unity",
     "media": [
-      "media/game/bh_01.jpg"
+      "media/game/bh_01.webp"
     ],
     "description": "A simple game in which you play as a waterbug, capturing bubbles. Made in Unity during Global Game Jam 2025.\n\n<a href=\"https://timsamoff.itch.io/bh\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
@@ -314,7 +314,7 @@
     "category": "game_design_&_development",
     "cardHeading": "Prototype",
     "media": [
-      "media/game/dnc_01.jpg"
+      "media/game/dnc_01.webp"
     ],
     "description": "Game prototype made in Unreal Engine. The player must dodge and collect the same items based on their state.\n\n<a href=\"https://timsamoff.itch.io/dnc\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
@@ -325,7 +325,7 @@
     "category": "game_design_&_development",
     "cardHeading": "Text-based",
     "media": [
-      "media/game/hml_01.jpg"
+      "media/game/hml_01.webp"
     ],
     "description": "Text-based game designed and developed in 2017, as part of my <a href=”https://library.scad.edu/search?/asamoff/asamoff/1%2C2%2C2%2CE/frameset&FF=asamoff+timothy&1%2C1%2C/indexsort=-“ target=\"_blank\" rel=\"noopener noreferrer\">MFA thesis</a> on using real-time mechanics in text-based games.\n\n<a href=\"https://timsamoff.itch.io/hmlabs\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
@@ -336,7 +336,7 @@
     "category": "game_design_&_development",
     "cardHeading": "Unity",
     "media": [
-      "media/game/isb_01.jpg"
+      "media/game/isb_01.webp"
     ],
     "description": "Idle clicker made in Unity during Global Game Jam 2020.\n\n<a href=\"https://timsamoff.itch.io/blue\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
@@ -347,7 +347,7 @@
     "category": "game_design_&_development",
     "cardHeading": "Game Boy",
     "media": [
-      "media/game/split_01.jpg"
+      "media/game/split_01.webp"
     ],
     "description": "Game about split personality disorder, made in GB Studio. Second place winner of itch.io’s “<a href=\"https://itch.io/jam/mini-jam-30-gameboy/results\"target=\"_blank\" rel=\"noopener noreferrer\">Mini Game Jam 30 + GB Studio</a>.”\n\n<a href=\"https://timsamoff.itch.io/split\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
@@ -358,9 +358,9 @@
     "category": "game_design_&_development",
     "cardHeading": "Game Poem",
     "media": [
-      "media/game/stay_01.png",
-      "media/game/stay_02.png",
-      "media/game/stay_03.png"
+      "media/game/stay_01.webp",
+      "media/game/stay_02.webp",
+      "media/game/stay_03.webp"
     ],
     "description": "“Stay” is a game poem about tension and release. Be patient. Move slowly. Or don’t move at all.\n\n<a href=\"https://timsamoff.itch.io/stay\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
@@ -371,8 +371,8 @@
     "category": "game_design_&_development",
     "cardHeading": "AAA",
     "media": [
-      "media/game/abyss_01.jpg",
-      "media/game/abyss_02.jpg"
+      "media/game/abyss_01.webp",
+      "media/game/abyss_02.webp"
     ],
     "description": "Spiritual successor to James Cameron’s <em>The Abyss</em>.\n\n<strong>Roles:</strong> Senior producer, level designer, artist",
     "imageAlign": "top",
@@ -383,7 +383,7 @@
     "category": "game_design_&_development",
     "cardHeading": "Edutainment",
     "media": [
-      "media/game/tlbt.jpg"
+      "media/game/tlbt.webp"
     ],
     "description": "Edutainment title based on <em>The Land Before Time</em>.\n\n<strong>Roles:</strong> Game Designer, UX Designer, QA\n\n<award>Newsweek Editors’ Choice</award>",
     "imageAlign": "center",
@@ -405,7 +405,7 @@
     "category": "app_design_&_development",
     "cardHeading": "Widget",
     "media": [
-      "media/app/eq_copilot_app_01.png"
+      "media/app/eq_copilot_app_01.webp"
     ],
     "description": "RSS reader widget that disseminated company news to employees’ desktops. The Idea was iterated and eventually patented.\n\n<strong>Roles:</strong> UI & UX Design, programming",
     "imageAlign": "center",
@@ -416,8 +416,8 @@
     "category": "app_design_&_development",
     "cardHeading": "Corporate",
     "media": [
-      "media/app/ac_app_01.jpg",
-      "media/app/ac_app_02.jpg"
+      "media/app/ac_app_01.webp",
+      "media/app/ac_app_02.webp"
     ],
     "description": "App that delivered aggregated training videos to employees.\n\n<strong>Roles:</strong> UI & UX Design",
     "imageAlign": "center",
@@ -439,13 +439,13 @@
     "category": "app_design_&_development",
     "cardHeading": "Chrome Extension",
     "media": [
-      "media/app/am_01.jpg",
-      "media/app/am_02.jpg",
-      "media/app/am_03.jpg",
-      "media/app/am_04.jpg",
-      "media/app/am_05.jpg",
-      "media/app/am_06.jpg",
-      "media/app/am_07.jpg"
+      "media/app/am_01.webp",
+      "media/app/am_02.webp",
+      "media/app/am_03.webp",
+      "media/app/am_04.webp",
+      "media/app/am_05.webp",
+      "media/app/am_06.webp",
+      "media/app/am_07.webp"
     ],
     "description": "BYOK (bring your own keys) AI detection Chrome Extension that tries to detect AI-generated text, images, and audio (depending on the keys you possess).\n\n<a href=\"https://github.com/timsamoff/AIrmark\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
@@ -456,7 +456,7 @@
     "category": "app_design_&_development",
     "cardHeading": "Chrome Extension",
     "media": [
-      "media/app/ytts_01.png"
+      "media/app/ytts_01.webp"
     ],
     "description": "Chrome Extension that hilariously shuffles all of the titles under the video thumbnails.\n\n<a href=\"https://github.com/timsamoff/YouTube-Title-Shuffler\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
@@ -467,8 +467,8 @@
     "category": "app_design_&_development",
     "cardHeading": "Desktop App",
     "media": [
-      "media/app/ep_01.png",
-      "media/app/ep_02.png",
+      "media/app/ep_01.webp",
+      "media/app/ep_02.webp",
       "https://www.youtube.com/watch?v=jDg9bKsPez0"
     ],
     "description": "A cross-platform precision drill hole layout tool for effect pedal enclosures.\n\n<a href=\"https://samoff.com/enclosure-pro/\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
@@ -480,9 +480,9 @@
     "category": "web_design_&_development",
     "cardHeading": "Website",
     "media": [
-      "media/web/ep_web_01.png",
-      "media/web/ep_web_02.png",
-      "media/web/ep_web_03.png"
+      "media/web/ep_web_01.webp",
+      "media/web/ep_web_02.webp",
+      "media/web/ep_web_03.webp"
     ],
     "description": "Website made for the Enclosure Pro app.\n\n<a href=\"https://samoff.com/enclosure-pro/\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
@@ -493,7 +493,7 @@
     "category": "user_experience",
     "cardHeading": "Experiments",
     "media": [
-      "media/web/cp_01.png"
+      "media/web/cp_01.webp"
     ],
     "description": "A lot of web-based user experience experiments happened on CodePen.\n\n<a href=\"https://codepen.io/timsamoff\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",

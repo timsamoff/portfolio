@@ -3,6 +3,8 @@ admin.html
 admin.js
 fix-links.js
 fix-json-quote.js
+convert-images-to-webp.js
+update-media-to-webp.js
 
 # Backup files
 backups/
