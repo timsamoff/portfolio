@@ -8,7 +8,7 @@
       "media/app/cs_02.png",
       "media/app/cs_03.png"
     ],
-    "description": "A DIY guitar pedal circuit database and search tool. Scrape, organize, and discover effects pedal layouts from the DIY community.\n\nLocal admin saves to JSON for static site publishing.\n\n<a href=”https://samoff.com/circuit-scout” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "description": "A DIY guitar pedal circuit database and search tool. Scrape, organize, and discover effects pedal layouts from the DIY community.\n\nLocal admin saves to JSON for static site publishing.\n\n<a href=\"https://samoff.com/circuit-scout\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
     "published": true
   },
@@ -22,7 +22,7 @@
       "media/app/written_03.png",
       "media/app/written_04.png"
     ],
-    "description": "Embedded editor that converts simple plain-text markup into publication-ready, accessible HTML with sophisticated typographic features like drop caps, ligatures, footnotes, and more.\n\n<a href=”https://samoff.com/written/app” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "description": "Embedded editor that converts simple plain-text markup into publication-ready, accessible HTML with sophisticated typographic features like drop caps, ligatures, footnotes, and more.\n\n<a href=\"https://samoff.com/written/app\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
     "published": true
   },
@@ -35,7 +35,7 @@
       "media/app/tsp_02.png",
       "media/app/tsp_03.png"
     ],
-    "description": "A simple one-page web-based portfolio.\n\nLocal admin saves to JSON for static site publishing.\n\n<a href=”https://samoff.com/portfolio/demo/” target=”_blank” rel=”noopener noreferrer”>Demo site with admin...</a>",
+    "description": "A simple one-page web-based portfolio.\n\nLocal admin saves to JSON for static site publishing.\n\n<a href=\"https://samoff.com/portfolio/demo/\"target=\"_blank\" rel=\"noopener noreferrer\">Demo site with admin...</a>",
     "imageAlign": "center",
     "published": true
   },
@@ -258,7 +258,7 @@
     "media": [
       "media/game/3drag_01.jpg"
     ],
-    "description": "<em>Three Dragons</em> is a text-based micro-RPG based on a European folktale about “two brothers and an old man with a white beard.” Made in https://twinery.org/, it is a short-form experience with deep branching interactions, a real-time battle mechanic, and a distinct moral message.\n\n<a href=”https://timsamoff.itch.io/three-dragons” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "description": "<em>Three Dragons</em> is a text-based micro-RPG based on a European folktale about “two brothers and an old man with a white beard.” Made in https://twinery.org/, it is a short-form experience with deep branching interactions, a real-time battle mechanic, and a distinct moral message.\n\n<a href=\"https://timsamoff.itch.io/three-dragons\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
     "published": true
   },
@@ -269,7 +269,7 @@
     "media": [
       "media/game/bh_01.jpg"
     ],
-    "description": "A simple game in which you play as a waterbug, capturing bubbles. Made in Unity during Global Game Jam 2025.\n\n<a href=”https://timsamoff.itch.io/bh” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "description": "A simple game in which you play as a waterbug, capturing bubbles. Made in Unity during Global Game Jam 2025.\n\n<a href=\"https://timsamoff.itch.io/bh\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
     "published": true
   },
@@ -280,7 +280,7 @@
     "media": [
       "media/game/dnc_01.jpg"
     ],
-    "description": "Game prototype made in Unreal Engine. The player must dodge and collect the same items based on their state.\n\n<a href=”https://timsamoff.itch.io/dnc” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "description": "Game prototype made in Unreal Engine. The player must dodge and collect the same items based on their state.\n\n<a href=\"https://timsamoff.itch.io/dnc\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
     "published": true
   },
@@ -291,7 +291,7 @@
     "media": [
       "media/game/tfb_01.webp"
     ],
-    "description": "A sheepherding game inspired by a dream and made in Unity.\n\n<a href=”https://timsamoff.itch.io/flock” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "description": "A sheepherding game inspired by a dream and made in Unity.\n\n<a href=\"https://timsamoff.itch.io/flock\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
     "published": true
   },
@@ -302,7 +302,7 @@
     "media": [
       "media/game/isb_01.jpg"
     ],
-    "description": "Text-based game designed and developed in 2017, as part of my <a href=”https://library.scad.edu/search?/asamoff/asamoff/1%2C2%2C2%2CE/frameset&FF=asamoff+timothy&1%2C1%2C/indexsort=-“ target=”_blank” rel=”noopener noreferrer”>MFA thesis</a> on using real-time mechanics in text-based games.\n\n<a href=”https://timsamoff.itch.io/hmlabs” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "description": "Text-based game designed and developed in 2017, as part of my <a href=”https://library.scad.edu/search?/asamoff/asamoff/1%2C2%2C2%2CE/frameset&FF=asamoff+timothy&1%2C1%2C/indexsort=-“ target=\"_blank\" rel=\"noopener noreferrer\">MFA thesis</a> on using real-time mechanics in text-based games.\n\n<a href=\"https://timsamoff.itch.io/hmlabs\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
     "published": true
   },
@@ -313,7 +313,7 @@
     "media": [
       "media/game/isb_01.jpg"
     ],
-    "description": "Idle clicker made in Unity during Global Game Jam 2020.\n\n<a href=”https://timsamoff.itch.io/blue” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "description": "Idle clicker made in Unity during Global Game Jam 2020.\n\n<a href=\"https://timsamoff.itch.io/blue\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
     "published": true
   },
@@ -324,7 +324,7 @@
     "media": [
       "media/game/lg_01.jpg"
     ],
-    "description": "Humor-filled endless runner made in Unity during Global Game Jam 2024.\n\n<a href=”https://timsamoff.itch.io/loosey-goosey” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "description": "Humor-filled endless runner made in Unity during Global Game Jam 2024.\n\n<a href=\"https://timsamoff.itch.io/loosey-goosey\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
     "published": true
   },
@@ -335,7 +335,7 @@
     "media": [
       "media/game/split_01.jpg"
     ],
-    "description": "Game about split personality disorder, made in GB Studio. Second place winner of itch.io’s “<a href=”https://itch.io/jam/mini-jam-30-gameboy/results” target=”_blank” rel=”noopener noreferrer”>Mini Game Jam 30 + GB Studio</a>.”\n\n<a href=”https://timsamoff.itch.io/split” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "description": "Game about split personality disorder, made in GB Studio. Second place winner of itch.io’s “<a href=\"https://itch.io/jam/mini-jam-30-gameboy/results\"target=\"_blank\" rel=\"noopener noreferrer\">Mini Game Jam 30 + GB Studio</a>.”\n\n<a href=\"https://timsamoff.itch.io/split\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
     "published": true
   },
@@ -349,7 +349,7 @@
       "media/game/up_03.png",
       "media/game/up_04.png"
     ],
-    "description": "A Concentration clone, but it’s zombies! Made in Unity.\n\nArt by <a href=”https://www.thomasthesen.art/” target=”_blank” rel=”noopener noreferrer”>Thomas Paul Thesen</a>.\n\n<a href=”https://timsamoff.itch.io/up” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "description": "A Concentration clone, but it’s zombies! Made in Unity.\n\nArt by <a href=\"https://www.thomasthesen.art/\"target=\"_blank\" rel=\"noopener noreferrer\">Thomas Paul Thesen</a>.\n\n<a href=\"https://timsamoff.itch.io/up\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
     "published": true
   },
@@ -362,7 +362,7 @@
       "media/game/stay_02.png",
       "media/game/stay_03.png"
     ],
-    "description": "“Stay” is a game poem about tension and release. Be patient. Move slowly. Or don’t move at all.\n\n<a href=”https://timsamoff.itch.io/stay” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "description": "“Stay” is a game poem about tension and release. Be patient. Move slowly. Or don’t move at all.\n\n<a href=\"https://timsamoff.itch.io/stay\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
     "published": true
   },
@@ -447,7 +447,7 @@
       "media/app/am_06.jpg",
       "media/app/am_07.jpg"
     ],
-    "description": "BYOK (bring your own keys) AI detection Chrome Extension that tries to detect AI-generated text, images, and audio (depending on the keys you possess).\n\n<a href=”https://github.com/timsamoff/AIrmark” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "description": "BYOK (bring your own keys) AI detection Chrome Extension that tries to detect AI-generated text, images, and audio (depending on the keys you possess).\n\n<a href=\"https://github.com/timsamoff/AIrmark\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
     "published": true
   },
@@ -458,7 +458,7 @@
     "media": [
       "media/app/ytts_01.png"
     ],
-    "description": "Chrome Extension that hilariously shuffles all of the titles under the video thumbnails.\n\n<a href=”https://github.com/timsamoff/YouTube-Title-Shuffler” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "description": "Chrome Extension that hilariously shuffles all of the titles under the video thumbnails.\n\n<a href=\"https://github.com/timsamoff/YouTube-Title-Shuffler\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
     "published": true
   },
@@ -471,7 +471,7 @@
       "media/app/ep_02.png",
       "https://www.youtube.com/watch?v=jDg9bKsPez0"
     ],
-    "description": "A cross-platform precision drill hole layout tool for effect pedal enclosures.\n\n<a href=”https://samoff.com/enclosure-pro/” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "description": "A cross-platform precision drill hole layout tool for effect pedal enclosures.\n\n<a href=\"https://samoff.com/enclosure-pro/\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
     "published": true
   },
@@ -484,7 +484,7 @@
       "media/web/ep_web_02.png",
       "media/web/ep_web_03.png"
     ],
-    "description": "Website made for the Enclosure Pro app.\n\n<a href=”https://samoff.com/enclosure-pro/” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "description": "Website made for the Enclosure Pro app.\n\n<a href=\"https://samoff.com/enclosure-pro/\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
     "published": true
   },
@@ -495,7 +495,7 @@
     "media": [
       "media/web/cp_01.png"
     ],
-    "description": "A lot of web-based user experience experiments happened on CodePen.\n\n<a href=”https://codepen.io/timsamoff” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "description": "A lot of web-based user experience experiments happened on CodePen.\n\n<a href=\"https://codepen.io/timsamoff\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
     "published": true
   }

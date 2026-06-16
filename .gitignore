@@ -1,8 +1,11 @@
 # Admin files - keep private
 admin.html
 admin.js
+fix-links.js
 
 # Backup files
+backups/
+*.backup
 *.bak
 
 # OS generated files
