@@ -125,19 +125,58 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1500);
     }
 
-    function linkify(text) {
-        let escaped = text.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
-        
-        const urlRegex = /(https?:\/\/[^\s]+)/g;
-        escaped = escaped.replace(urlRegex, function(url) {
-            return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
-        });
-        
+    // Renders a description that may be either plain text (legacy) or HTML from the rich editor.
+    // For HTML content, bare URLs outside of existing <a> tags are auto-linked.
+    // All links in the output get target="_blank" and rel="noopener noreferrer".
+    function renderDescription(raw) {
+        if (!raw) return '';
+
+        const isHtml = /<[a-z][\s\S]*>/i.test(raw);
+
+        if (isHtml) {
+            // Parse into a temporary container so we can manipulate safely
+            const tmp = document.createElement('div');
+            tmp.innerHTML = raw;
+
+            // Ensure every <a> opens in a new tab
+            tmp.querySelectorAll('a').forEach(a => {
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
+            });
+
+            // Auto-link bare URLs in text nodes that aren't already inside an <a>
+            const walker = document.createTreeWalker(tmp, NodeFilter.SHOW_TEXT, {
+                acceptNode(node) {
+                    return node.parentElement.closest('a')
+                        ? NodeFilter.FILTER_REJECT
+                        : NodeFilter.FILTER_ACCEPT;
+                }
+            });
+            const textNodes = [];
+            let n;
+            while ((n = walker.nextNode())) textNodes.push(n);
+
+            textNodes.forEach(textNode => {
+                const urlRegex = /(https?:\/\/[^\s<>"']+)/g;
+                if (!urlRegex.test(textNode.nodeValue)) return;
+                urlRegex.lastIndex = 0;
+                const span = document.createElement('span');
+                span.innerHTML = textNode.nodeValue.replace(
+                    /(https?:\/\/[^\s<>"']+)/g,
+                    url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
+                );
+                textNode.parentNode.replaceChild(span, textNode);
+            });
+
+            return tmp.innerHTML;
+        }
+
+        // Legacy plain-text path: escape HTML, then auto-link URLs and convert newlines
+        let escaped = raw.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+        escaped = escaped.replace(
+            /(https?:\/\/[^\s]+)/g,
+            url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
+        );
         escaped = escaped.replace(/\n/g, '<br>');
         return escaped;
     }
@@ -189,11 +228,45 @@ document.addEventListener('DOMContentLoaded', () => {
             return `<img src="https://img.youtube.com/vi/${videoId}/mqdefault.jpg" alt="YouTube thumbnail" style="object-position: ${objectPosition};">`;
         }
         
-        if (getVimeoEmbedUrl(mediaUrl)) {
-            return `<div style="background: linear-gradient(135deg, #1a1a2e, #16213e); display:flex; align-items:center; justify-content:center; height:100%;"><span style="color:white;">🎬 Video</span></div>`;
+        const vimeoId = (mediaUrl.match(/vimeo\.com\/(\d+)/) || [])[1];
+        if (vimeoId) {
+            return '<img src="" alt="Vimeo thumbnail" class="vimeo-thumb"'
+                + ' data-vimeo-id="' + vimeoId + '"'
+                + ' style="object-position: ' + objectPosition + '; background:#1a1a2e;">';
         }
         
         return `<video muted><source src="${mediaUrl}" type="video/mp4"></video>`;
+    }
+
+    async function loadVimeoThumbnails() {
+        const placeholders = document.querySelectorAll('img.vimeo-thumb[data-vimeo-id]');
+        const seen = new Set();
+        const fetches = [];
+        placeholders.forEach(function(img) {
+            const id = img.getAttribute('data-vimeo-id');
+            if (seen.has(id)) return;
+            seen.add(id);
+            const p = fetch('https://vimeo.com/api/oembed.json?url=https://vimeo.com/' + id + '&width=640')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (!data.thumbnail_url) return;
+                    document.querySelectorAll('img.vimeo-thumb[data-vimeo-id="' + id + '"]')
+                        .forEach(function(el) {
+                            el.src = data.thumbnail_url;
+                            el.removeAttribute('data-vimeo-id');
+                            el.classList.remove('vimeo-thumb');
+                        });
+                })
+                .catch(function() {
+                    document.querySelectorAll('img.vimeo-thumb[data-vimeo-id="' + id + '"]')
+                        .forEach(function(el) {
+                            el.style.background = 'linear-gradient(135deg,#1a1a2e,#16213e)';
+                            el.removeAttribute('data-vimeo-id');
+                        });
+                });
+            fetches.push(p);
+        });
+        return Promise.all(fetches);
     }
 
     function generateModalMediaHtml(mediaUrl, mediaIndex) {
@@ -419,7 +492,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="item-content">
                     <span class="category-tag" data-category-filter="${escapeHtml(project.category || 'uncategorized')}">${escapeHtml(displayCategory)}</span>
                     <h3>${escapeHtml(project.title)}</h3>
-                    <p>${linkify(project.description)}</p>
+                    <p>${renderDescription(project.description)}</p>
                 </div>
                 <div class="share-hint">🔗 Click to Share</div>
             `;
@@ -468,18 +541,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const categories = [...new Set(visibleProjects.map(p => p.category).filter(c => c && c !== ''))].sort((a, b) => a.localeCompare(b));
         
         const filterNav = document.querySelector('.filter-nav');
-        if (filterNav) {
-            let pillsHtml = `<button class="filter-btn active" data-filter="all">All Projects</button>`;
-            
-            // Add Uncategorized pill
-            pillsHtml += `<button class="filter-btn" data-filter="uncategorized">Uncategorized</button>`;
-            
-            categories.forEach(cat => {
-                const displayName = formatCategoryForDisplay(cat);
-                pillsHtml += `<button class="filter-btn" data-filter="${escapeHtml(cat)}">${escapeHtml(displayName)}</button>`;
-            });
-            filterNav.innerHTML = pillsHtml;
-        }
+if (filterNav) {
+    let pillsHtml = `<button class="filter-btn active" data-filter="all">All Projects</button>`;
+    
+    // Check if there are any published Uncategorized projects
+    const hasUncategorizedProjects = visibleProjects.some(p => !p.category || p.category === '');
+    if (hasUncategorizedProjects) {
+        pillsHtml += `<button class="filter-btn" data-filter="uncategorized">Uncategorized</button>`;
+    }
+    
+    categories.forEach(cat => {
+        const displayName = formatCategoryForDisplay(cat);
+        pillsHtml += `<button class="filter-btn" data-filter="${escapeHtml(cat)}">${escapeHtml(displayName)}</button>`;
+    });
+    filterNav.innerHTML = pillsHtml;
+}
         
         // Initialize swipers for cards with multiple media
         projects.forEach((project, idx) => {
@@ -504,6 +580,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         
+        loadVimeoThumbnails();
+
         // Setup category tag click handlers
         document.querySelectorAll('.category-tag').forEach(tag => {
             const newTag = tag.cloneNode(true);

@@ -59,7 +59,7 @@ h1 {
     font-size: 1.8rem;
     font-weight: 600;
     letter-spacing: -0.02em;
-    background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-red) 100%);
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-red) 15%);
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
@@ -1051,11 +1051,21 @@ footer {
     line-height: 1.6;
     transition: border-color 0.2s;
     overflow-y: auto;
+    box-sizing: border-box;
 }
 
 .rich-text-description:focus {
     outline: none;
     border-color: var(--accent-red);
+}
+
+/* Tag-editor textarea: monospace so tags are easy to read/edit */
+.rich-text-description.tag-editor {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
 .rich-text-description ul, 

@@ -1,130 +1,502 @@
 [
   {
-    "title": "Marathon Sod Rebrand",
-    "category": "",
-    "cardHeading": "Rebrand",
+    "title": "Circuit Scout",
+    "category": "app_design_&_development",
+    "cardHeading": "Webapp",
     "media": [
-      "media/marathon_01.png",
-      "media/ms_01.png"
+      "media/app/cs_01.png",
+      "media/app/cs_02.png",
+      "media/app/cs_03.png"
     ],
-    "description": "A comprehensive identity overhaul for Southland Sod Farms, modernizing a 15-year-old brand identity across print advertising, logos, and retail packaging layouts.\n\nA comprehensive identity overhaul for Southland Sod Farms, modernizing a 15-year-old brand identity across print advertising, logos, and retail packaging layouts.\n\nA comprehensive identity overhaul for Southland Sod Farms, modernizing a 15-year-old brand identity across print advertising, logos, and retail packaging layouts.",
+    "description": "A DIY guitar pedal circuit database and search tool. Scrape, organize, and discover effects pedal layouts from the DIY community.\n\nLocal admin saves to JSON for static site publishing.\n\n<a href=”https://samoff.com/circuit-scout” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
     "imageAlign": "center",
-    "published": false
+    "published": true
   },
   {
-    "title": "Maemo Summit Collateral",
+    "title": "Written & Formatted",
+    "category": "app_design_&_development",
+    "cardHeading": "Web app",
+    "media": [
+      "media/app/written_01.png",
+      "media/app/written_02.png",
+      "media/app/written_03.png",
+      "media/app/written_04.png"
+    ],
+    "description": "Embedded editor that converts simple plain-text markup into publication-ready, accessible HTML with sophisticated typographic features like drop caps, ligatures, footnotes, and more.\n\n<a href=”https://samoff.com/written/app” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "Tim Samoff | Portfolio",
+    "category": "app_design_&_development",
+    "cardHeading": "Webapp",
+    "media": [
+      "media/app/tsp_01.png",
+      "media/app/tsp_02.png",
+      "media/app/tsp_03.png"
+    ],
+    "description": "A simple one-page web-based portfolio.\n\nLocal admin saves to JSON for static site publishing.\n\n<a href=”https://samoff.com/portfolio/demo/” target=”_blank” rel=”noopener noreferrer”>Demo site with admin...</a>",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "Smart Object Rotator for Unity",
+    "category": "app_design_&_development",
+    "cardHeading": "Unity Asset",
+    "media": [
+      "https://vimeo.com/897266720"
+    ],
+    "description": "A simple script that breathes life into object rotation in Unity.",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "LED",
+    "category": "motion_graphics_&_animation",
+    "cardHeading": "LED",
+    "media": [
+      "https://vimeo.com/179542538"
+    ],
+    "description": "A silly little story about the secret, but true lives of light emitting diodes.<br><br>Modeled, rigged, textured, and animated in 3Ds Max.",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "Digital Art & Manipulation",
+    "category": "digital_art_&_design",
+    "cardHeading": "Digital Art",
+    "media": [
+      "media/digital/girl_dig_01.jpg",
+      "media/digital/bug_dig_01.jpg",
+      "media/digital/pepper_dig_01.jpg"
+    ],
+    "description": "Random pieces of digital art.",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": " Four Seasons",
+    "category": "motion_graphics_&_animation",
+    "cardHeading": "Four Seasons",
+    "media": [
+      "https://www.youtube.com/watch?v=aLez6rB7SJs"
+    ],
+    "description": "Abstract visuals and sound created in After Effects.",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "Maemo Summit Event Collateral",
     "category": "brand_&_identity",
     "cardHeading": "Major Event Collateral",
     "media": [
-      "media/maemo_01.jpg",
-      "media/gaberln-logo.png",
-      "media/plonk_gameplay.png",
-      "media/plonk_paddle.png",
-      "media/plonk_title_panel_logo.png"
+      "media/brand/maesum_01.jpg",
+      "media/brand/maesum_02.jpg",
+      "media/brand/maesum_03.jpg",
+      "media/brand/maesum_04.jpg"
     ],
     "description": "Event branding, spatial identity vectors, and custom apparel design developed for the global open-source community platform summit.",
     "imageAlign": "center",
-    "published": false
-  },
-  {
-    "title": "Yamaha POP Displays & Assembly",
-    "category": "production_&_installation",
-    "cardHeading": "Production",
-    "media": [
-      "media/yamaha_01.png"
-    ],
-    "description": "Structural point-of-purchase design layouts, spatial mockups, and step-by-step user documentation assembly systems engineered for Yamaha musical instruments.",
-    "imageAlign": "top",
-    "published": false
+    "published": true
   },
   {
     "title": "EMBARQ Art Installation",
     "category": "production_&_installation",
     "cardHeading": "Installation Art",
     "media": [
-      "media/embarq_breezeway_01.jpg"
+      "media/installation/eq_bw_01.jpg",
+      "media/installation/eq_bw_02.jpg",
+      "media/installation/eq_bw_03.jpg"
     ],
     "description": "An environmental design installations overhaul for the EMBARQ corporate headquarters. Engineered budget iterations, technical materials, and abstract visuals to foster communication passively via spatial canvas installation art.",
     "imageAlign": "center",
-    "published": false
-  },
-  {
-    "title": "Commercial Game Design",
-    "category": "game_design",
-    "cardHeading": "Game Design",
-    "media": [
-      "media/abyss_01.jpg",
-      "media/b5_01.jpg",
-      "media/b5_02.jpg",
-      "media/casper_01.jpg",
-      "media/landtime_01.jpg"
-    ],
-    "description": "Oversaw the technical production, pipeline coordination, and release engineering of over forty retail commercial entertainment software titles across major media brands.",
-    "imageAlign": "top",
-    "published": false
-  },
-  {
-    "title": "Maemo/MeeGo Platform Mobile Projects",
-    "category": "game_design",
-    "cardHeading": "Game Design",
-    "media": [
-      "media/gaberln_01.png",
-      "media/gaberln-logo.png",
-      "media/plonk_gameplay.png",
-      "media/plonk_paddle.png",
-      "media/plonk_title_panel_logo.png"
-    ],
-    "description": "Collaborated with a global developer collective to code open-source games. Projects included Plonk, a steampunk multi-touch clone, and Gaberin, a responsive physics-based juggling simulator.",
-    "imageAlign": "center",
-    "published": false
-  },
-  {
-    "title": "Babylon 5 Entertainment Utility",
-    "category": "",
-    "cardHeading": "Interactive UI",
-    "media": [
-      "media/b5_01.jpg"
-    ],
-    "description": "UI design mimicking the sci-fi control displays from the television series Babylon 5. Programmed and optimized within severe hardware limits using custom 4-bit color depth index palettes.",
-    "imageAlign": "center",
-    "published": false
-  },
-  {
-    "title": "Published Web Solutions",
-    "category": "web_&_interactive",
-    "cardHeading": "Web Design",
-    "media": [
-      "media/tswl_01.jpg"
-    ],
-    "description": "Custom production frameworks and interface design since 1993, including showcase layouts chosen for international design critique publication honors.",
-    "imageAlign": "center",
-    "published": false
-  },
-  {
-    "title": "Demo Project with Multiple Media",
-    "category": "brand_&_identity",
-    "cardHeading": "Multimedia Demo",
-    "media": [
-      "media/marathon_01.png",
-      "media/maemo_01.jpg",
-      "media/yamaha_01.png",
-      "https://youtu.be/dQw4w9WgXcQ"
-    ],
-    "description": "This project demonstrates multiple media items including images and a YouTube video. Click to open the full carousel modal. https://example.com",
-    "imageAlign": "center",
-    "published": false
+    "published": true
   },
   {
     "title": "Marathon Sod Rebrand",
-    "category": "",
-    "cardHeading": "Brand Identity",
+    "category": "brand_&_identity",
+    "cardHeading": "Rebrand",
     "media": [
-      "media/marathon_01.png",
-      "media/ms_01.png",
-      "https://youtu.be/r8h8g72ntxM?si=WUz9T6fyMjVuAUzx"
+      "media/brand/marathon_01.png"
     ],
-    "description": "A comprehensive identity overhaul for Southland Sod Farms, modernizing a 15-year-old brand identity across print advertising, logos, and retail packaging layouts.\n\nA comprehensive identity overhaul for Southland Sod Farms, modernizing a 15-year-old brand identity across print advertising, logos, and retail packaging layouts.\n\nA comprehensive identity overhaul for Southland Sod Farms, modernizing a 15-year-old brand identity across print advertising, logos, and retail packaging layouts.",
+    "description": "A comprehensive identity overhaul for Southland Sod Farms, modernizing a 15-year-old brand identity across print advertising, logos, and retail packaging layouts.",
+    "imageAlign": "top",
+    "published": true
+  },
+  {
+    "title": "Yamaha POP Displays & Assembly",
+    "category": "production_&_installation",
+    "cardHeading": "Production",
+    "media": [
+      "media/brand/yampop_01.png",
+      "media/brand/yampop_02.png",
+      "media/brand/yampop_03.png",
+      "media/brand/yampop_04.png",
+      "media/brand/yampop_05.png"
+    ],
+    "description": "Structural point-of-purchase design layouts, spatial mockups, and step-by-step user documentation assembly systems engineered for Yamaha musical instruments.",
+    "imageAlign": "top",
+    "published": true
+  },
+  {
+    "title": "Toy Truck",
+    "category": "motion_graphics_&_animation",
+    "cardHeading": "Toy Truck",
+    "media": [
+      "https://vimeo.com/174964375"
+    ],
+    "description": "3D modeling, texturing, and animation in Cinema 4D.",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "Commercial Game Production & Design",
+    "category": "game_design_&_development",
+    "cardHeading": "Game Production & Design",
+    "media": [
+      "media/game/tdk-all.png"
+    ],
+    "description": "Senior Producer and Game Designer on over forty retail commercial entertainment and edutainment games across major media brands.\n\n<strong>Roles:</strong> Senior Producer, Game Designer, Level Designer, Artist, UX Designer, QA",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "Babylon 5 Entertainment Utilities",
+    "category": "user_experience",
+    "cardHeading": "Interactive UI",
+    "media": [
+      "media/game/b5_01.jpg",
+      "media/game/b5_app_01.png",
+      "media/game/b5_02.jpg"
+    ],
+    "description": "Two “entertainment utilities” based on the Ba5 brand. UI design, game design, etc.\n\n<strong>Roles:</strong> Producer, UX Designer, QA\n\nFamily Software Recommended Award",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "Published Web Solutions",
+    "category": "web_design_&_development",
+    "cardHeading": "Web Design",
+    "media": [
+      "media/web/adkoc_web_01.png",
+      "media/web/amahoro_web_01.png",
+      "media/web/code_web_01.jpg",
+      "media/web/emailincarnate_web_01.png",
+      "media/web/eq_elearn_web_01.png",
+      "media/web/fluxtopia_web.png",
+      "media/web/gmsf_web_01.png",
+      "media/web/hensley_web_01.png",
+      "media/web/hermes_web_01.png",
+      "media/web/hlc_web_01.png",
+      "media/web/kcdr_web_01.png",
+      "media/web/nelly_web_01.jpg",
+      "media/web/tdk_web_01.jpg",
+      "media/web/tswl_web_01.jpg",
+      "media/web/tswl_web_02.png"
+    ],
+    "description": "Custom production frameworks and interface design since 1993, including showcase layouts chosen for international design critique publication honors.",
+    "imageAlign": "top",
+    "published": true
+  },
+  {
+    "title": "Logo Design",
+    "category": "brand_&_identity",
+    "cardHeading": "Miscellaneous Logos",
+    "media": [
+      "media/brand/l_D_logo_01.png",
+      "media/brand/compass_logo_01.png",
+      "media/brand/deblet_logo_01.png",
+      "media/brand/gaberln_logo_01.png",
+      "media/brand/hb_logo_01.png",
+      "media/brand/hermes-logo_01.png",
+      "media/brand/maesum_logo_01.png",
+      "media/brand/plonk_logo_01.png",
+      "media/brand/tp_logo.png",
+      "media/brand/yam_logo_01.png"
+    ],
+    "description": "A variety of logos designed for clients and projects over the years.",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "Robot Arm",
+    "category": "motion_graphics_&_animation",
+    "cardHeading": "Robot Arm",
+    "media": [
+      "https://vimeo.com/176865678"
+    ],
+    "description": "Modeling, rigging, and animation in Cinema 4D.",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "Fire VFX",
+    "category": "motion_graphics_&_animation",
+    "cardHeading": "Fire VFX",
+    "media": [
+      "https://vimeo.com/1196083451"
+    ],
+    "description": "<b></b><b><b>Fire VFX </b></b>created in After Effects.",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "Mevl",
+    "category": "brand_&_identity",
+    "cardHeading": "Mevl",
+    "media": [
+      "media/brand/mevl_01.png"
+    ],
+    "description": "",
     "imageAlign": "center",
     "published": false
+  },
+  {
+    "title": "Three Dragons",
+    "category": "game_design_&_development",
+    "cardHeading": "Text-based",
+    "media": [
+      "media/game/3drag_01.jpg"
+    ],
+    "description": "<em>Three Dragons</em> is a text-based micro-RPG based on a European folktale about “two brothers and an old man with a white beard.” Made in https://twinery.org/, it is a short-form experience with deep branching interactions, a real-time battle mechanic, and a distinct moral message.\n\n<a href=”https://timsamoff.itch.io/three-dragons” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "Bubble Hopper",
+    "category": "game_design_&_development",
+    "cardHeading": "Unity",
+    "media": [
+      "media/game/bh_01.jpg"
+    ],
+    "description": "A simple game in which you play as a waterbug, capturing bubbles. Made in Unity during Global Game Jam 2025.\n\n<a href=”https://timsamoff.itch.io/bh” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "Dodge 'N' Collect",
+    "category": "game_design_&_development",
+    "cardHeading": "Prototype",
+    "media": [
+      "media/game/dnc_01.jpg"
+    ],
+    "description": "Game prototype made in Unreal Engine. The player must dodge and collect the same items based on their state.\n\n<a href=”https://timsamoff.itch.io/dnc” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "The Flock Beneath",
+    "category": "game_design_&_development",
+    "cardHeading": "Unity",
+    "media": [
+      "media/game/tfb_01.webp"
+    ],
+    "description": "A sheepherding game inspired by a dream and made in Unity.\n\n<a href=”https://timsamoff.itch.io/flock” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "HMLabs",
+    "category": "game_design_&_development",
+    "cardHeading": "Text-based",
+    "media": [
+      "media/game/isb_01.jpg"
+    ],
+    "description": "Text-based game designed and developed in 2017, as part of my <a href=”https://library.scad.edu/search?/asamoff/asamoff/1%2C2%2C2%2CE/frameset&FF=asamoff+timothy&1%2C1%2C/indexsort=-“ target=”_blank” rel=”noopener noreferrer”>MFA thesis</a> on using real-time mechanics in text-based games.\n\n<a href=”https://timsamoff.itch.io/hmlabs” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "It's Supposed To Be Blue",
+    "category": "game_design_&_development",
+    "cardHeading": "Unity",
+    "media": [
+      "media/game/isb_01.jpg"
+    ],
+    "description": "Idle clicker made in Unity during Global Game Jam 2020.\n\n<a href=”https://timsamoff.itch.io/blue” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "Loosey Goosey",
+    "category": "game_design_&_development",
+    "cardHeading": "Unity",
+    "media": [
+      "media/game/lg_01.jpg"
+    ],
+    "description": "Humor-filled endless runner made in Unity during Global Game Jam 2024.\n\n<a href=”https://timsamoff.itch.io/loosey-goosey” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "SPLIT",
+    "category": "game_design_&_development",
+    "cardHeading": "Game Boy",
+    "media": [
+      "media/game/split_01.jpg"
+    ],
+    "description": "Game about split personality disorder, made in GB Studio. Second place winner of itch.io’s “<a href=”https://itch.io/jam/mini-jam-30-gameboy/results” target=”_blank” rel=”noopener noreferrer”>Mini Game Jam 30 + GB Studio</a>.”\n\n<a href=”https://timsamoff.itch.io/split” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "Undead Pairs",
+    "category": "game_design_&_development",
+    "cardHeading": "Concentration",
+    "media": [
+      "media/game/up_01.png",
+      "media/game/up_03.jpg",
+      "media/game/up_03.png",
+      "media/game/up_04.png"
+    ],
+    "description": "A Concentration clone, but it’s zombies! Made in Unity.\n\nArt by <a href=”https://www.thomasthesen.art/” target=”_blank” rel=”noopener noreferrer”>Thomas Paul Thesen</a>.\n\n<a href=”https://timsamoff.itch.io/up” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "Stay",
+    "category": "game_design_&_development",
+    "cardHeading": "Game Poem",
+    "media": [
+      "media/game/stay_01.png",
+      "media/game/stay_02.png",
+      "media/game/stay_03.png"
+    ],
+    "description": "“Stay” is a game poem about tension and release. Be patient. Move slowly. Or don’t move at all.\n\n<a href=”https://timsamoff.itch.io/stay” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "The Abyss: Incident at Europa",
+    "category": "game_design_&_development",
+    "cardHeading": "AAA",
+    "media": [
+      "media/game/abyss_01.jpg",
+      "media/game/abyss_02.jpg"
+    ],
+    "description": "Spiritual successor to James Cameron’s <em>The Abyss</em>.\n\n<strong>Roles:</strong> Senior producer, level designer, artist",
+    "imageAlign": "top",
+    "published": true
+  },
+  {
+    "title": "The Land Before Time Animated Moviebook",
+    "category": "game_design_&_development",
+    "cardHeading": "Edutainment",
+    "media": [
+      "media/game/tlbt.jpg"
+    ],
+    "description": "Edutainment title based on <em>The Land Before Time</em>.\n\n<strong>Roles:</strong> Game Designer, UX Designer, QA\n\nNewsweek Editors’ Choice",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "An American Tail Animated Moviebook",
+    "category": "game_design_&_development",
+    "cardHeading": "Edutainment",
+    "media": [
+      "media/game/at_01.webp"
+    ],
+    "description": "Edutainment title based on <em>An American Tale</em>.\n\n<strong>Roles:</strong> Game Design, UX Design, QA\n\nExcellence in Educational Software",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "EQ Copilot",
+    "category": "app_design_&_development",
+    "cardHeading": "Widget",
+    "media": [
+      "media/app/eq_copilot_app_01.png"
+    ],
+    "description": "RSS reader widget that disseminated company news to employees’ desktops. The Idea was iterated and eventually patented.\n\n<strong>Roles:</strong> UI & UX Design, programming",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "ActiveCasting",
+    "category": "app_design_&_development",
+    "cardHeading": "Corporate",
+    "media": [
+      "media/app/ac_app_01.jpg",
+      "media/app/ac_app_02.jpg"
+    ],
+    "description": "App that delivered aggregated training videos to employees.\n\n<strong>Roles:</strong> UI & UX Design",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "Tim Samoff - Portfolio Reel",
+    "category": "digital_art_&_design",
+    "cardHeading": "Reel",
+    "media": [
+      "https://vimeo.com/2495274"
+    ],
+    "description": "Multimedia portfolio reel, circa 2008.\n\n<strong>Roles:</strong> Graphics, VFX, Editing, Music",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "AIrmark",
+    "category": "app_design_&_development",
+    "cardHeading": "Chrome Extension",
+    "media": [
+      "media/app/am_01.jpg",
+      "media/app/am_02.jpg",
+      "media/app/am_03.jpg",
+      "media/app/am_04.jpg",
+      "media/app/am_05.jpg",
+      "media/app/am_06.jpg",
+      "media/app/am_07.jpg"
+    ],
+    "description": "BYOK (bring your own keys) AI detection Chrome Extension that tries to detect AI-generated text, images, and audio (depending on the keys you possess).\n\n<a href=”https://github.com/timsamoff/AIrmark” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "YouTube Title Shuffler",
+    "category": "app_design_&_development",
+    "cardHeading": "Chrome Extension",
+    "media": [
+      "media/app/ytts_01.png"
+    ],
+    "description": "Chrome Extension that hilariously shuffles all of the titles under the video thumbnails.\n\n<a href=”https://github.com/timsamoff/YouTube-Title-Shuffler” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "Enclosure Pro",
+    "category": "app_design_&_development",
+    "cardHeading": "Desktop App",
+    "media": [
+      "media/app/ep_01.png",
+      "media/app/ep_02.png",
+      "https://www.youtube.com/watch?v=jDg9bKsPez0"
+    ],
+    "description": "A cross-platform precision drill hole layout tool for effect pedal enclosures.\n\n<a href=”https://samoff.com/enclosure-pro/” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "Enclosure Pro Website",
+    "category": "web_design_&_development",
+    "cardHeading": "Website",
+    "media": [
+      "media/web/ep_web_01.png",
+      "media/web/ep_web_02.png",
+      "media/web/ep_web_03.png"
+    ],
+    "description": "Website made for the Enclosure Pro app.\n\n<a href=”https://samoff.com/enclosure-pro/” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "CodePen Experiments",
+    "category": "user_experience",
+    "cardHeading": "Experiments",
+    "media": [
+      "media/web/cp_01.png"
+    ],
+    "description": "A lot of web-based user experience experiments happened on CodePen.\n\n<a href=”https://codepen.io/timsamoff” target=”_blank” rel=”noopener noreferrer”>Try it out!</a>",
+    "imageAlign": "center",
+    "published": true
   }
 ]
