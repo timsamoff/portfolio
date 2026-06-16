@@ -422,18 +422,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function applyFilter() {
-        allPortfolioItems.forEach(item => {
-            const itemCategory = item.getAttribute('data-category');
-            if (currentFilterValue === 'all') {
-                item.style.display = 'flex';
-            } else if (currentFilterValue === 'uncategorized') {
-                // Show projects with empty category or category === 'uncategorized'
-                item.style.display = (!itemCategory || itemCategory === 'uncategorized' || itemCategory === '') ? 'flex' : 'none';
-            } else {
-                item.style.display = (itemCategory === currentFilterValue) ? 'flex' : 'none';
-            }
-        });
-    }
+    allPortfolioItems.forEach(item => {
+        const itemCategory = item.getAttribute('data-category');
+        if (currentFilterValue === 'all') {
+            item.style.display = 'flex';
+        } else if (currentFilterValue === 'uncategorized') {
+            item.style.display = (!itemCategory || itemCategory === 'uncategorized' || itemCategory === '') ? 'flex' : 'none';
+        } else {
+            item.style.display = (itemCategory === currentFilterValue) ? 'flex' : 'none';
+        }
+    });
+}
 
     // Load projects directly from projects.json
     function loadProjects(projects) {
@@ -552,23 +551,63 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Get unique categories from projects (exclude empty)
         const categories = [...new Set(visibleProjects.map(p => p.category).filter(c => c && c !== ''))].sort((a, b) => a.localeCompare(b));
-        
+
         const filterNav = document.querySelector('.filter-nav');
-if (filterNav) {
-    let pillsHtml = `<button class="filter-btn active" data-filter="all">All Projects</button>`;
-    
-    // Check if there are any published Uncategorized projects
-    const hasUncategorizedProjects = visibleProjects.some(p => !p.category || p.category === '');
-    if (hasUncategorizedProjects) {
-        pillsHtml += `<button class="filter-btn" data-filter="uncategorized">Uncategorized</button>`;
-    }
-    
-    categories.forEach(cat => {
-        const displayName = formatCategoryForDisplay(cat);
-        pillsHtml += `<button class="filter-btn" data-filter="${escapeHtml(cat)}">${escapeHtml(displayName)}</button>`;
-    });
-    filterNav.innerHTML = pillsHtml;
-}
+        if (filterNav) {
+            // Clear existing content
+            filterNav.innerHTML = '';
+            
+            // Check for the Games category
+            const gamesCategory = categories.find(cat => cat.toLowerCase().includes('game'));
+            const otherCategories = categories.filter(cat => cat !== gamesCategory);
+            
+            const allBtn = document.createElement('button');
+            allBtn.className = 'filter-btn active';
+            allBtn.setAttribute('data-filter', 'all');
+            allBtn.textContent = 'All Projects';
+            filterNav.appendChild(allBtn);
+            
+            const hasUncategorizedProjects = visibleProjects.some(p => !p.category || p.category === '');
+            if (hasUncategorizedProjects) {
+                const uncatBtn = document.createElement('button');
+                uncatBtn.className = 'filter-btn';
+                uncatBtn.setAttribute('data-filter', 'uncategorized');
+                uncatBtn.textContent = 'Uncategorized';
+                filterNav.appendChild(uncatBtn);
+            }
+            
+            if (gamesCategory || otherCategories.length > 0) {
+                const divider = document.createElement('span');
+                divider.className = 'filter-divider';
+                filterNav.appendChild(divider);
+            }
+            
+            if (gamesCategory) {
+                const gamesBtn = document.createElement('button');
+                gamesBtn.className = 'filter-btn filter-btn-games';
+''              
+                gamesBtn.setAttribute('data-filter', gamesCategory);
+
+                gamesBtn.textContent = formatCategoryForDisplay(gamesCategory);
+                filterNav.appendChild(gamesBtn);
+                
+                if (otherCategories.length > 0) {
+                    const divider = document.createElement('span');
+                    divider.className = 'filter-divider';
+                    filterNav.appendChild(divider);
+                }
+            }
+            
+            otherCategories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+
+                btn.setAttribute('data-filter', cat);
+
+                btn.textContent = formatCategoryForDisplay(cat);
+                filterNav.appendChild(btn);
+            });
+        }
         
         // Initialize swipers for cards with multiple media
         projects.forEach((project, idx) => {

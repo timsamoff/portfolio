@@ -1130,6 +1130,33 @@ footer {
     border-color: rgba(240, 192, 64, 0.3);
 }
 
-.rich-text-container {
-    margin-bottom: 0.5rem;
+/* ========================================
+   GAMES FILTER - SPECIAL RED OUTLINE
+   ======================================== */
+.filter-btn-games {
+    border-color: var(--accent-red) !important;
+    color: var(--accent-red) !important;
+    background: var(--filter-bg) !important;
+}
+
+.filter-btn-games.active {
+    background: var(--accent-red) !important;
+    border-color: var(--accent-red) !important;
+    color: white !important;
+}
+
+.filter-btn-games:hover:not(.active) {
+    background: rgba(229, 72, 77, 0.08) !important;
+}
+
+/* ========================================
+   FILTER DIVIDER
+   ======================================== */
+.filter-divider {
+    width: 1px;
+    height: 30px;
+    background: var(--border-color);
+    display: inline-block;
+    margin: 0 8px;
+    flex-shrink: 0;
 }
