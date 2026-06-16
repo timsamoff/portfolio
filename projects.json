@@ -40,6 +40,42 @@
     "published": true
   },
   {
+    "title": "The Flock Beneath",
+    "category": "game_design_&_development",
+    "cardHeading": "Unity",
+    "media": [
+      "media/game/tfb_01.webp"
+    ],
+    "description": "A sheepherding game inspired by a dream and made in Unity.\n\n<a href=\"https://timsamoff.itch.io/flock\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "Loosey Goosey",
+    "category": "game_design_&_development",
+    "cardHeading": "Unity",
+    "media": [
+      "media/game/lg_01.jpg"
+    ],
+    "description": "Humor-filled endless runner made in Unity during Global Game Jam 2024.\n\n<a href=\"https://timsamoff.itch.io/loosey-goosey\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "Undead Pairs",
+    "category": "game_design_&_development",
+    "cardHeading": "Concentration",
+    "media": [
+      "media/game/up_01.png",
+      "media/game/up_03.jpg",
+      "media/game/up_03.png",
+      "media/game/up_04.png"
+    ],
+    "description": "A Concentration clone, but it’s zombies! Made in Unity.\n\nArt by <a href=\"https://www.thomasthesen.art/\"target=\"_blank\" rel=\"noopener noreferrer\">Thomas Paul Thesen</a>.\n\n<a href=\"https://timsamoff.itch.io/up\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
     "title": "Smart Object Rotator for Unity",
     "category": "app_design_&_development",
     "cardHeading": "Unity Asset",
@@ -285,17 +321,6 @@
     "published": true
   },
   {
-    "title": "The Flock Beneath",
-    "category": "game_design_&_development",
-    "cardHeading": "Unity",
-    "media": [
-      "media/game/tfb_01.webp"
-    ],
-    "description": "A sheepherding game inspired by a dream and made in Unity.\n\n<a href=\"https://timsamoff.itch.io/flock\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
-    "imageAlign": "center",
-    "published": true
-  },
-  {
     "title": "HMLabs",
     "category": "game_design_&_development",
     "cardHeading": "Text-based",
@@ -318,17 +343,6 @@
     "published": true
   },
   {
-    "title": "Loosey Goosey",
-    "category": "game_design_&_development",
-    "cardHeading": "Unity",
-    "media": [
-      "media/game/lg_01.jpg"
-    ],
-    "description": "Humor-filled endless runner made in Unity during Global Game Jam 2024.\n\n<a href=\"https://timsamoff.itch.io/loosey-goosey\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
-    "imageAlign": "center",
-    "published": true
-  },
-  {
     "title": "SPLIT",
     "category": "game_design_&_development",
     "cardHeading": "Game Boy",
@@ -336,20 +350,6 @@
       "media/game/split_01.jpg"
     ],
     "description": "Game about split personality disorder, made in GB Studio. Second place winner of itch.io’s “<a href=\"https://itch.io/jam/mini-jam-30-gameboy/results\"target=\"_blank\" rel=\"noopener noreferrer\">Mini Game Jam 30 + GB Studio</a>.”\n\n<a href=\"https://timsamoff.itch.io/split\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
-    "imageAlign": "center",
-    "published": true
-  },
-  {
-    "title": "Undead Pairs",
-    "category": "game_design_&_development",
-    "cardHeading": "Concentration",
-    "media": [
-      "media/game/up_01.png",
-      "media/game/up_03.jpg",
-      "media/game/up_03.png",
-      "media/game/up_04.png"
-    ],
-    "description": "A Concentration clone, but it’s zombies! Made in Unity.\n\nArt by <a href=\"https://www.thomasthesen.art/\"target=\"_blank\" rel=\"noopener noreferrer\">Thomas Paul Thesen</a>.\n\n<a href=\"https://timsamoff.itch.io/up\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
     "published": true
   },
