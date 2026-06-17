@@ -37,12 +37,198 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Hero background SVG */
+        .share-loading .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        
+        .share-loading .hero-bg svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        /* Waves */
+        .share-loading .wave {
+            fill: none;
+            stroke-linecap: round;
+            opacity: 0;
+            animation: shareWaveFlow 12s ease-in-out infinite alternate;
+            transform-origin: center;
+            animation-fill-mode: forwards;
+        }
+        
+        .share-loading .wave-1 {
+            animation-duration: 14s;
+            animation-delay: 0.3s;
+        }
+        
+        .share-loading .wave-2 {
+            animation-duration: 16s;
+            animation-delay: 1s;
+        }
+        
+        .share-loading .wave-3 {
+            animation-duration: 18s;
+            animation-delay: 1.8s;
+        }
+        
+        @keyframes shareWaveFlow {
+            0% {
+                transform: translateX(-10px) translateY(0px) scale(1);
+                opacity: 0.05;
+            }
+            8% {
+                opacity: 0.2;
+            }
+            25% {
+                transform: translateX(10px) translateY(-8px) scale(1.01);
+                opacity: 0.5;
+            }
+            50% {
+                transform: translateX(-5px) translateY(6px) scale(0.99);
+                opacity: 0.35;
+            }
+            75% {
+                transform: translateX(15px) translateY(-3px) scale(1.005);
+                opacity: 0.45;
+            }
+            100% {
+                transform: translateX(-15px) translateY(10px) scale(0.995);
+                opacity: 0.2;
+            }
+        }
+        
+        .share-loading .wave-3 {
+            animation: shareWaveFlowSlow 20s ease-in-out infinite alternate;
+            animation-delay: 2s;
+        }
+        
+        @keyframes shareWaveFlowSlow {
+            0% {
+                transform: translateX(-10px) translateY(0px) scale(1);
+                opacity: 0.05;
+            }
+            10% {
+                opacity: 0.15;
+            }
+            30% {
+                transform: translateX(10px) translateY(-8px) scale(1.01);
+                opacity: 0.4;
+            }
+            60% {
+                transform: translateX(-5px) translateY(6px) scale(0.99);
+                opacity: 0.3;
+            }
+            80% {
+                transform: translateX(15px) translateY(-3px) scale(1.005);
+                opacity: 0.35;
+            }
+            100% {
+                transform: translateX(-15px) translateY(10px) scale(0.995);
+                opacity: 0.15;
+            }
+        }
+        
+        /* Orbs */
+        .share-loading .orb {
+            animation: shareOrbFloat 10s ease-in-out infinite alternate;
+            transform-origin: center;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+        
+        .share-loading .orb-1 {
+            animation-duration: 12s;
+            animation-delay: 0.3s;
+        }
+        
+        .share-loading .orb-2 {
+            animation-duration: 14s;
+            animation-delay: 0.8s;
+        }
+        
+        .share-loading .orb-3 {
+            animation-duration: 13s;
+            animation-delay: 1.3s;
+        }
+        
+        .share-loading .orb-4 {
+            animation-duration: 15s;
+            animation-delay: 1.8s;
+        }
+        
+        @keyframes shareOrbFloat {
+            0% {
+                transform: translate(0px, 0px) scale(1);
+                opacity: 0.3;
+            }
+            33% {
+                transform: translate(15px, -10px) scale(1.15);
+                opacity: 0.7;
+            }
+            66% {
+                transform: translate(-8px, 12px) scale(0.85);
+                opacity: 0.25;
+            }
+            100% {
+                transform: translate(10px, -5px) scale(1.05);
+                opacity: 0.5;
+            }
+        }
+        
+        /* Particles */
+        .share-loading .particle {
+            animation: shareParticleFloat 8s ease-in-out infinite alternate;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+        
+        .share-loading .particle-1 { animation-delay: 0.1s; }
+        .share-loading .particle-2 { animation-delay: 0.7s; }
+        .share-loading .particle-3 { animation-delay: 1.3s; }
+        .share-loading .particle-4 { animation-delay: 1.9s; }
+        .share-loading .particle-5 { animation-delay: 2.5s; }
+        .share-loading .particle-6 { animation-delay: 3.1s; }
+        .share-loading .particle-7 { animation-delay: 3.7s; }
+        .share-loading .particle-8 { animation-delay: 4.3s; }
+        .share-loading .particle-9 { animation-delay: 4.9s; }
+        .share-loading .particle-10 { animation-delay: 5.5s; }
+        .share-loading .particle-11 { animation-delay: 6.1s; }
+        .share-loading .particle-12 { animation-delay: 6.7s; }
+        
+        @keyframes shareParticleFloat {
+            0% {
+                transform: translate(0px, 0px) scale(1);
+                opacity: 0.1;
+            }
+            50% {
+                transform: translate(8px, -10px) scale(1.5);
+                opacity: 0.35;
+            }
+            100% {
+                transform: translate(-5px, 5px) scale(0.8);
+                opacity: 0.08;
+            }
         }
         
         .share-loading header {
+            position: relative;
+            z-index: 1;
             border-bottom: 1px solid #2a2a30;
             padding: 1rem 2rem 0.75rem;
-            background: #0a0a0f;
+            background: transparent;
         }
         
         .share-loading .header-container {
@@ -79,7 +265,8 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            background: #1f1f24;
+            background: rgba(31, 31, 36, 0.8);
+            backdrop-filter: blur(4px);
             border: 1px solid #2a2a30;
             border-radius: 100px;
             padding: 0 1.1rem;
@@ -108,6 +295,8 @@
         }
         
         .share-loading .loading-content {
+            position: relative;
+            z-index: 1;
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -119,7 +308,7 @@
         .share-loading .loading-spinner {
             width: 48px;
             height: 48px;
-            border: 3px solid #2a2a30;
+            border: 3px solid rgba(42, 42, 48, 0.5);
             border-top-color: #e5484d;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
@@ -143,12 +332,14 @@
         }
         
         .share-loading footer {
-            border-top: 1px solid #2a2a30;
+            position: relative;
+            z-index: 1;
+            border-top: 1px solid rgba(42, 42, 48, 0.5);
             padding: 2rem;
             text-align: center;
             font-size: 0.75rem;
             color: #71717a;
-            background: #0a0a0f;
+            background: transparent;
         }
         
         .share-loading footer .demo-footer-note {
@@ -159,6 +350,63 @@
 </head>
 <body>
     <div class="share-loading">
+        <!-- Hero Background -->
+        <div class="hero-bg">
+            <svg viewBox="0 0 1200 600" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="shareFlow1" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#e5484d;stop-opacity:0" />
+                        <stop offset="30%" style="stop-color:#e5484d;stop-opacity:0.25" />
+                        <stop offset="70%" style="stop-color:#e5484d;stop-opacity:0.25" />
+                        <stop offset="100%" style="stop-color:#e5484d;stop-opacity:0" />
+                    </linearGradient>
+                    <linearGradient id="shareFlow2" x1="100%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#e5484d;stop-opacity:0" />
+                        <stop offset="40%" style="stop-color:#e5484d;stop-opacity:0.15" />
+                        <stop offset="60%" style="stop-color:#e5484d;stop-opacity:0.15" />
+                        <stop offset="100%" style="stop-color:#e5484d;stop-opacity:0" />
+                    </linearGradient>
+                    <radialGradient id="shareGlowOrb" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" style="stop-color:#e5484d;stop-opacity:0.3" />
+                        <stop offset="50%" style="stop-color:#e5484d;stop-opacity:0.1" />
+                        <stop offset="100%" style="stop-color:#e5484d;stop-opacity:0" />
+                    </radialGradient>
+                    <filter id="shareSoftGlow">
+                        <feGaussianBlur stdDeviation="4" result="blur"/>
+                        <feMerge>
+                            <feMergeNode in="blur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                
+                <!-- Flowing waves -->
+                <path class="wave wave-1" d="M-100,200 C100,50 300,350 500,150 C700,-50 900,300 1100,100 C1200,0 1300,200 1400,150" fill="none" stroke="url(#shareFlow1)" stroke-width="3" filter="url(#shareSoftGlow)"/>
+                <path class="wave wave-2" d="M-100,350 C150,200 350,500 550,250 C750,0 950,400 1150,200 C1250,100 1350,300 1450,250" fill="none" stroke="url(#shareFlow2)" stroke-width="2" filter="url(#shareSoftGlow)"/>
+                <path class="wave wave-3" d="M-100,450 C200,300 400,600 600,350 C800,100 1000,450 1200,300 C1300,200 1400,400 1500,350" fill="none" stroke="#e5484d" stroke-width="1.5" opacity="0.15"/>
+                
+                <!-- Floating orbs -->
+                <circle class="orb orb-1" cx="150" cy="120" r="30" fill="url(#shareGlowOrb)" filter="url(#shareSoftGlow)"/>
+                <circle class="orb orb-2" cx="750" cy="380" r="45" fill="url(#shareGlowOrb)" filter="url(#shareSoftGlow)"/>
+                <circle class="orb orb-3" cx="1050" cy="180" r="25" fill="url(#shareGlowOrb)" filter="url(#shareSoftGlow)"/>
+                <circle class="orb orb-4" cx="350" cy="480" r="35" fill="url(#shareGlowOrb)" filter="url(#shareSoftGlow)"/>
+                
+                <!-- Sparkle/dot particles -->
+                <circle class="particle particle-1" cx="200" cy="250" r="2" fill="#e5484d" opacity="0.4"/>
+                <circle class="particle particle-2" cx="450" cy="150" r="1.5" fill="#e5484d" opacity="0.3"/>
+                <circle class="particle particle-3" cx="700" cy="300" r="2.5" fill="#e5484d" opacity="0.35"/>
+                <circle class="particle particle-4" cx="950" cy="420" r="1.5" fill="#e5484d" opacity="0.25"/>
+                <circle class="particle particle-5" cx="300" cy="400" r="2" fill="#e5484d" opacity="0.3"/>
+                <circle class="particle particle-6" cx="600" cy="100" r="1.5" fill="#e5484d" opacity="0.2"/>
+                <circle class="particle particle-7" cx="850" cy="200" r="2" fill="#e5484d" opacity="0.3"/>
+                <circle class="particle particle-8" cx="1100" cy="350" r="1.5" fill="#e5484d" opacity="0.25"/>
+                <circle class="particle particle-9" cx="150" cy="450" r="1.5" fill="#e5484d" opacity="0.2"/>
+                <circle class="particle particle-10" cx="500" cy="500" r="2" fill="#e5484d" opacity="0.3"/>
+                <circle class="particle particle-11" cx="1000" cy="100" r="1.5" fill="#e5484d" opacity="0.2"/>
+                <circle class="particle particle-12" cx="400" cy="300" r="2" fill="#e5484d" opacity="0.25"/>
+            </svg>
+        </div>
+        
         <header>
             <div class="header-container">
                 <div class="logo-zone">
@@ -276,7 +524,7 @@
             setMeta('[property="og:url"]', 'https://samoff.com/portfolio/demo/');
             
             setTimeout(function() {
-                window.location.href = 'https://samoff.com/portfolio/demo/?share=' + encodeURIComponent(shareData);
+                window.location.href = 'https://samoff.com/portfolio/demo/?share=' + shareData;
             }, 1500);
         })();
     </script>
