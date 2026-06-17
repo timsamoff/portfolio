@@ -668,16 +668,26 @@ function updateSocialMetaTags(project, mediaArray, mediaIndex) {
 
 
 function parseShareUrl() {
+    console.log('🔍 parseShareUrl() called');
+    
     // Check query parameter first (for share.html redirects)
     const params = new URLSearchParams(window.location.search);
     let encoded = params.get('share');
+    console.log('📦 Encoded share param:', encoded);
     let shareData = null;
     
     if (encoded) {
         try {
-            shareData = JSON.parse(atob(decodeURIComponent(encoded)));
+            // Try decoding without decodeURIComponent first (it may already be decoded)
+            try {
+                shareData = JSON.parse(atob(encoded));
+            } catch(e) {
+                // If that fails, try with decodeURIComponent
+                shareData = JSON.parse(atob(decodeURIComponent(encoded)));
+            }
+            console.log('✅ Share data decoded from query param:', shareData);
         } catch(e) {
-            console.error('Invalid share data in query param', e);
+            console.error('❌ Invalid share data in query param:', e);
         }
     }
     
@@ -688,20 +698,27 @@ function parseShareUrl() {
             try {
                 const encodedHash = hash.substring(7);
                 shareData = JSON.parse(atob(encodedHash));
+                console.log('✅ Share data decoded from hash:', shareData);
             } catch(e) {
-                console.error('Invalid share URL in hash', e);
+                console.error('❌ Invalid share URL in hash:', e);
             }
         }
     }
     
     // Update meta tags if we have data
     if (shareData && shareData.p !== undefined && window.__projectsData) {
+        console.log('📂 Finding project at index:', shareData.p);
         const project = window.__projectsData[shareData.p];
         if (project) {
+            console.log('✅ Found project:', project.title);
             const mediaArray = project.media || [];
             const mediaIndex = shareData.m || 0;
             updateSocialMetaTags(project, mediaArray, mediaIndex);
+        } else {
+            console.warn('⚠️ Project not found at index:', shareData.p);
         }
+    } else {
+        console.log('ℹ️ No share data to process, or __projectsData not yet loaded');
     }
     
     return shareData;
@@ -963,100 +980,101 @@ function parseShareUrl() {
     // PROJECT LOADING
     // ========================================
     function loadProjects(projects) {
-    console.log('Projects loaded:', projects.length);
+        console.log('Projects loaded:', projects.length);
+        window.__projectsData = projects;
 
-    const grid = document.getElementById('portfolio-grid');
-    if (!grid) return;
+        const grid = document.getElementById('portfolio-grid');
+        if (!grid) return;
 
-    grid.innerHTML = '';
+        grid.innerHTML = '';
 
-    const visibleProjects = projects.filter(project => project.published !== false);
+        const visibleProjects = projects.filter(project => project.published !== false);
 
-    if (visibleProjects.length === 0) {
-        grid.innerHTML = `<div style="text-align: center; padding: 3rem; color: var(--text-muted); grid-column: 1 / -1; width: 100%;">
-            📭 No published projects yet.
-        </div>`;
-        return;
-    }
-
-    visibleProjects.forEach((project, visibleIdx) => {
-        const originalIndex = projects.findIndex(p => p === project);
-        let mediaArray = project.media;
-        if (!mediaArray || mediaArray.length === 0) {
-            mediaArray = project.image ? [project.image] : [];
-        }
-
-        const imageAlign = project.imageAlign || 'center';
-
-        const article = document.createElement('article');
-        article.className = 'portfolio-item';
-        article.setAttribute('data-category', project.category || 'uncategorized');
-        article.setAttribute('data-project-id', originalIndex);
-
-        let thumbnailHtml = '';
-        if (mediaArray.length === 1) {
-            thumbnailHtml = `<div class="item-image">${generateThumbnailHtml(mediaArray[0], imageAlign)}</div>`;
-        } else if (mediaArray.length > 1) {
-            let swiperSlides = '';
-            mediaArray.forEach((mediaUrl) => {
-                swiperSlides += `<div class="swiper-slide">${generateThumbnailHtml(mediaUrl, imageAlign)}</div>`;
-            });
-            thumbnailHtml = `
-                <div class="item-image card-swiper-container">
-                    <div class="swiper card-swiper-${originalIndex}">
-                        <div class="swiper-wrapper">${swiperSlides}</div>
-                        <div class="swiper-button-prev card-swiper-prev-${originalIndex}"></div>
-                        <div class="swiper-button-next card-swiper-next-${originalIndex}"></div>
-                        <div class="swiper-pagination card-swiper-pagination-${originalIndex}"></div>
-                    </div>
-                </div>
-            `;
-        } else {
-            thumbnailHtml = `<div class="item-image"><div class="no-media">No media</div></div>`;
-        }
-
-        const displayHeading = project.cardHeading || project.tag || '';
-        const displayCategory = project.category ? formatCategoryForDisplay(project.category) : 'Uncategorized';
-
-        article.innerHTML = `
-            ${thumbnailHtml}
-            <div class="item-content">
-                <span class="category-tag" data-category-filter="${escapeHtml(project.category || 'uncategorized')}">${escapeHtml(displayCategory)}</span>
-                <h3>${escapeHtml(project.title)}</h3>
-                <p>${renderDescription(project.description)}</p>
-            </div>
-            <div class="share-hint">🔗 Click to Share</div>
-        `;
-
-        article.addEventListener('click', (e) => {
-        if (e.target.closest('.share-hint')) return;
-        if (e.target.closest('.swiper-button-prev') || e.target.closest('.swiper-button-next')) {
-            e.stopPropagation();
-            return;
-        }
-        if (e.target.closest('.swiper-pagination') || e.target.closest('.swiper-pagination-bullet')) {
-            e.stopPropagation();
-            return;
-        }
-        if (e.target.tagName === 'A') {
-            e.stopPropagation();
+        if (visibleProjects.length === 0) {
+            grid.innerHTML = `<div style="text-align: center; padding: 3rem; color: var(--text-muted); grid-column: 1 / -1; width: 100%;">
+                📭 No published projects yet.
+            </div>`;
             return;
         }
 
-        if (mediaArray.length > 0) {
-            // Get the active slide index from the swiper if it exists
-            let startIndex = 0;
-            const swiperContainer = article.querySelector('.card-swiper-container .swiper');
-            if (swiperContainer && swiperContainer.swiper) {
-                // Get real index (not looped index)
-                startIndex = swiperContainer.swiper.realIndex || 0;
+        visibleProjects.forEach((project, visibleIdx) => {
+            const originalIndex = projects.findIndex(p => p === project);
+            let mediaArray = project.media;
+            if (!mediaArray || mediaArray.length === 0) {
+                mediaArray = project.image ? [project.image] : [];
             }
-            
-            openMediaModal(mediaArray, startIndex, originalIndex);
-            const shareUrl = generateShareUrl(originalIndex, startIndex, mediaArray);
-            window.history.pushState({}, '', shareUrl);
-        }
-    });
+
+            const imageAlign = project.imageAlign || 'center';
+
+            const article = document.createElement('article');
+            article.className = 'portfolio-item';
+            article.setAttribute('data-category', project.category || 'uncategorized');
+            article.setAttribute('data-project-id', originalIndex);
+
+            let thumbnailHtml = '';
+            if (mediaArray.length === 1) {
+                thumbnailHtml = `<div class="item-image">${generateThumbnailHtml(mediaArray[0], imageAlign)}</div>`;
+            } else if (mediaArray.length > 1) {
+                let swiperSlides = '';
+                mediaArray.forEach((mediaUrl) => {
+                    swiperSlides += `<div class="swiper-slide">${generateThumbnailHtml(mediaUrl, imageAlign)}</div>`;
+                });
+                thumbnailHtml = `
+                    <div class="item-image card-swiper-container">
+                        <div class="swiper card-swiper-${originalIndex}">
+                            <div class="swiper-wrapper">${swiperSlides}</div>
+                            <div class="swiper-button-prev card-swiper-prev-${originalIndex}"></div>
+                            <div class="swiper-button-next card-swiper-next-${originalIndex}"></div>
+                            <div class="swiper-pagination card-swiper-pagination-${originalIndex}"></div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                thumbnailHtml = `<div class="item-image"><div class="no-media">No media</div></div>`;
+            }
+
+            const displayHeading = project.cardHeading || project.tag || '';
+            const displayCategory = project.category ? formatCategoryForDisplay(project.category) : 'Uncategorized';
+
+            article.innerHTML = `
+                ${thumbnailHtml}
+                <div class="item-content">
+                    <span class="category-tag" data-category-filter="${escapeHtml(project.category || 'uncategorized')}">${escapeHtml(displayCategory)}</span>
+                    <h3>${escapeHtml(project.title)}</h3>
+                    <p>${renderDescription(project.description)}</p>
+                </div>
+                <div class="share-hint">🔗 Click to Share</div>
+            `;
+
+            article.addEventListener('click', (e) => {
+            if (e.target.closest('.share-hint')) return;
+            if (e.target.closest('.swiper-button-prev') || e.target.closest('.swiper-button-next')) {
+                e.stopPropagation();
+                return;
+            }
+            if (e.target.closest('.swiper-pagination') || e.target.closest('.swiper-pagination-bullet')) {
+                e.stopPropagation();
+                return;
+            }
+            if (e.target.tagName === 'A') {
+                e.stopPropagation();
+                return;
+            }
+
+            if (mediaArray.length > 0) {
+                // Get the active slide index from the swiper if it exists
+                let startIndex = 0;
+                const swiperContainer = article.querySelector('.card-swiper-container .swiper');
+                if (swiperContainer && swiperContainer.swiper) {
+                    // Get real index (not looped index)
+                    startIndex = swiperContainer.swiper.realIndex || 0;
+                }
+                
+                openMediaModal(mediaArray, startIndex, originalIndex);
+                const shareUrl = generateShareUrl(originalIndex, startIndex, mediaArray);
+                window.history.pushState({}, '', shareUrl);
+            }
+        });
 
         const shareHint = article.querySelector('.share-hint');
         if (shareHint) {
