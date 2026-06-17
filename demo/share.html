@@ -15,17 +15,98 @@
     <meta name="twitter:description" content="A fully functional demo of the portfolio management system. All project data is stored locally in your browser using localStorage.">
     <meta name="twitter:image" content="https://samoff.com/portfolio/demo/tsp_social.png">
     
-    <link rel="stylesheet" href="../style.css">
+    <!-- Use absolute path to CSS -->
+    <link rel="stylesheet" href="/portfolio/style.css">
     
     <style>
+        /* Inline critical styles so they always load */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #0a0a0f;
+            color: #ededee;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            min-height: 100vh;
+        }
+        
         .share-loading {
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            background: var(--color-bg);
-            color: var(--color-text);
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
         }
+        
+        .share-loading header {
+            border-bottom: 1px solid #2a2a30;
+            padding: 1rem 2rem 0.75rem;
+            background: #0a0a0f;
+        }
+        
+        .share-loading .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 0 auto;
+            max-width: 1400px;
+        }
+        
+        .share-loading .logo-zone h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ededee 0%, #e5484d 33%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        
+        .share-loading .demo-badge {
+            font-size: 0.6rem;
+            background: #e5484d;
+            color: white;
+            padding: 0.1rem 0.6rem;
+            border-radius: 20px;
+            vertical-align: middle;
+            margin-left: 0.5rem;
+        }
+        
+        .share-loading .contact-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #1f1f24;
+            border: 1px solid #2a2a30;
+            border-radius: 100px;
+            padding: 0 1.1rem;
+            height: 42px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #a1a1aa;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .share-loading .contact-btn:hover {
+            background: #e5484d;
+            border-color: #e5484d;
+            color: #ffffff;
+        }
+        
+        .share-loading .contact-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        
         .share-loading .loading-content {
             flex: 1;
             display: flex;
@@ -34,49 +115,78 @@
             justify-content: center;
             padding: 2rem;
         }
+        
         .share-loading .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--color-border);
-            border-top-color: var(--color-accent);
+            width: 48px;
+            height: 48px;
+            border: 3px solid #2a2a30;
+            border-top-color: #e5484d;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
             margin-bottom: 1.5rem;
         }
+        
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        
         .share-loading .loading-text {
-            font-size: 1.1rem;
-            color: var(--color-text-secondary);
+            font-size: 1.2rem;
+            color: #ededee;
+            font-weight: 500;
         }
+        
         .share-loading .loading-sub {
             font-size: 0.85rem;
-            color: var(--color-text-muted);
+            color: #71717a;
             margin-top: 0.5rem;
         }
-        .share-loading header {
-            border-bottom: 1px solid var(--color-border);
-            padding: 1rem 2rem 0.75rem;
-        }
+        
         .share-loading footer {
-            border-top: 1px solid var(--color-border);
+            border-top: 1px solid #2a2a30;
             padding: 2rem;
             text-align: center;
             font-size: 0.75rem;
-            color: var(--color-text-muted);
+            color: #71717a;
+            background: #0a0a0f;
         }
-        .demo-badge {
-            font-size: 0.6rem;
-            background: var(--color-accent);
-            color: white;
-            padding: 0.1rem 0.6rem;
-            border-radius: 20px;
-            vertical-align: middle;
-            margin-left: 0.5rem;
+        
+        .share-loading footer .demo-footer-note {
+            color: #71717a;
+            font-size: 0.7rem;
         }
     </style>
-    
+</head>
+<body>
+    <div class="share-loading">
+        <header>
+            <div class="header-container">
+                <div class="logo-zone">
+                    <h1>Demo Jones | Portfolio <span class="demo-badge">DEMO</span></h1>
+                </div>
+                <div class="header-actions">
+                    <a href="mailto:demo@jones.com" class="contact-btn" aria-label="Send email">
+                        <svg viewBox="0 0 24 24" width="18" height="18">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                        <span>Contact</span>
+                    </a>
+                </div>
+            </div>
+        </header>
+        
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text" id="loading-text">Loading project...</div>
+            <div class="loading-sub">You'll be redirected automatically</div>
+        </div>
+        
+        <footer>
+            <p>Built with &#10084; by Tim Samoff. <span class="demo-footer-note">(Demo mode — data stored in localStorage)</span></p>
+        </footer>
+    </div>
+
     <script>
         (function() {
             const params = new URLSearchParams(window.location.search);
@@ -96,7 +206,7 @@
                 return;
             }
             
-            window.__shareData = decoded;
+            const loadingText = document.getElementById('loading-text');
             
             // Get projects from localStorage or fallback
             let projects = [];
@@ -114,6 +224,11 @@
             if (!project) {
                 window.location.href = 'https://samoff.com/portfolio/demo/';
                 return;
+            }
+            
+            // Update loading text
+            if (loadingText) {
+                loadingText.textContent = `Loading ${project.title}...`;
             }
             
             const title = `Demo Jones | Portfolio - ${project.title}`;
@@ -160,52 +275,10 @@
             
             setMeta('[property="og:url"]', 'https://samoff.com/portfolio/demo/');
             
-            const loadingText = document.querySelector('.loading-text');
-            if (loadingText) {
-                loadingText.textContent = `Loading ${project.title}...`;
-            }
-            
-            const isCrawler = navigator.userAgent.includes('facebook') || 
-                              navigator.userAgent.includes('twitter') ||
-                              navigator.userAgent.includes('bot') ||
-                              navigator.userAgent.includes('crawl');
-            
-            const delay = isCrawler ? 2000 : 800;
-            
             setTimeout(function() {
                 window.location.href = 'https://samoff.com/portfolio/demo/?share=' + encodeURIComponent(shareData);
-            }, delay);
+            }, 1500);
         })();
     </script>
-</head>
-<body>
-    <div class="share-loading">
-        <header>
-            <div class="header-container">
-                <div class="logo-zone">
-                    <h1>Demo Jones | Portfolio <span class="demo-badge">DEMO</span></h1>
-                </div>
-                <div class="header-actions">
-                    <a href="mailto:demo@jones.com" class="contact-btn" aria-label="Send email">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                            <polyline points="22,6 12,13 2,6"></polyline>
-                        </svg>
-                        <span>Contact</span>
-                    </a>
-                </div>
-            </div>
-        </header>
-        
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Loading project...</div>
-            <div class="loading-sub">You'll be redirected automatically</div>
-        </div>
-        
-        <footer>
-            <p>Built with &#10084; by Tim Samoff. <span style="color:var(--color-text-muted);font-size:0.7rem;">(Demo mode — data stored in localStorage)</span></p>
-        </footer>
-    </div>
 </body>
 </html>
