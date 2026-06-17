@@ -19,19 +19,122 @@
     <meta property="og:image:height" content="630">
     
     <!-- Twitter / X -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://samoff.com/portfolio/">
-    <meta property="twitter:title" content="Tim Samoff | Portfolio">
-    <meta property="twitter:description" content="Interactive Production, Design &amp; Development. A curated collection of games, software, websites, and creative experiments.">
-    <meta property="twitter:image" content="https://samoff.com/portfolio/tsp_social.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://samoff.com/portfolio/">
+    <meta name="twitter:title" content="Tim Samoff | Portfolio">
+    <meta name="twitter:description" content="Interactive Production, Design &amp; Development. A curated collection of games, software, websites, and creative experiments.">
+    <meta name="twitter:image" content="https://samoff.com/portfolio/tsp_social.png">
     
-    <!-- Optional: Theme color for browsers -->
+    <!-- Theme color for browsers -->
     <meta name="theme-color" content="#0a0a0f">
     
     <link rel="icon" type="image/png" href="favicon.png" />
     <link rel="stylesheet" href="style.css">
     <!-- Swiper CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    
+    <!-- ======================================== -->
+    <!-- META TAG INJECTION FOR SOCIAL CRAWLERS -->
+    <!-- ======================================== -->
+    <script>
+        (function() {
+            // Check for share query parameter
+            const params = new URLSearchParams(window.location.search);
+            const shareData = params.get('share');
+            
+            if (shareData) {
+                try {
+                    const data = JSON.parse(atob(shareData));
+                    // Store project data for later use
+                    window.__shareData = data;
+                    
+                    // Immediately fetch projects and update meta tags
+                    fetch('projects.json')
+                        .then(r => r.json())
+                        .then(projects => {
+                            const project = projects[data.p];
+                            if (project) {
+                                // Update title
+                                const title = `Tim Samoff | Portfolio - ${project.title}`;
+                                document.title = title;
+                                
+                                // Update or create og:title
+                                let ogTitle = document.querySelector('meta[property="og:title"]');
+                                if (!ogTitle) {
+                                    ogTitle = document.createElement('meta');
+                                    ogTitle.setAttribute('property', 'og:title');
+                                    document.head.appendChild(ogTitle);
+                                }
+                                ogTitle.content = title;
+                                
+                                // Update or create og:description
+                                let description = project.description || '';
+                                description = description.replace(/<[^>]*>/g, '');
+                                if (description.length > 150) description = description.substring(0, 147) + '...';
+                                if (!description) {
+                                    description = 'Interactive Production, Design & Development. A curated collection of games, software, websites, and creative experiments.';
+                                }
+                                
+                                let ogDesc = document.querySelector('meta[property="og:description"]');
+                                if (!ogDesc) {
+                                    ogDesc = document.createElement('meta');
+                                    ogDesc.setAttribute('property', 'og:description');
+                                    document.head.appendChild(ogDesc);
+                                }
+                                ogDesc.content = description;
+                                
+                                // Update or create og:image
+                                let media = 'tsp_social.png';
+                                if (project.media && project.media.length > 0) {
+                                    media = project.media[0];
+                                }
+                                const imageUrl = new URL(media, window.location.href).href;
+                                
+                                let ogImage = document.querySelector('meta[property="og:image"]');
+                                if (!ogImage) {
+                                    ogImage = document.createElement('meta');
+                                    ogImage.setAttribute('property', 'og:image');
+                                    document.head.appendChild(ogImage);
+                                }
+                                ogImage.content = imageUrl;
+                                
+                                // Update Twitter cards
+                                let twTitle = document.querySelector('meta[name="twitter:title"]');
+                                if (!twTitle) {
+                                    twTitle = document.createElement('meta');
+                                    twTitle.setAttribute('name', 'twitter:title');
+                                    document.head.appendChild(twTitle);
+                                }
+                                twTitle.content = title;
+                                
+                                let twDesc = document.querySelector('meta[name="twitter:description"]');
+                                if (!twDesc) {
+                                    twDesc = document.createElement('meta');
+                                    twDesc.setAttribute('name', 'twitter:description');
+                                    document.head.appendChild(twDesc);
+                                }
+                                twDesc.content = description;
+                                
+                                let twImage = document.querySelector('meta[name="twitter:image"]');
+                                if (!twImage) {
+                                    twImage = document.createElement('meta');
+                                    twImage.setAttribute('name', 'twitter:image');
+                                    document.head.appendChild(twImage);
+                                }
+                                twImage.content = imageUrl;
+                                
+                                console.log('✅ Social meta tags updated for:', project.title);
+                            }
+                        })
+                        .catch(err => {
+                            console.warn('Could not fetch projects for meta tags:', err);
+                        });
+                } catch(e) {
+                    console.error('Invalid share data', e);
+                }
+            }
+        })();
+    </script>
 </head>
 <body>
     <!-- STICKY HEADER - Only logo and actions -->

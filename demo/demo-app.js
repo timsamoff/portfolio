@@ -431,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return Promise.all(fetches);
     }
 
-    // ========================================
+// ========================================
 // SHARE URL GENERATION
 // ========================================
 
@@ -440,8 +440,8 @@ function generateShareUrl(projectIndex, mediaIndex = 0, mediaArray = []) {
         p: projectIndex,
         m: mediaIndex
     };
-    const hash = btoa(JSON.stringify(shareData));
-    return `${window.location.origin}${window.location.pathname}#share=${hash}`;
+    const data = btoa(JSON.stringify(shareData));
+    return `${window.location.origin}${window.location.pathname}?share=${data}`;
 }
 
 
@@ -486,16 +486,21 @@ function updateSocialMetaTags(project, mediaArray, mediaIndex) {
         { property: 'og:title', content: `Tim Samoff | Portfolio - ${project.title}` },
         { property: 'og:description', content: description },
         { property: 'og:image', content: previewImage },
-        { property: 'og:url', content: window.location.href },
-        { property: 'twitter:title', content: `Tim Samoff | Portfolio - ${project.title}` },
-        { property: 'twitter:description', content: description },
-        { property: 'twitter:image', content: previewImage }
+        { property: 'og:url', content: window.location.href.split('?')[0] },
+        { name: 'twitter:title', content: `Tim Samoff | Portfolio - ${project.title}` },
+        { name: 'twitter:description', content: description },
+        { name: 'twitter:image', content: previewImage }
     ];
     
     tags.forEach(tag => {
         const meta = document.createElement('meta');
         meta.setAttribute('data-dynamic', 'true');
-        meta.setAttribute('property', tag.property);
+        if (tag.property) {
+            meta.setAttribute('property', tag.property);
+        }
+        if (tag.name) {
+            meta.setAttribute('name', tag.name);
+        }
         meta.setAttribute('content', tag.content);
         document.head.appendChild(meta);
     });
@@ -506,28 +511,43 @@ function updateSocialMetaTags(project, mediaArray, mediaIndex) {
 
 
 function parseShareUrl() {
-    const hash = window.location.hash;
-    if (hash && hash.startsWith('#share=')) {
+    // Check query parameter first (for social crawlers)
+    const params = new URLSearchParams(window.location.search);
+    let encoded = params.get('share');
+    let shareData = null;
+    
+    if (encoded) {
         try {
-            const encoded = hash.substring(7);
-            const shareData = JSON.parse(atob(encoded));
-            
-            // Update meta tags for this specific project
-            if (shareData.p !== undefined && window.__projectsData) {
-                const project = window.__projectsData[shareData.p];
-                if (project) {
-                    const mediaArray = project.media || [];
-                    const mediaIndex = shareData.m || 0;
-                    updateSocialMetaTags(project, mediaArray, mediaIndex);
-                }
-            }
-            
-            return shareData;
-        } catch (e) {
-            console.error('Invalid share URL', e);
+            shareData = JSON.parse(atob(encoded));
+        } catch(e) {
+            console.error('Invalid share data in query param', e);
         }
     }
-    return null;
+    
+    // If not found, check hash (for backward compatibility)
+    if (!shareData) {
+        const hash = window.location.hash;
+        if (hash && hash.startsWith('#share=')) {
+            try {
+                const encodedHash = hash.substring(7);
+                shareData = JSON.parse(atob(encodedHash));
+            } catch(e) {
+                console.error('Invalid share URL in hash', e);
+            }
+        }
+    }
+    
+    // Update meta tags if we have data
+    if (shareData && shareData.p !== undefined && window.__projectsData) {
+        const project = window.__projectsData[shareData.p];
+        if (project) {
+            const mediaArray = project.media || [];
+            const mediaIndex = shareData.m || 0;
+            updateSocialMetaTags(project, mediaArray, mediaIndex);
+        }
+    }
+    
+    return shareData;
 }
 
     function openMediaModal(mediaArray, startIndex = 0, projectId = null) {

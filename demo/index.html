@@ -4,11 +4,147 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Demo Jones | Portfolio Demo</title>
+    
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="Demo Jones | Portfolio Demo">
+    <meta name="description" content="A fully functional demo of the portfolio management system. All project data is stored locally in your browser using localStorage — add, edit, and rearrange projects without a server.">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://samoff.com/portfolio/demo/">
+    <meta property="og:title" content="Demo Jones | Portfolio Demo">
+    <meta property="og:description" content="A fully functional demo of the portfolio management system. All project data is stored locally in your browser using localStorage — add, edit, and rearrange projects without a server.">
+    <meta property="og:image" content="https://samoff.com/portfolio/demo/tsp_social.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://samoff.com/portfolio/demo/">
+    <meta name="twitter:title" content="Demo Jones | Portfolio Demo">
+    <meta name="twitter:description" content="A fully functional demo of the portfolio management system. All project data is stored locally in your browser using localStorage — add, edit, and rearrange projects without a server.">
+    <meta name="twitter:image" content="https://samoff.com/portfolio/demo/tsp_social.png">
+    
+    <!-- Theme color for browsers -->
+    <meta name="theme-color" content="#0a0a0f">
+    
     <link rel="icon" type="image/png" href="favicon.png" />
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="demo-override.css">
     <!-- Swiper CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    
+    <!-- ======================================== -->
+    <!-- EARLY META TAG INJECTION FOR SOCIAL CRAWLERS -->
+    <!-- ======================================== -->
+    <script>
+        (function() {
+            // Check for share query parameter
+            const params = new URLSearchParams(window.location.search);
+            const shareData = params.get('share');
+            
+            if (shareData) {
+                try {
+                    const data = JSON.parse(atob(shareData));
+                    // Store project data for later use
+                    window.__shareData = data;
+                    
+                    // Get demo data from localStorage or fallback
+                    let projects = [];
+                    const stored = localStorage.getItem('demo_portfolio_projects');
+                    if (stored) {
+                        try {
+                            projects = JSON.parse(stored);
+                        } catch(e) {}
+                    }
+                    
+                    // If no projects in localStorage, use the injected DEMO_PROJECTS
+                    if (!projects || projects.length === 0) {
+                        // DEMO_PROJECTS should be available from demo-data.js
+                        if (window.DEMO_PROJECTS) {
+                            projects = window.DEMO_PROJECTS;
+                        }
+                    }
+                    
+                    const project = projects[data.p];
+                    if (project) {
+                        // Update title
+                        const title = `Demo Jones | Portfolio - ${project.title}`;
+                        document.title = title;
+                        
+                        // Update or create og:title
+                        let ogTitle = document.querySelector('meta[property="og:title"]');
+                        if (!ogTitle) {
+                            ogTitle = document.createElement('meta');
+                            ogTitle.setAttribute('property', 'og:title');
+                            document.head.appendChild(ogTitle);
+                        }
+                        ogTitle.content = title;
+                        
+                        // Update or create og:description
+                        let description = project.description || '';
+                        description = description.replace(/<[^>]*>/g, '');
+                        if (description.length > 150) description = description.substring(0, 147) + '...';
+                        if (!description) {
+                            description = 'A fully functional demo of the portfolio management system. All project data is stored locally in your browser using localStorage.';
+                        }
+                        
+                        let ogDesc = document.querySelector('meta[property="og:description"]');
+                        if (!ogDesc) {
+                            ogDesc = document.createElement('meta');
+                            ogDesc.setAttribute('property', 'og:description');
+                            document.head.appendChild(ogDesc);
+                        }
+                        ogDesc.content = description;
+                        
+                        // Update or create og:image
+                        let media = 'tsp_social.png';
+                        if (project.media && project.media.length > 0) {
+                            media = project.media[0];
+                        }
+                        const imageUrl = new URL(media, window.location.href).href;
+                        
+                        let ogImage = document.querySelector('meta[property="og:image"]');
+                        if (!ogImage) {
+                            ogImage = document.createElement('meta');
+                            ogImage.setAttribute('property', 'og:image');
+                            document.head.appendChild(ogImage);
+                        }
+                        ogImage.content = imageUrl;
+                        
+                        // Update Twitter cards
+                        let twTitle = document.querySelector('meta[name="twitter:title"]');
+                        if (!twTitle) {
+                            twTitle = document.createElement('meta');
+                            twTitle.setAttribute('name', 'twitter:title');
+                            document.head.appendChild(twTitle);
+                        }
+                        twTitle.content = title;
+                        
+                        let twDesc = document.querySelector('meta[name="twitter:description"]');
+                        if (!twDesc) {
+                            twDesc = document.createElement('meta');
+                            twDesc.setAttribute('name', 'twitter:description');
+                            document.head.appendChild(twDesc);
+                        }
+                        twDesc.content = description;
+                        
+                        let twImage = document.querySelector('meta[name="twitter:image"]');
+                        if (!twImage) {
+                            twImage = document.createElement('meta');
+                            twImage.setAttribute('name', 'twitter:image');
+                            document.head.appendChild(twImage);
+                        }
+                        twImage.content = imageUrl;
+                        
+                        console.log('✅ Demo social meta tags updated for:', project.title);
+                    }
+                } catch(e) {
+                    console.error('Invalid share data', e);
+                }
+            }
+        })();
+    </script>
 </head>
 <body>
     <!-- STICKY HEADER -->
