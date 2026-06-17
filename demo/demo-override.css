@@ -1,0 +1,71 @@
+/* demo/demo-override.css */
+/* ========================================
+   DEMO-SPECIFIC OVERRIDES
+   Only styles that differ from the main site
+   ======================================== */
+
+/* Admin button in header */
+.admin-btn {
+    background: var(--color-accent) !important;
+    border-color: var(--color-accent) !important;
+    color: var(--color-white) !important;
+}
+
+.admin-btn:hover {
+    background: var(--color-accent-hover) !important;
+    border-color: var(--color-accent-hover) !important;
+}
+
+/* DEMO badge styling */
+.demo-badge {
+    font-size: 0.6rem;
+    background: var(--color-accent);
+    color: white;
+    padding: 0.1rem 0.6rem;
+    border-radius: 20px;
+    vertical-align: middle;
+    margin-left: 0.5rem;
+}
+
+/* Demo Hero Height */
+.hero-section {
+    padding-top: 5rem !important;
+    padding-bottom: 8rem !important;
+}
+
+/* Demo footer note */
+.demo-footer-note {
+    color: var(--color-text-muted);
+    font-size: 0.7rem;
+}
+
+/* Reset button in admin */
+.reset-data-btn {
+    background: var(--color-accent) !important;
+    color: white !important;
+    border-color: var(--color-accent) !important;
+}
+
+.reset-data-btn:hover {
+    background: var(--color-accent-hover) !important;
+    border-color: var(--color-accent-hover) !important;
+}
+
+/* Demo header subtitle */
+.demo-subtitle {
+    color: var(--text-muted);
+}
+
+/* Small adjustment for admin header in demo */
+.admin-demo-header {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+@media (max-width: 640px) {
+    .admin-demo-header {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}

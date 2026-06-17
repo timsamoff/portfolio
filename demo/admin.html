@@ -1,23 +1,23 @@
-<!-- demo/admin.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portfolio Workspace | Admin Demo</title>
-    <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
-    <link rel="stylesheet" href="demo-style.css">
+    <link rel="icon" type="image/png" href="favicon-admin.png" />
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="demo-override.css">
 </head>
 <body data-theme="dark">
     <header>
         <div class="header-container">
             <div class="logo-zone">
-                <h1>Portfolio Management Cockpit <span style="font-size:0.6rem; background:var(--color-accent); color:white; padding:0.1rem 0.6rem; border-radius:20px; vertical-align:middle; margin-left:0.5rem;">DEMO</span></h1>
-                <p class="subtitle" style="color: var(--text-muted);">📦 localStorage mode — data stored in your browser</p>
+                <h1>Portfolio Management Cockpit <span class="demo-badge">DEMO</span></h1>
+                <p class="subtitle demo-subtitle">📦 localStorage mode — data stored in your browser</p>
             </div>
-            <div style="display: flex; gap: 1rem; align-items: center;">
+            <div class="admin-demo-header">
                 <a href="index.html" target="_blank" class="filter-btn" style="text-decoration: none; line-height: 20px; white-space: nowrap;">👁️ View Live Site</a>
-                <button id="reset-data-btn" class="filter-btn" style="background:var(--accent-red); color:white; border-color:var(--accent-red); padding:0.4rem 1rem;">🔄 Reset Demo Data</button>
+                <button id="reset-data-btn" class="filter-btn reset-data-btn" style="padding:0.4rem 1rem;">🔄 Reset Demo Data</button>
             </div>
         </div>
     </header>

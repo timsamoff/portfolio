@@ -1,8 +1,8 @@
 /* ========================================
-   1. GLOBAL DESIGN SYSTEM & VARIABLES
+   GLOBAL DESIGN SYSTEM & VARIABLES
    ======================================== */
 :root {
-    /* 🎨 Core Colors - Dark Theme */
+    /* Core Colors - Dark Theme */
     --color-bg: #0a0a0f;
     --color-bg-secondary: #111115;
     --color-card: #18181e;
@@ -30,7 +30,7 @@
     --hero-pad-top: 4rem;
     --hero-pad-bottom: 6rem;
     
-    /* ⏱️ Animations */
+    /* ⏱Animations */
     --shimmer-duration: 2s;
     --shimmer-pulse-duration: 1.5s;
     --shimmer-blur-amount: 6px;
@@ -51,7 +51,7 @@
     --color-accent-hover: #b71c1c;
     --color-filter-bg: #eef2f5;
     
-    /* ✨ Shimmer - Light Theme */
+    /* Shimmer - Light Theme */
     --shimmer-mid: rgba(0, 0, 0, 0.15);
     --shimmer-bg-pulse: var(--color-bg-secondary);
     
@@ -59,7 +59,7 @@
 }
 
 /* ========================================
-   2. RESET & BASE
+   RESET & BASE
    ======================================== */
 * {
     margin: 0;
@@ -83,7 +83,7 @@ body {
 }
 
 /* ========================================
-   3. TYPOGRAPHY
+   TYPOGRAPHY
    ======================================== */
 h1 {
     font-size: 1.8rem;
@@ -108,7 +108,7 @@ h3 {
 }
 
 /* ========================================
-   4. HEADER - STICKY
+   HEADER - STICKY
    ======================================== */
 header {
     position: sticky;
@@ -153,7 +153,7 @@ header.scrolled {
 }
 
 /* ========================================
-   5. BUTTONS & CONTROLS
+   BUTTONS & CONTROLS
    ======================================== */
 .contact-btn {
     display: flex;
@@ -267,7 +267,7 @@ header.scrolled {
 }
 
 /* ========================================
-   6. HERO SECTION
+   HERO SECTION
    ======================================== */
 .hero-section {
     padding: var(--hero-pad-top) 0 var(--hero-pad-bottom) 0;
@@ -339,7 +339,7 @@ header.scrolled {
 }
 
 /* ========================================
-   HERO BACKGROUND - ABSTRACT FLOWING ENERGY
+   HERO BACKGROUND - FLOWING ENERGY
    ======================================== */
 .hero-section {
     position: relative;
@@ -368,7 +368,7 @@ header.scrolled {
 }
 
     /* ========================================
-   WAVES - Flowing like energy
+   WAVES
    ======================================== */
 .wave {
     fill: none;
@@ -420,7 +420,6 @@ header.scrolled {
     }
 }
 
-/* Alternative: If wave-3 still flickers, try this dedicated keyframe */
 .wave-3 {
     animation: waveFlowSlow 20s ease-in-out infinite alternate;
     animation-delay: 2s;
@@ -453,7 +452,7 @@ header.scrolled {
 }
 
 /* ========================================
-   ORBS - Floating energy spheres
+   ORBS
    ======================================== */
 .orb {
     animation: orbFloat 10s ease-in-out infinite alternate;
@@ -502,7 +501,7 @@ header.scrolled {
 }
 
 /* ========================================
-   PARTICLES - Slowly drifting dots
+   PARTICLES
    ======================================== */
 .particle {
     animation: particleFloat 8s ease-in-out infinite alternate;
@@ -539,7 +538,7 @@ header.scrolled {
 }
 
 /* ========================================
-   ENSURE HERO CONTENT ABOVE BACKGROUND
+   HERO CONTENT ABOVE BACKGROUND
    ======================================== */
 .hero-container {
     position: relative;
@@ -550,7 +549,7 @@ header.scrolled {
 }
 
 /* ========================================
-   7. SCROLL BUTTON
+   SCROLL BUTTON
    ======================================== */
 .scroll-btn {
     display: inline-flex;
@@ -634,7 +633,7 @@ header.scrolled {
 }
 
 /* ========================================
-   8. FILTER NAVIGATION
+   FILTER NAVIGATION
    ======================================== */
 .filter-nav {
     display: flex;
@@ -660,7 +659,7 @@ header.scrolled {
 }
 
 /* ========================================
-   9. PORTFOLIO GRID & CARDS
+   PORTFOLIO GRID & CARDS
    ======================================== */
 .portfolio-container {
     max-width: 1600px;
@@ -760,7 +759,7 @@ header.scrolled {
 }
 
 /* ========================================
-   FILTER ANIMATIONS - SUBTLE FLYING CARDS
+   FILTER ANIMATIONS - FLYING CARDS
    ======================================== */
 .portfolio-item {
     background: var(--color-card);
@@ -779,7 +778,7 @@ header.scrolled {
     grid-row: auto;
 }
 
-/* Initial load animation - subtle fly up */
+/* Initial load animation */
 .portfolio-item.initial-load {
     animation: initialFlyIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     animation-delay: calc(var(--item-index, 0) * 0.04s);
@@ -796,7 +795,7 @@ header.scrolled {
     }
 }
 
-/* Fly in when filtering - subtle */
+/* Fly in when filtering */
 .portfolio-item.fly-in {
     animation: flyIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     animation-delay: calc(var(--item-index, 0) * 0.04s);
@@ -813,7 +812,7 @@ header.scrolled {
     }
 }
 
-/* Fly out when filtering out - subtle */
+/* Fly out when filtering out */
 .portfolio-item.fly-out {
     animation: flyOut 0.3s ease-in forwards;
     pointer-events: none;
@@ -830,7 +829,7 @@ header.scrolled {
     }
 }
 
-/* Hidden state - use visibility and grid tricks */
+/* Hidden state */
 .portfolio-item.hidden-item {
     visibility: hidden !important;
     pointer-events: none !important;
@@ -847,13 +846,13 @@ header.scrolled {
     order: 9999; /* Push hidden items to the end */
 }
 
-/* When a grid item is hidden, it should take up no space */
+/* When a grid item is hidden, it should not take up space */
 .portfolio-grid:has(.hidden-item) {
     grid-auto-rows: 0;
 }
 
 /* ========================================
-   10. CARD DESCRIPTION WITH CONSTRAINED HEIGHT
+   CARD DESCRIPTION WITH CONSTRAINED HEIGHT
    ======================================== */
 .item-content p {
     font-size: 0.85rem;
@@ -901,7 +900,7 @@ header.scrolled {
 }
 
 /* ========================================
-   11. SHARE HINT ON CARDS
+   SHARE HINT ON CARDS
    ======================================== */
 .share-hint {
     position: absolute;
@@ -929,7 +928,7 @@ header.scrolled {
 }
 
 /* ========================================
-   12. CARD SWIPER (MINI CAROUSEL)
+   CARD SWIPER (MINI CAROUSEL)
    ======================================== */
 .card-swiper-container {
     position: relative;
@@ -987,7 +986,7 @@ header.scrolled {
 }
 
 /* ========================================
-   13. LAZY LOADING - ANIMATED SHIMMER
+   LAZY LOADING w/ ANIMATED SHIMMER
    ======================================== */
 .lazy-image {
     opacity: 0;
@@ -1006,7 +1005,7 @@ header.scrolled {
     background: var(--color-bg-secondary) !important;
 }
 
-/* The shimmer effect as a pseudo-element on the image itself */
+/* Shimmer effect as a pseudo-element on image */
 .lazy-image.loading::before {
     content: '' !important;
     position: absolute;
@@ -1027,7 +1026,7 @@ header.scrolled {
     display: block !important;
 }
 
-/* Background pulse behind the image */
+/* Background pulse behind image */
 .lazy-image.loading::after {
     content: '' !important;
     position: absolute;
@@ -1060,7 +1059,7 @@ header.scrolled {
     }
 }
 
-/* Dim the actual image while loading */
+/* Dim image while loading */
 .lazy-image.loading img,
 .lazy-image.loading video {
     opacity: 0.15 !important;
@@ -1155,7 +1154,7 @@ header.scrolled {
     display: block !important;
 }
 
-/* Dim the actual thumbnail while loading */
+/* Dim thumbnail while loading */
 .item-image:has(.vimeo-thumb.loading) img,
 .item-image:has(img[data-src*="youtube"].loading) img,
 .item-image:has(img[data-src*="vimeo"].loading) img {
@@ -1177,7 +1176,7 @@ header.scrolled {
     content: none !important;
 }
 
-/* Ensure the container has proper positioning */
+/* Ensure container has proper positioning */
 .item-image {
     position: relative;
     height: 220px;
@@ -1190,7 +1189,7 @@ header.scrolled {
 }
 
 /* ========================================
-   14. AWARD BADGE
+   AWARD BADGE
    ======================================== */
 .award-badge {
     display: inline-flex;
@@ -1216,7 +1215,7 @@ header.scrolled {
 }
 
 /* ========================================
-   15. CUSTOM MODAL (FULLSCREEN MEDIA VIEWER)
+   CUSTOM MODAL (FULLSCREEN MEDIA VIEWER)
    ======================================== */
 .media-modal {
     display: none;
@@ -1332,7 +1331,7 @@ header.scrolled {
 }
 
 /* ========================================
-   16. ADMIN WORKSPACE
+   ADMIN WORKSPACE
    ======================================== */
 .admin-workspace {
     display: grid;
@@ -1471,7 +1470,7 @@ header.scrolled {
 }
 
 /* ========================================
-   17. ADMIN MEDIA MANAGER
+   ADMIN MEDIA MANAGER
    ======================================== */
 .media-input-row {
     display: flex;
@@ -1565,7 +1564,7 @@ header.scrolled {
 }
 
 /* ========================================
-   18. ADD CATEGORY INLINE FIELD
+   ADD CATEGORY INLINE FIELD
    ======================================== */
 #add-category-field {
     animation: fadeIn 0.2s ease;
@@ -1597,7 +1596,7 @@ header.scrolled {
 }
 
 /* ========================================
-   19. CATEGORY MANAGEMENT PANEL
+   CATEGORY MANAGEMENT PANEL
    ======================================== */
 #category-manager {
     margin-top: 0.5rem;
@@ -1612,7 +1611,7 @@ header.scrolled {
 }
 
 /* ========================================
-   20. SORTABLE PROJECT LIST (ADMIN)
+   SORTABLE PROJECT LIST (ADMIN)
    ======================================== */
 .sortable-list {
     list-style: none;
@@ -1685,7 +1684,7 @@ header.scrolled {
 }
 
 /* ========================================
-   21. RICH TEXT EDITOR
+   RICH TEXT EDITOR (not so "rich" anymore
    ======================================== */
 .rich-text-toolbar {
     display: flex;
@@ -1771,7 +1770,7 @@ header.scrolled {
 }
 
 /* ========================================
-   22. FOOTER
+   FOOTER
    ======================================== */
 footer {
     text-align: center;
@@ -1783,7 +1782,7 @@ footer {
 }
 
 /* ========================================
-   23. RESPONSIVE ADJUSTMENTS
+   RESPONSIVE ADJUSTMENTS
    ======================================== */
 @media (max-width: 880px) {
     header {

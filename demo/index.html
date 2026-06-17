@@ -1,12 +1,12 @@
-<!-- demo/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tim Samoff | Portfolio Demo</title>
-    <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
-    <link rel="stylesheet" href="demo-style.css">
+    <title>Demo Jones | Portfolio Demo</title>
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="demo-override.css">
     <!-- Swiper CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 </head>
@@ -15,14 +15,14 @@
     <header id="site-header">
         <div class="header-container">
             <div class="logo-zone">
-                <h1>Tim Samoff | Portfolio <span style="font-size:0.6rem; background:var(--color-accent); color:white; padding:0.1rem 0.6rem; border-radius:20px; vertical-align:middle; margin-left:0.5rem;">DEMO</span></h1>
+                <h1>Demo Jones | Portfolio <span class="demo-badge">DEMO</span></h1>
             </div>
             <div class="header-actions">
                 <!-- ADMIN BUTTON -->
-                <a href="admin.html" class="contact-btn admin-btn" style="background:var(--color-accent); color:white; border-color:var(--color-accent);">
+                <a href="admin.html" class="contact-btn admin-btn">
                     ⚙️ Admin
                 </a>
-                <a href="mailto:demo@example.com" class="contact-btn" aria-label="Send email">
+                <a href="mailto:demo@jones.com" class="contact-btn" aria-label="Send email">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                         <polyline points="22,6 12,13 2,6"></polyline>
@@ -89,9 +89,9 @@
             </svg>
         </div>
         <div class="hero-container">
-            <h1 class="hero-title">Interactive Production, Design &amp; Development</h1>
-            <p class="hero-subtitle">I've spent much of my career building things that help people learn, create, communicate, and solve problems. This portfolio brings together a selection of that work, ranging from games to software and websites, and experimental projects.</p>
-            <p class="hero-description">While the mediums differ, the process remains consistent: identify a challenge, understand the constraints, develop a solution, and refine it until it works. These projects are the result of that approach in practice.</p>
+            <h1 class="hero-title">Portfolio Demo</h1>
+            <p class="hero-subtitle">This is a fully functional demo of the portfolio management system. All project data is stored locally in your browser using localStorage, so you can add, edit, and rearrange projects without a server or database.</p>
+            <p class="hero-description">The demo includes a collection of sample projects with placeholder images and categories to showcase the portfolio grid, filtering, and media carousels. Use the Admin panel to create new projects, publish or unpublish them, reorder the list via drag-and-drop, and see changes reflected immediately on the live site. Everything you do is saved automatically to your browser — refresh the page and your work persists. To start fresh, click the Reset Demo Data button in the Admin panel.</p>
             <button class="scroll-btn" aria-label="Scroll to content">
                 <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="6 9 12 15 18 9"></polyline>
@@ -108,7 +108,7 @@
     </main>
 
     <footer>
-        <p>Built with &#10084; by Tim Samoff. <span style="color:var(--color-text-muted);font-size:0.7rem;">(Demo mode — data stored in localStorage)</span></p>
+        <p>Built with &#10084; by Tim Samoff. <span class="demo-footer-note">(Demo mode — data stored in localStorage)</span></p>
     </footer>
 
     <!-- Custom Modal -->

@@ -5,7 +5,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     // ========================================
-    // 1. THEME ENGINE
+    // THEME ENGINE
     // ========================================
     const themeToggle = document.getElementById('theme-toggle');
     const storedTheme = localStorage.getItem('portfolio-theme') || 'dark';
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 2. STICKY HEADER SHADOW ON SCROLL
+    // STICKY HEADER SHADOW ON SCROLL
     // ========================================
     function handleHeaderScroll() {
         const header = document.getElementById('site-header');
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     handleHeaderScroll();
 
     // ========================================
-    // 3. MODAL SYSTEM
+    // MODAL SYSTEM
     // ========================================
     const modal = document.getElementById('media-modal');
     const modalClose = document.querySelector('.modal-close');
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 4. SHARE & NOTIFICATION SYSTEM
+    // SHARE & NOTIFICATION SYSTEM
     // ========================================
     async function copyToClipboard(text) {
         try {
@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 5. DESCRIPTION RENDERER
+    // DESCRIPTION RENDERER
     // ========================================
     function renderDescription(raw) {
         if (!raw) return '';
@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 6. MEDIA HELPERS
+    // MEDIA HELPERS
     // ========================================
     function isVideoUrl(url) {
         const videoExtensions = /\.(mp4|webm|mov|ogg)$/i;
@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 7. LAZY LOADING
+    // LAZY LOADING
     // ========================================
     function setupLazyLoading() {
         if (!('IntersectionObserver' in window)) {
@@ -371,7 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 8. VIMEO THUMBNAILS
+    // VIMEO THUMBNAILS
     // ========================================
     async function loadVimeoThumbnails() {
         const placeholders = document.querySelectorAll('img.vimeo-thumb[data-vimeo-id]');
@@ -411,7 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 9. SHARE URL GENERATION
+    // SHARE URL GENERATION
     // ========================================
     function generateShareUrl(projectIndex, mediaIndex = 0, mediaArray = []) {
         const shareData = { p: projectIndex, m: mediaIndex };
@@ -483,7 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 10. FORMATTING HELPERS
+    // FORMATTING HELPERS
     // ========================================
     function formatCategoryForDisplay(cat) {
         if (!cat) return '';
@@ -497,7 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 11. FILTERING SYSTEM
+    // FILTERING SYSTEM
     // ========================================
     let currentFilterValue = 'all';
     let allPortfolioItems = [];
@@ -584,7 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 12. SCROLL BUTTON
+    // SCROLL BUTTON
     // ========================================
     function setupScrollButton() {
         const scrollBtn = document.querySelector('.scroll-btn');
@@ -623,7 +623,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 13. LOAD PROJECTS FROM LOCALSTORAGE
+    // LOAD PROJECTS FROM LOCALSTORAGE
     // ========================================
     function loadProjects(projects) {
         console.log('Demo projects loaded:', projects.length);
@@ -845,7 +845,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 14. INITIALIZATION
+    // INITIALIZATION
     // ========================================
     const grid = document.getElementById('portfolio-grid');
     if (!grid) return;

@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // ========================================
-    // 1. THEME ENGINE
+    // THEME ENGINE
     // ========================================
     const themeToggle = document.getElementById('theme-toggle');
     const storedTheme = localStorage.getItem('portfolio-theme') || 'dark';
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 2. STICKY HEADER SHADOW ON SCROLL
+    // STICKY HEADER SHADOW ON SCROLL
     // ========================================
     function handleHeaderScroll() {
         const header = document.getElementById('site-header');
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     handleHeaderScroll();
 
     // ========================================
-    // 3. MODAL SYSTEM
+    // MODAL SYSTEM
     // ========================================
     const modal = document.getElementById('media-modal');
     const modalClose = document.querySelector('.modal-close');
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 4. VIDEO PROGRESS TRACKING
+    // VIDEO PROGRESS TRACKING
     // ========================================
     function saveVideoProgress(videoUrl, currentTime) {
         const key = `video_progress_${btoa(videoUrl)}`;
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 5. SHARE & NOTIFICATION SYSTEM
+    // SHARE & NOTIFICATION SYSTEM
     // ========================================
     async function copyToClipboard(text) {
         try {
@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 6. DESCRIPTION RENDERER
+    // DESCRIPTION RENDERER
     // ========================================
     function renderDescription(raw) {
         if (!raw) return '';
@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 7. MEDIA HELPERS
+    // MEDIA HELPERS
     // ========================================
     function isVideoUrl(url) {
         const videoExtensions = /\.(mp4|webm|mov|ogg)$/i;
@@ -349,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 8. LAZY LOADING
+    // LAZY LOADING
     // ========================================
     function setupLazyLoading() {
         if (!('IntersectionObserver' in window)) {
@@ -442,7 +442,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 9. VIMEO THUMBNAILS
+    // VIMEO THUMBNAILS
     // ========================================
     async function loadVimeoThumbnails() {
         const placeholders = document.querySelectorAll('img.vimeo-thumb[data-vimeo-id]');
@@ -485,7 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 10. MODAL MEDIA GENERATION
+    // MODAL MEDIA GENERATION
     // ========================================
     function generateModalMediaHtml(mediaUrl, mediaIndex) {
         const isVideo = isVideoUrl(mediaUrl);
@@ -507,7 +507,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 11. SHARE URL GENERATION
+    // SHARE URL GENERATION
     // ========================================
     function generateShareUrl(projectIndex, mediaIndex = 0, mediaArray = []) {
         const firstImage = mediaArray.find(m => m.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)) || mediaArray[0] || '';
@@ -601,7 +601,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 12. FORMATTING HELPERS
+    // FORMATTING HELPERS
     // ========================================
     function formatCategoryForDisplay(cat) {
         if (!cat) return '';
@@ -615,7 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 13. FILTERING SYSTEM
+    // FILTERING SYSTEM
     // ========================================
     let currentFilterValue = 'all';
     let allPortfolioItems = [];
@@ -643,7 +643,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const items = allPortfolioItems;
     let visibleCount = 0;
     
-    // Create a document fragment for visible items
+    // Create document fragment for visible items
     const fragment = document.createDocumentFragment();
     const visibleItems = [];
     
@@ -665,12 +665,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // Clear the grid
+    // Clear grid
     grid.innerHTML = '';
     
     // Re-add visible items with animation
     visibleItems.forEach((item, index) => {
-        // Reset the item's display
+        // Reset item's display
         item.style.display = 'flex';
         item.style.visibility = 'visible';
         item.style.height = '';
@@ -686,7 +686,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Remove all animation classes
         item.classList.remove('hidden-item', 'fly-out', 'fly-in', 'initial-load');
         
-        // Set the item index for stagger
+        // Set item index for stagger
         item.style.setProperty('--item-index', index);
         
         // Add to grid
@@ -699,7 +699,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     // Re-setup swipers for visible items
-    // This is needed because swipers are destroyed when items are removed
     const projects = window.__projectsData || [];
     projects.forEach((project, idx) => {
         if (project.published === false) return;
@@ -721,10 +720,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     autoplay: false,
                 });
                 
-                // Store the swiper instance on the container for later use
+                // Store swiper instance on container for later use
                 swiperContainer.swiper = swiper;
                 
-                // Store the media array on the container
+                // Store media array on the container
                 swiperContainer.dataset.mediaArray = JSON.stringify(mediaArray);
                 swiperContainer.dataset.projectIndex = idx;
             }
@@ -733,7 +732,7 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 
     // ========================================
-    // 14. SCROLL BUTTON FUNCTIONALITY
+    // SCROLL BUTTON FUNCTIONALITY
     // ========================================
     function setupScrollButton() {
         const scrollBtn = document.querySelector('.scroll-btn');
@@ -744,11 +743,11 @@ document.addEventListener('DOMContentLoaded', () => {
         scrollBtn.addEventListener('click', function(e) {
             e.preventDefault();
 
-            // Get the header height
+            // Get header height
             const header = document.getElementById('site-header');
             const headerHeight = header ? header.offsetHeight : 0;
 
-            // Get the filter nav's position relative to the document
+            // Get filter nav's position relative to the document
             const filterRect = filterNav.getBoundingClientRect();
             const filterTop = filterRect.top + window.pageYOffset;
 
@@ -781,7 +780,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // 15. PROJECT LOADING
+    // PROJECT LOADING
     // ========================================
     function loadProjects(projects) {
     console.log('Projects loaded:', projects.length);
@@ -869,7 +868,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let startIndex = 0;
             const swiperContainer = article.querySelector('.card-swiper-container .swiper');
             if (swiperContainer && swiperContainer.swiper) {
-                // Get the real index (not looped index)
+                // Get real index (not looped index)
                 startIndex = swiperContainer.swiper.realIndex || 0;
             }
             
@@ -1025,7 +1024,7 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 
     // ========================================
-    // 16. INITIALIZATION
+    // INITIALIZATION
     // ========================================
     const grid = document.getElementById('portfolio-grid');
     if (!grid) return;
