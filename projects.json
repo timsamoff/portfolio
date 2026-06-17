@@ -1,18 +1,5 @@
 [
   {
-    "title": "Circuit Scout",
-    "category": "app_design_&_development",
-    "cardHeading": "Webapp",
-    "media": [
-      "media/app/cs_01.webp",
-      "media/app/cs_02.webp",
-      "media/app/cs_03.webp"
-    ],
-    "description": "A DIY guitar pedal circuit database and search tool. Scrape, organize, and discover effects pedal layouts from the DIY community.\n\nLocal admin saves to JSON for static site publishing.\n\n<a href=\"https://samoff.com/circuit-scout\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
-    "imageAlign": "center",
-    "published": true
-  },
-  {
     "title": "Written & Formatted",
     "category": "app_design_&_development",
     "cardHeading": "Web app",
@@ -23,6 +10,19 @@
       "media/app/written_04.webp"
     ],
     "description": "Embedded editor that converts simple plain-text markup into publication-ready, accessible HTML with sophisticated typographic features like drop caps, ligatures, footnotes, and more.\n\n<a href=\"https://samoff.com/written/app\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
+    "imageAlign": "center",
+    "published": true
+  },
+  {
+    "title": "Circuit Scout",
+    "category": "app_design_&_development",
+    "cardHeading": "Webapp",
+    "media": [
+      "media/app/cs_01.webp",
+      "media/app/cs_02.webp",
+      "media/app/cs_03.webp"
+    ],
+    "description": "A DIY guitar pedal circuit database and search tool. Scrape, organize, and discover effects pedal layouts from the DIY community.\n\nLocal admin saves to JSON for static site publishing.\n\n<a href=\"https://samoff.com/circuit-scout\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a>",
     "imageAlign": "center",
     "published": true
   },

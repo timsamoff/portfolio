@@ -1,3 +1,4 @@
+/* demo/demo-style.css */
 /* ========================================
    1. GLOBAL DESIGN SYSTEM & VARIABLES
    ======================================== */
@@ -266,6 +267,19 @@ header.scrolled {
     display: block;
 }
 
+/* Admin button in header */
+.admin-btn {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-white);
+}
+
+.admin-btn:hover {
+    background: var(--color-accent-hover);
+    border-color: var(--color-accent-hover);
+    color: var(--color-white);
+}
+
 /* ========================================
    6. HERO SECTION
    ======================================== */
@@ -367,7 +381,7 @@ header.scrolled {
     display: block;
 }
 
-    /* ========================================
+/* ========================================
    WAVES - Flowing like energy
    ======================================== */
 .wave {

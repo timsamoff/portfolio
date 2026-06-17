@@ -1,9 +1,13 @@
-// Admin panel functionality - with save-server.js backend
+// demo/demo-admin.js
+// ========================================
+// DEMO ADMIN - localStorage version of admin.js
+// ========================================
+
 let localProjectCache = [];
 let currentMediaArray = [];
 let draggedMediaIndexForReorder = null;
 let currentSearchTerm = '';
-let availableCategories = ['brand_&_identity', 'production_&_installation', 'game_design', 'web_&_interactive'];
+let availableCategories = [];
 
 // Auto-save tracking
 let autoSaveTimeout = null;
@@ -15,16 +19,12 @@ let lastSavedFormData = null;
 let activeModal = null;
 let inlineErrorTimeout = null;
 
-// Selection captured on toolbar mousedown, before the button steals focus
-let capturedSel = null; // { start, end, val, sel }
+// Selection captured on toolbar mousedown
+let capturedSel = null;
 
-// Description textarea (plain-text tag editor)
+// Description textarea
 const descTextarea = document.getElementById('form-description');
-const charCounter   = document.getElementById('char-counter');
-
-// Legacy aliases so unchanged call-sites keep working
-const richTextEditor  = descTextarea;
-const hiddenDescription = descTextarea;
+const charCounter = document.getElementById('char-counter');
 
 // Get DOM elements
 const sortableListElement = document.getElementById('sortable-list');
@@ -42,7 +42,6 @@ const togglePasteBtn = document.getElementById('toggle-paste-btn');
 const pasteArea = document.getElementById('paste-area');
 const pasteUrls = document.getElementById('paste-urls');
 const processPasteBtn = document.getElementById('process-paste-btn');
-const multiFileInput = document.getElementById('multi-file-input');
 
 // Form elements
 const adminSearchInput = document.getElementById('admin-search-input');
@@ -62,6 +61,7 @@ const cancelAddCategoryBtn = document.getElementById('cancel-add-category-btn');
 const manageBtn = document.getElementById('manage-categories-btn');
 const categoryManager = document.getElementById('category-manager');
 const closeCategoryManager = document.getElementById('close-category-manager');
+const resetDataBtn = document.getElementById('reset-data-btn');
 
 // Toolbar buttons
 const toolbarBold = document.getElementById('toolbar-bold');
@@ -79,12 +79,11 @@ if (window.history.scrollRestoration) {
 }
 
 // ========================
-// SMART QUOTES - FIXED TO PRESERVE HTML
+// SMART QUOTES
 // ========================
 function convertToSmartQuotes(text) {
     if (!text) return '';
     
-    // If there are no HTML tags, just do the simple conversion
     if (!/<[a-z][\s\S]*>/i.test(text)) {
         let r = text.replace(/(^|[-—\s(\[{])"/g, '$1“');
         r = r.replace(/"/g, '”');
@@ -93,7 +92,6 @@ function convertToSmartQuotes(text) {
         return r;
     }
     
-    // For HTML content, only convert quotes outside of tags
     let result = '';
     let inTag = false;
     let inAttribute = false;
@@ -102,7 +100,6 @@ function convertToSmartQuotes(text) {
     for (let i = 0; i < text.length; i++) {
         const char = text[i];
         
-        // Toggle tag state
         if (char === '<') {
             inTag = true;
             inAttribute = false;
@@ -116,7 +113,6 @@ function convertToSmartQuotes(text) {
             continue;
         }
         
-        // Inside a tag, check if we're in an attribute value
         if (inTag) {
             if (char === '"' || char === "'") {
                 if (!inAttribute) {
@@ -125,17 +121,15 @@ function convertToSmartQuotes(text) {
                 } else if (char === attributeQuoteChar) {
                     inAttribute = false;
                 }
-                result += char; // Keep straight quotes in HTML attributes
+                result += char;
                 continue;
             }
             result += char;
             continue;
         }
         
-        // Only convert quotes when not inside a tag or attribute
         if (!inTag && !inAttribute) {
             if (char === '"') {
-                // Opening quote if preceded by space, start, or opening bracket
                 const prevChar = text[i-1] || '';
                 if (/[\s(\[{]/.test(prevChar) || i === 0) {
                     result += '“';
@@ -161,60 +155,45 @@ function convertToSmartQuotes(text) {
 }
 
 // ========================
-// LINK CLEANUP FUNCTIONS
+// LINK CLEANUP
 // ========================
 function cleanupMalformedLinks(html) {
     if (!html) return html;
-    
     let cleaned = html;
-    
-    // Fix href with smart quotes - pattern: href="”URL”" or href=”URL”
     cleaned = cleaned.replace(/href=["'”‘’]\s*["'”‘’]?(https?:\/\/[^"'\s>]+)["'”‘’]\s*["'”‘’]?/g, 'href="$1"');
     cleaned = cleaned.replace(/href=”(https?:\/\/[^”\s>]+)”/g, 'href="$1"');
     cleaned = cleaned.replace(/href=‘([^’\s>]+)’/g, 'href="$1"');
-    
-    // Fix URLs that got double-wrapped (http://domain.com/"http://actual.com")
     cleaned = cleaned.replace(/href="https?:\/\/[^"]*?(https?:\/\/[^"]+)/g, function(match, captured) {
         return 'href="' + captured;
     });
-    
-    // Remove any stray quotes that got URL-encoded
     cleaned = cleaned.replace(/%E2%80%9C/g, '').replace(/%E2%80%9D/g, '');
     cleaned = cleaned.replace(/%E2%80%98/g, '').replace(/%E2%80%99/g, '');
-    
-    // Fix target and rel attributes with smart quotes
     cleaned = cleaned.replace(/target=”(_blank|_self|_parent|_top)”/g, 'target="$1"');
     cleaned = cleaned.replace(/target=‘(_blank|_self|_parent|_top)’/g, 'target="$1"');
     cleaned = cleaned.replace(/rel=”(noopener noreferrer|nofollow|noopener)”/g, 'rel="$1"');
     cleaned = cleaned.replace(/rel=‘(noopener noreferrer|nofollow|noopener)’/g, 'rel="$1"');
-    
     return cleaned;
 }
 
 // ========================
 // TEXTAREA EDITOR HELPERS
 // ========================
-function syncDescriptionToHidden() { /* no-op: textarea IS the store */ }
-
 function updateCharCount() {
     if (charCounter && descTextarea) {
         charCounter.textContent = descTextarea.value.length + ' characters';
     }
 }
 
-/** Insert or wrap text at the textarea cursor. */
 function insertAtCursor(before, after, selStart, selEnd, selText) {
     if (after === undefined) after = '';
     if (!descTextarea) return;
     const start = (selStart !== undefined) ? selStart : 0;
-    const end   = (selEnd   !== undefined) ? selEnd   : 0;
-    const sel   = (selText  !== undefined) ? selText  : '';
+    const end = (selEnd !== undefined) ? selEnd : 0;
+    const sel = (selText !== undefined) ? selText : '';
     const val = descTextarea.value;
     const replacement = before + sel + after;
     descTextarea.value = val.slice(0, start) + replacement + val.slice(end);
-    const cursorPos = (start === end)
-        ? start + before.length
-        : start + replacement.length;
+    const cursorPos = (start === end) ? start + before.length : start + replacement.length;
     descTextarea.focus();
     descTextarea.setSelectionRange(cursorPos, cursorPos);
     updateCharCount();
@@ -232,7 +211,6 @@ function getEditorContent() {
     return descTextarea ? descTextarea.value : '';
 }
 
-// Apply smart quotes to editor - FIXED to preserve HTML
 function applySmartQuotesToEditor() {
     if (!descTextarea) return;
     const pos = descTextarea.selectionStart;
@@ -242,19 +220,17 @@ function applySmartQuotesToEditor() {
 }
 
 // ========================
-// APPLY / TOGGLE FORMATTING
+// TOOLBAR FUNCTIONS
 // ========================
 function applyInlineFormat(tagName) {
     if (!descTextarea || !capturedSel) return;
-    const open  = '<' + tagName + '>';
+    const open = '<' + tagName + '>';
     const close = '</' + tagName + '>';
     const start = capturedSel.start;
-    const end   = capturedSel.end;
-    const val   = capturedSel.val;
-    const sel   = capturedSel.sel;
+    const end = capturedSel.end;
+    const val = capturedSel.val;
+    const sel = capturedSel.sel;
 
-    // ── Toggle OFF case 1 ──────────────────────────────────────────────────
-    // Selection is exactly <tag>content</tag> — strip both tags
     if (sel.startsWith(open) && sel.endsWith(close) && sel.length > open.length + close.length) {
         const inner = sel.slice(open.length, sel.length - close.length);
         descTextarea.setRangeText(inner, start, end, 'select');
@@ -264,10 +240,8 @@ function applyInlineFormat(tagName) {
         return;
     }
 
-    // ── Toggle OFF case 2 ──────────────────────────────────────────────────
-    // Tags are immediately outside the selection: <tag>[sel]</tag>
     const beforeSel = val.slice(0, start);
-    const afterSel  = val.slice(end);
+    const afterSel = val.slice(end);
     if (beforeSel.endsWith(open) && afterSel.startsWith(close)) {
         const newVal = val.slice(0, start - open.length) + sel + val.slice(end + close.length);
         descTextarea.value = newVal;
@@ -278,19 +252,17 @@ function applyInlineFormat(tagName) {
         return;
     }
 
-    // ── Toggle OFF case 3 ──────────────────────────────────────────────────
-    // Selection is somewhere inside an enclosing <tag>…[sel]…</tag>.
-    const openIdx  = val.lastIndexOf(open, start);
+    const openIdx = val.lastIndexOf(open, start);
     const closeIdx = val.indexOf(close, end);
     if (openIdx !== -1 && closeIdx !== -1) {
         const between = val.slice(openIdx + open.length, closeIdx);
-        const hasNestedOpen  = between.includes(open);
+        const hasNestedOpen = between.includes(open);
         const hasNestedClose = between.includes(close);
         if (!hasNestedOpen && !hasNestedClose) {
             const inner = between;
             const newVal = val.slice(0, openIdx) + inner + val.slice(closeIdx + close.length);
             const newStart = openIdx + (start - (openIdx + open.length));
-            const newEnd   = newStart + sel.length;
+            const newEnd = newStart + sel.length;
             descTextarea.value = newVal;
             descTextarea.setSelectionRange(newStart, newEnd);
             descTextarea.focus();
@@ -300,26 +272,22 @@ function applyInlineFormat(tagName) {
         }
     }
 
-    // ── Toggle ON ─────────────────────────────────────────────────────────
     insertAtCursor(open, close, start, end, sel);
 }
 
-// AWARD BUTTON - wraps selected text in <award></award>
 function applyAwardTag() {
     if (!descTextarea || !capturedSel) return;
     const start = capturedSel.start;
-    const end   = capturedSel.end;
-    const sel   = capturedSel.sel;
+    const end = capturedSel.end;
+    const sel = capturedSel.sel;
     
-    // If no text selected, insert placeholder
     if (!sel || sel.trim() === '') {
         insertAtCursor('<award>', '</award>', start, end, sel);
         return;
     }
     
-    // Toggle OFF if already wrapped
     if (sel.startsWith('<award>') && sel.endsWith('</award>')) {
-        const inner = sel.slice(7, sel.length - 8); // <award> is 7 chars, </award> is 8 chars
+        const inner = sel.slice(7, sel.length - 8);
         descTextarea.setRangeText(inner, start, end, 'select');
         descTextarea.focus();
         updateCharCount();
@@ -327,7 +295,6 @@ function applyAwardTag() {
         return;
     }
     
-    // Check if tags are immediately outside selection
     const beforeSel = capturedSel.val.slice(0, start);
     const afterSel = capturedSel.val.slice(end);
     if (beforeSel.endsWith('<award>') && afterSel.startsWith('</award>')) {
@@ -340,16 +307,15 @@ function applyAwardTag() {
         return;
     }
     
-    // Wrap selection
     insertAtCursor('<award>', '</award>', start, end, sel);
 }
 
 function applyUnorderedList() {
     if (!descTextarea || !capturedSel) return;
     const start = capturedSel.start;
-    const end   = capturedSel.end;
-    const val   = capturedSel.val;
-    const sel   = capturedSel.sel.trim();
+    const end = capturedSel.end;
+    const val = capturedSel.val;
+    const sel = capturedSel.sel.trim();
 
     if (sel) {
         const lines = sel.split('\n').map(l => l.replace(/\r$/, '').trim()).filter(l => l.length > 0);
@@ -367,10 +333,9 @@ function applyUnorderedList() {
 function insertLink() {
     if (!descTextarea || !capturedSel) return;
     const start = capturedSel.start;
-    const end   = capturedSel.end;
-    const sel   = capturedSel.sel;
+    const end = capturedSel.end;
+    const sel = capturedSel.sel;
 
-    // Build and show the URL modal
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'link-modal-overlay';
     modalOverlay.style.cssText = `
@@ -403,15 +368,11 @@ function insertLink() {
     const doInsert = () => {
         let url = urlInput.value.trim();
         if (!url) { closeModal(); return; }
-        
-        // Only add https:// if the URL looks like a domain without protocol
         if (!url.startsWith('http://') && !url.startsWith('https://') && 
             !url.startsWith('/') && !url.startsWith('./') && !url.startsWith('../') && 
             !url.startsWith('#') && !url.startsWith('mailto:') && !url.startsWith('tel:')) {
             url = 'https://' + url;
         }
-        
-        // Use straight quotes (") not smart quotes
         const tag = '<a href="' + url + '" target="_blank" rel="noopener noreferrer">';
         insertAtCursor(tag, '</a>', start, end, sel);
         closeModal();
@@ -421,10 +382,6 @@ function insertLink() {
     urlInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); doInsert(); } });
     modalOverlay.querySelector('#link-modal-cancel').addEventListener('click', closeModal);
     modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
-}
-
-function handlePaste(e) {
-    setTimeout(() => { updateCharCount(); if (isEditingMode) debouncedAutoSave(); }, 0);
 }
 
 // ========================
@@ -654,7 +611,6 @@ function showInlineError(inputElement, message) {
         gap: 0.3rem;
     `;
     errorDiv.innerHTML = `⚠️ ${escapeHtml(message)}`;
-    
     inputElement.insertAdjacentElement('afterend', errorDiv);
     
     if (inlineErrorTimeout) clearTimeout(inlineErrorTimeout);
@@ -670,14 +626,12 @@ function showInlineError(inputElement, message) {
 // ========================
 function normalizeCategoryName(name) {
     if (!name || !name.trim()) return '';
-    
     let normalized = name.trim().toLowerCase();
     normalized = normalized.replace(/&/g, '_&_');
     normalized = normalized.replace(/\s+/g, ' ');
     normalized = normalized.replace(/ /g, '_');
     normalized = normalized.replace(/_+/g, '_');
     normalized = normalized.replace(/^_|_$/g, '');
-    
     return normalized;
 }
 
@@ -754,6 +708,9 @@ function addNewCategory(rawName, applyToCurrentProject = true) {
         }
     }
     
+    // Save categories to localStorage
+    saveDemoCategories(availableCategories);
+    
     showFloatingNotification(`✓ Added category "${formatCategoryForDisplay(normalized)}"`);
     return true;
 }
@@ -790,8 +747,9 @@ function deleteCategory(categoryToDelete) {
         
         updateCategoryDropdown();
         renderAdminView();
-        saveToServer();
+        saveToLocalStorage();
         if (categoryManager) categoryManager.style.display = 'none';
+        saveDemoCategories(availableCategories);
         showFloatingNotification(`✓ Deleted category "${displayName}"`);
     }, () => {});
 }
@@ -834,8 +792,6 @@ function renderCategoriesList() {
 if (addForm) {
     addForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        
-        // Make sure currentMediaArray is properly captured
         const mediaToSave = [...currentMediaArray].filter(m => m && m.trim());
         
         const projectData = {
@@ -850,16 +806,15 @@ if (addForm) {
         
         localProjectCache.push(projectData);
         renderAdminView();
-        saveToServer();
+        saveToLocalStorage();
         startNewProject();
         showFloatingNotification("✓ Project added with " + mediaToSave.length + " media item(s)!");
-        
         return false;
     });
 }
 
-function saveToServer() {
-    // Clean up any malformed links before saving
+function saveToLocalStorage() {
+    // Clean up malformed links
     localProjectCache = localProjectCache.map(project => {
         if (project.description) {
             project.description = cleanupMalformedLinks(project.description);
@@ -867,18 +822,15 @@ function saveToServer() {
         return project;
     });
     
-    fetch('http://localhost:3001/api/save-projects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(localProjectCache)
-    })
-    .then(res => res.json())
-    .then(res => {
-        if (!res.success) {
-            showFloatingNotification("Save error: " + res.error, false);
-        }
-    })
-    .catch(() => showFloatingNotification("Server not running. Run: node save-server.js", false));
+    saveDemoProjects(localProjectCache);
+    
+    // Also save categories
+    const cats = [...new Set(localProjectCache.map(p => p.category).filter(c => c && c !== ''))];
+    if (cats.length > 0) {
+        availableCategories = cats;
+        saveDemoCategories(cats);
+        updateCategoryDropdown();
+    }
 }
 
 function escapeHtml(text) {
@@ -894,6 +846,7 @@ function getMediaIcon(url) {
     if (lowerUrl.match(/\.(mp4|webm|mov|ogg)$/)) return '🎥';
     if (lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be')) return '📺';
     if (lowerUrl.includes('vimeo.com')) return '🎬';
+    if (lowerUrl.includes('unsplash.com')) return '📷';
     return '🔗';
 }
 
@@ -904,33 +857,21 @@ function getMediaPreview(mediaArray) {
 }
 
 function loadData() {
-    fetch('projects.json')
-        .then(res => res.json())
-        .then(data => {
-            // Clean up any malformed links in the loaded data
-            data = data.map(project => {
-                if (project.description) {
-                    project.description = cleanupMalformedLinks(project.description);
-                }
-                return project;
-            });
-            
-            localProjectCache = data;
-            
-            const cats = [...new Set(localProjectCache.map(p => p.category).filter(c => c && c !== ''))];
-            if (cats.length > 0) {
-                availableCategories = cats;
-                updateCategoryDropdown();
-            }
-            
-            renderAdminView();
-            showFloatingNotification(`✓ Loaded ${localProjectCache.length} projects`);
-        })
-        .catch(() => {
-            localProjectCache = [];
-            renderAdminView();
-            showFloatingNotification("✨ No projects found. Add your first one!");
-        });
+    const data = getDemoData();
+    localProjectCache = data.projects;
+    availableCategories = data.categories;
+    
+    // Clean up malformed links
+    localProjectCache = localProjectCache.map(project => {
+        if (project.description) {
+            project.description = cleanupMalformedLinks(project.description);
+        }
+        return project;
+    });
+    
+    updateCategoryDropdown();
+    renderAdminView();
+    showFloatingNotification(`✓ Loaded ${localProjectCache.length} projects from localStorage`);
 }
 
 function renderAdminView() {
@@ -958,7 +899,7 @@ function renderAdminView() {
         const draftBadge = project.published === false ? ' [DRAFT]' : '';
         const heading = project.cardHeading || project.tag || '';
         
-                if (project.published === false) li.style.opacity = '0.5';
+        if (project.published === false) li.style.opacity = '0.5';
         li.innerHTML = `
             <div class="sort-content" style="flex-grow:1; cursor:pointer; min-width:0; overflow:hidden;">
                 <strong>${escapeHtml(project.title)}${draftBadge}</strong>
@@ -966,9 +907,9 @@ function renderAdminView() {
                 <div style="font-size:0.7rem; color:var(--accent-red); margin-top:0.2rem;">${mediaPreview}</div>
             </div>
             <div style="display:flex; gap:0.25rem; align-items:center; flex-shrink:0; margin-left:0.5rem;">
-                <span class="row-btn move-top-btn"    title="Move to top">⇈</span>
-                <span class="row-btn move-up-btn"     title="Move up">↑</span>
-                <span class="row-btn move-down-btn"   title="Move down">↓</span>
+                <span class="row-btn move-top-btn" title="Move to top">⇈</span>
+                <span class="row-btn move-up-btn" title="Move up">↑</span>
+                <span class="row-btn move-down-btn" title="Move down">↓</span>
                 <span class="row-btn move-bottom-btn" title="Move to bottom">⇊</span>
                 <span class="row-btn delete-item-btn" data-index="${originalIndex}" title="Delete">✕</span>
                 <span class="sort-handle row-btn" style="cursor:grab;" title="Drag to reorder">☰</span>
@@ -983,11 +924,11 @@ function renderAdminView() {
             const [item] = localProjectCache.splice(fromIdx, 1);
             localProjectCache.splice(toIdx, 0, item);
             renderAdminView();
-            saveToServer();
+            saveToLocalStorage();
         };
-        li.querySelector('.move-top-btn').addEventListener('click',    e => { e.stopPropagation(); moveProject(originalIndex, 0); });
-        li.querySelector('.move-up-btn').addEventListener('click',     e => { e.stopPropagation(); moveProject(originalIndex, originalIndex - 1); });
-        li.querySelector('.move-down-btn').addEventListener('click',   e => { e.stopPropagation(); moveProject(originalIndex, originalIndex + 1); });
+        li.querySelector('.move-top-btn').addEventListener('click', e => { e.stopPropagation(); moveProject(originalIndex, 0); });
+        li.querySelector('.move-up-btn').addEventListener('click', e => { e.stopPropagation(); moveProject(originalIndex, originalIndex - 1); });
+        li.querySelector('.move-down-btn').addEventListener('click', e => { e.stopPropagation(); moveProject(originalIndex, originalIndex + 1); });
         li.querySelector('.move-bottom-btn').addEventListener('click', e => { e.stopPropagation(); moveProject(originalIndex, localProjectCache.length - 1); });
 
         li.querySelector('.delete-item-btn').addEventListener('click', (e) => {
@@ -995,7 +936,7 @@ function renderAdminView() {
             showConfirmModal(`Remove "${project.title}" permanently? This cannot be undone.`, () => {
                 localProjectCache.splice(originalIndex, 1);
                 renderAdminView();
-                saveToServer();
+                saveToLocalStorage();
                 if (isEditingMode && currentEditIndex === originalIndex) startNewProject();
             }, () => {});
         });
@@ -1038,7 +979,7 @@ function recalculateCacheOrder() {
     const currentRows = [...sortableListElement.querySelectorAll('.sort-item')];
     localProjectCache = currentRows.map(row => localProjectCache[row.getAttribute('data-index')]);
     currentRows.forEach((row, i) => row.setAttribute('data-index', i));
-    saveToServer();
+    saveToLocalStorage();
 }
 
 function getCurrentFormData() {
@@ -1068,7 +1009,7 @@ function autoSaveEditingProject() {
     
     localProjectCache[currentEditIndex] = projectData;
     renderAdminView();
-    saveToServer();
+    saveToLocalStorage();
     
     lastSavedFormData = JSON.parse(JSON.stringify(projectData));
     showAutoSaveNotification();
@@ -1110,7 +1051,6 @@ function setupAutoSaveListeners(enable) {
         if (enable) {
             editor.addEventListener('input', debouncedAutoSave);
             editor.addEventListener('blur', () => {
-                syncDescriptionToHidden();
                 if (isEditingMode) debouncedAutoSave();
             });
         } else {
@@ -1329,123 +1269,16 @@ function handleAddButtonClick() {
             showFloatingNotification("Media already in list", false);
         }
     } else {
-        multiFileInput.click();
+        showFloatingNotification("Please enter a URL or path", false);
     }
 }
 
-function showDirectoryPrompt(files) {
-    if (!files || files.length === 0) return;
-    
-    // Convert FileList to array for easier handling
-    const fileArray = Array.from(files);
-    
-    const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);z-index:20000;display:flex;align-items:center;justify-content:center;';
-    const names = fileArray.map(f => f.name).join(', ');
-    const truncated = names.length > 80 ? names.slice(0, 80) + '…' : names;
-    overlay.innerHTML = `
-        <div style="background:var(--card-bg);border:1px solid var(--border-color);border-radius:24px;padding:1.5rem;max-width:480px;width:90%;">
-            <h3 style="margin-bottom:0.4rem;font-size:1.05rem;">Set Media Path</h3>
-            <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.8rem;">${truncated}</p>
-            <div style="display:flex;align-items:center;gap:0.5rem;background:var(--bg-primary);border-radius:12px;border:1px solid var(--border-color);padding:0 0.75rem;margin-bottom:0.25rem;">
-                <span style="color:var(--text-muted);font-weight:500;font-size:0.85rem;white-space:nowrap;">media/</span>
-                <input type="text" id="dir-prompt-input" placeholder="subfolder/ (optional)" 
-                    style="width:100%;padding:0.75rem 0;background:transparent;border:none;color:var(--text-primary);font-family:monospace;outline:none;">
-            </div>
-            <p style="font-size:0.72rem;color:var(--text-muted);margin-bottom:1rem;">Files will be saved to: <code style="background:var(--bg-secondary);padding:0.1rem 0.4rem;border-radius:4px;">media/<span id="dir-prompt-preview">...</span></code></p>
-            <div style="display:flex;gap:1rem;justify-content:flex-end;">
-                <button id="dir-prompt-cancel" class="btn-small">Cancel</button>
-                <button id="dir-prompt-confirm" class="filter-btn">Add Files</button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(overlay);
-    
-    const input = overlay.querySelector('#dir-prompt-input');
-    const preview = overlay.querySelector('#dir-prompt-preview');
-    
-    // Update preview on input
-    input.addEventListener('input', () => {
-        const val = input.value.trim();
-        preview.textContent = val ? val + '/' : 'filename';
-    });
-    preview.textContent = 'filename';
-    
-    input.focus();
-    
-    const doConfirm = () => {
-        let subfolder = input.value.trim();
-        let prefix = 'media/';
-        if (subfolder) {
-            if (!subfolder.endsWith('/')) subfolder += '/';
-            prefix += subfolder;
-        }
-        
-        let added = 0;
-        let skipped = 0;
-        
-        // Process each file
-        fileArray.forEach(f => {
-            // Sanitize the filename - replace spaces and special chars
-            let filename = f.name.replace(/[#?&]/g, '_').replace(/\s+/g, '_');
-            // Also replace any other problematic characters
-            filename = filename.replace(/[\(\)\[\]\{\}]/g, '_');
-            
-            const fullPath = prefix + filename;
-            
-            // Check if this exact path already exists in the media array
-            // Use a case-insensitive comparison to avoid duplicates with different casing
-            const exists = currentMediaArray.some(existing => 
-                existing.toLowerCase() === fullPath.toLowerCase()
-            );
-            
-            if (!exists) {
-                currentMediaArray.push(fullPath);
-                added++;
-                console.log('Added media:', fullPath); // Debug log
-            } else {
-                skipped++;
-                console.log('Skipped duplicate:', fullPath); // Debug log
-            }
-        });
-        
-        overlay.remove();
-        
-        if (added > 0) {
-            renderMediaBadges();
-            // Trigger auto-save after adding media
-            if (isEditingMode) {
-                debouncedAutoSave();
-            }
-            let message = '✓ Added ' + added + ' file(s) to ' + prefix;
-            if (skipped > 0) {
-                message += ' (' + skipped + ' duplicate(s) skipped)';
-            }
-            showFloatingNotification(message);
-        } else if (skipped > 0) {
-            showFloatingNotification('All ' + skipped + ' file(s) were duplicates and were skipped', false);
-        } else {
-            showFloatingNotification('No files to add', false);
-        }
-    };
-    
-    overlay.querySelector('#dir-prompt-confirm').addEventListener('click', doConfirm);
-    input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); doConfirm(); } });
-    overlay.querySelector('#dir-prompt-cancel').addEventListener('click', () => overlay.remove());
-    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
-}
-
-function addFilesToMediaList(files) {
-    if (!files || files.length === 0) return;
-    showDirectoryPrompt(files);
-    multiFileInput.value = '';
-}
-
 if (addMediaBtn) addMediaBtn.addEventListener('click', handleAddButtonClick);
-if (multiFileInput) multiFileInput.addEventListener('change', (e) => addFilesToMediaList(multiFileInput.files));
+
 if (togglePasteBtn) togglePasteBtn.addEventListener('click', () => {
     pasteArea.style.display = pasteArea.style.display === 'none' ? 'block' : 'none';
 });
+
 if (processPasteBtn) processPasteBtn.addEventListener('click', () => {
     const lines = pasteUrls.value.split(/\r?\n/);
     let added = 0;
@@ -1501,7 +1334,7 @@ if (cleanupBtn) {
         });
         if (cleaned > 0) {
             renderAdminView();
-            saveToServer();
+            saveToLocalStorage();
             showFloatingNotification(`✓ Cleaned ${cleaned} project(s)`);
         } else {
             showFloatingNotification('No malformed links found');
@@ -1510,29 +1343,48 @@ if (cleanupBtn) {
 }
 
 // ========================
+// RESET DATA BUTTON
+// ========================
+if (resetDataBtn) {
+    resetDataBtn.addEventListener('click', () => {
+        showConfirmModal(
+            'Reset all demo data to the original defaults?\n\nThis will remove all your changes and restore the demo projects.',
+            () => {
+                const data = resetDemoData();
+                localProjectCache = data.projects;
+                availableCategories = data.categories;
+                updateCategoryDropdown();
+                renderAdminView();
+                startNewProject();
+                showFloatingNotification('✓ Demo data reset successfully!');
+            },
+            () => {}
+        );
+    });
+}
+
+// ========================
 // RICH TEXT TOOLBAR HANDLERS
 // ========================
-
 function captureTextareaSel(e) {
     e.preventDefault();
     capturedSel = {
         start: descTextarea.selectionStart,
-        end:   descTextarea.selectionEnd,
-        val:   descTextarea.value,
-        sel:   descTextarea.value.slice(descTextarea.selectionStart, descTextarea.selectionEnd)
+        end: descTextarea.selectionEnd,
+        val: descTextarea.value,
+        sel: descTextarea.value.slice(descTextarea.selectionStart, descTextarea.selectionEnd)
     };
 }
 
-// Add award button to the mousedown capture
 [toolbarBold, toolbarItalic, toolbarUl, toolbarLink, toolbarAward].forEach(btn => {
     if (btn) btn.addEventListener('mousedown', captureTextareaSel);
 });
 
-if (toolbarBold)   toolbarBold.addEventListener('click',   () => applyInlineFormat('strong'));
+if (toolbarBold) toolbarBold.addEventListener('click', () => applyInlineFormat('strong'));
 if (toolbarItalic) toolbarItalic.addEventListener('click', () => applyInlineFormat('em'));
-if (toolbarUl)     toolbarUl.addEventListener('click',     () => applyUnorderedList());
-if (toolbarLink)   toolbarLink.addEventListener('click',   () => insertLink());
-if (toolbarAward)  toolbarAward.addEventListener('click',  () => applyAwardTag());
+if (toolbarUl) toolbarUl.addEventListener('click', () => applyUnorderedList());
+if (toolbarLink) toolbarLink.addEventListener('click', () => insertLink());
+if (toolbarAward) toolbarAward.addEventListener('click', () => applyAwardTag());
 
 if (descTextarea) {
     descTextarea.addEventListener('input', () => {
@@ -1545,10 +1397,7 @@ if (descTextarea) {
 function init() {
     renderMediaBadges();
     loadData();
-    if (richTextEditor && hiddenDescription) {
-        syncDescriptionToHidden();
-        updateCharCount();
-    }
+    updateCharCount();
 }
 
 init();
