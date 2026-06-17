@@ -1,65 +1,95 @@
 /* ========================================
-   GLOBAL DESIGN SYSTEM & VARIABLES
+   1. GLOBAL DESIGN SYSTEM & VARIABLES
    ======================================== */
 :root {
-    --bg-primary: #0a0a0f;
-    --bg-secondary: #111115;
-    --card-bg: #18181e;
-    --text-primary: #ededee;
-    --text-secondary: #a1a1aa;
-    --text-muted: #71717a;
-    --border-color: #2a2a30;
-    --accent-red: #e5484d;
-    --accent-red-hover: #ff6369;
-    --filter-bg: #1f1f24;
-    --filter-active: #e5484d;
+    /* 🎨 Core Colors - Dark Theme */
+    --color-bg: #0a0a0f;
+    --color-bg-secondary: #111115;
+    --color-card: #18181e;
+    --color-text: #ededee;
+    --color-text-secondary: #a1a1aa;
+    --color-text-muted: #71717a;
+    --color-border: #2a2a30;
+    --color-accent: #e5484d;
+    --color-accent-hover: #ff6369;
+    --color-filter-bg: #1f1f24;
+    --color-white: #ffffff;
+    --color-black: #000000;
+    --color-transparent: transparent;
+    
+    /* Shimmer - Dark Theme */
+    --shimmer-mid: rgba(255, 255, 255, 0.25);
+    --shimmer-bg-pulse: var(--color-bg-secondary);
+    
+    /* Layout */
     --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --hero-pad-top: 2.5rem;
+    --hero-pad-bottom: 2.5rem;
+
+    /* Hero Height */
+    --hero-pad-top: 4rem;
+    --hero-pad-bottom: 6rem;
+    
+    /* ⏱️ Animations */
+    --shimmer-duration: 2s;
+    --shimmer-pulse-duration: 1.5s;
+    --shimmer-blur-amount: 6px;
 }
 
+/* ========================================
+   LIGHT THEME
+   ======================================== */
 [data-theme="light"] {
-    --bg-primary: #f8f9fc;
-    --bg-secondary: #ffffff;
-    --card-bg: #ffffff;
-    --text-primary: #1e1e2a;
-    --text-secondary: #3a3a4a;
-    --text-muted: #6c6c7a;
-    --border-color: #e2e2e8;
-    --accent-red: #d32f2f;
-    --accent-red-hover: #b71c1c;
-    --filter-bg: #eef2f5;
-    --filter-active: #d32f2f;
+    --color-bg: #f8f9fc;
+    --color-bg-secondary: var(--color-white);
+    --color-card: var(--color-white);
+    --color-text: #1e1e2a;
+    --color-text-secondary: #3a3a4a;
+    --color-text-muted: #6c6c7a;
+    --color-border: #e2e2e8;
+    --color-accent: #d32f2f;
+    --color-accent-hover: #b71c1c;
+    --color-filter-bg: #eef2f5;
+    
+    /* ✨ Shimmer - Light Theme */
+    --shimmer-mid: rgba(0, 0, 0, 0.15);
+    --shimmer-bg-pulse: var(--color-bg-secondary);
+    
     --shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
+/* ========================================
+   2. RESET & BASE
+   ======================================== */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
     height: 100%;
 }
 
 body {
-    background: var(--bg-primary);
-    color: var(--text-primary);
+    background: var(--color-bg);
+    color: var(--color-text);
     font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
     line-height: 1.5;
-    padding: 2rem 1.5rem;
-    overflow-y: auto;
+    padding: 0;
     min-height: 100vh;
     transition: background 0.2s ease, color 0.2s ease;
 }
 
 /* ========================================
-   TYPOGRAPHY
+   3. TYPOGRAPHY
    ======================================== */
 h1 {
     font-size: 1.8rem;
     font-weight: 600;
     letter-spacing: -0.02em;
-    background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-red) 15%);
+    background: linear-gradient(135deg, var(--color-text) 0%, var(--color-accent) 15%);
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
@@ -73,22 +103,26 @@ h3 {
 
 .subtitle {
     font-size: 0.85rem;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     margin-top: 0.2rem;
 }
 
 /* ========================================
-   HEADER & LAYOUT
+   4. HEADER - STICKY
    ======================================== */
 header {
-    max-width: 1400px;
-    margin: 0 auto 2rem auto;
     position: sticky;
     top: 0;
-    background: var(--bg-primary);
+    width: 100%;
+    background: var(--color-bg);
     z-index: 100;
-    padding-top: 1rem;
-    margin-top: -1rem;
+    padding: 1rem 2rem 0.75rem;
+    transition: box-shadow 0.3s ease;
+    border-bottom: 1px solid var(--color-border);
+}
+
+header.scrolled {
+    box-shadow: var(--shadow-sm);
 }
 
 .header-container {
@@ -97,10 +131,8 @@ header {
     align-items: flex-end;
     flex-wrap: wrap;
     gap: 1rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--border-color);
-    margin-bottom: 1rem;
-    background: var(--bg-primary);
+    margin: 0 auto;
+    max-width: 1400px;
 }
 
 .logo-zone {
@@ -110,7 +142,7 @@ header {
 .logo-zone .subtitle {
     display: block !important;
     font-size: 0.85rem;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     margin-top: 0.2rem;
 }
 
@@ -121,72 +153,88 @@ header {
 }
 
 /* ========================================
-   BUTTONS & CONTROLS
+   5. BUTTONS & CONTROLS
    ======================================== */
 .contact-btn {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: var(--filter-bg);
-    border: 1px solid var(--border-color);
+    background: var(--color-filter-bg);
+    border: 1px solid var(--color-border);
     border-radius: 100px;
     padding: 0 1.1rem;
     height: 42px;
     font-size: 0.85rem;
     font-weight: 500;
-    color: var(--text-secondary);
+    color: var(--color-text-secondary);
     text-decoration: none;
     transition: all 0.2s;
 }
 
 .contact-btn:hover {
-    background: var(--accent-red);
-    border-color: var(--accent-red);
-    color: white;
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-white);
 }
 
 .filter-btn {
-    background: var(--filter-bg);
-    border: 1px solid var(--border-color);
+    background: var(--color-filter-bg);
+    border: 1px solid var(--color-border);
     padding: 0.55rem 1.3rem;
     border-radius: 100px;
     font-size: 0.85rem;
     font-weight: 500;
     cursor: pointer;
-    color: var(--text-secondary);
+    color: var(--color-text-secondary);
     transition: all 0.2s;
 }
 
 .filter-btn.active {
-    background: var(--filter-active);
-    border-color: var(--filter-active);
-    color: white;
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-white);
 }
 
 .filter-btn:hover:not(.active) {
-    background: var(--border-color);
-    color: var(--text-primary);
+    background: var(--color-border);
+    color: var(--color-text);
+}
+
+.filter-btn-games {
+    border-color: var(--color-accent) !important;
+    color: var(--color-accent) !important;
+    background: var(--color-filter-bg) !important;
+}
+
+.filter-btn-games.active {
+    background: var(--color-accent) !important;
+    border-color: var(--color-accent) !important;
+    color: var(--color-white) !important;
+}
+
+.filter-btn-games:hover:not(.active) {
+    background: rgba(229, 72, 77, 0.08) !important;
 }
 
 .btn-small {
     font-size: 0.75rem;
     padding: 0.3rem 0.8rem;
-    background: var(--filter-bg);
-    border: 1px solid var(--border-color);
+    background: var(--color-filter-bg);
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     cursor: pointer;
-    color: var(--text-secondary);
+    color: var(--color-text-secondary);
     transition: all 0.2s;
 }
 
 .btn-small:hover {
-    background: var(--border-color);
-    color: var(--text-primary);
+    background: var(--color-border);
+    color: var(--color-text);
 }
 
 #theme-toggle {
-    background: var(--filter-bg);
-    border: 1px solid var(--border-color);
+    background: var(--color-filter-bg);
+    border: 1px solid var(--color-border);
     border-radius: 50%;
     width: 42px;
     height: 42px;
@@ -194,16 +242,17 @@ header {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: var(--text-primary);
+    color: var(--color-text);
     transition: all 0.2s;
 }
 
 #theme-toggle:hover {
-    background: var(--border-color);
+    background: var(--color-border);
 }
 
 /* Theme icons */
-.sun-icon, .moon-icon {
+.sun-icon,
+.moon-icon {
     transition: opacity 0.2s;
 }
 
@@ -218,38 +267,419 @@ header {
 }
 
 /* ========================================
-   FILTER NAVIGATION
+   6. HERO SECTION
+   ======================================== */
+.hero-section {
+    padding: var(--hero-pad-top) 0 var(--hero-pad-bottom) 0;
+    text-align: center;
+    margin-bottom: 0;
+    background: var(--color-bg);
+}
+
+.hero-section {
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(
+            circle at 50% 20%,
+            rgba(229,72,77,.08),
+            transparent 50%
+        ),
+        var(--color-bg);
+}
+
+.hero-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.hero-title {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.3;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, var(--color-text) 0%, var(--color-accent) 40%, var(--color-text) 70%);
+    background-size: 200% 200%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: gradientShift 8s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.hero-subtitle {
+    font-size: clamp(1.1rem, 1.3vw, 1.35rem);
+    font-weight: 600;
+    color: var(--color-text);
+    line-height: 1.6;
+    max-width: 700px;
+    margin: 0 auto 0.75rem auto;
+}
+
+.hero-description {
+    font-size: clamp(0.95rem, 1.1vw, 1.1rem);
+    font-weight: 400;
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* ========================================
+   HERO BACKGROUND - ABSTRACT FLOWING ENERGY
+   ======================================== */
+.hero-section {
+    position: relative;
+    overflow: hidden;
+    padding: var(--hero-pad-top) 0 var(--hero-pad-bottom) 0;
+    text-align: center;
+    margin-bottom: 0;
+    background: var(--color-bg);
+}
+
+.hero-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.hero-bg svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+    /* ========================================
+   WAVES - Flowing like energy
+   ======================================== */
+.wave {
+    fill: none;
+    stroke-linecap: round;
+    opacity: 0;
+    animation: waveFlow 12s ease-in-out infinite alternate;
+    transform-origin: center;
+    animation-fill-mode: forwards;
+}
+
+.wave-1 {
+    animation-duration: 14s;
+    animation-delay: 0.3s;
+}
+
+.wave-2 {
+    animation-duration: 16s;
+    animation-delay: 1s;
+}
+
+.wave-3 {
+    animation-duration: 18s;
+    animation-delay: 1.8s;
+}
+
+@keyframes waveFlow {
+    0% {
+        transform: translateX(-10px) translateY(0px) scale(1);
+        opacity: 0.05;
+    }
+    8% {
+        opacity: 0.2;
+    }
+    25% {
+        transform: translateX(10px) translateY(-8px) scale(1.01);
+        opacity: 0.5;
+    }
+    50% {
+        transform: translateX(-5px) translateY(6px) scale(0.99);
+        opacity: 0.35;
+    }
+    75% {
+        transform: translateX(15px) translateY(-3px) scale(1.005);
+        opacity: 0.45;
+    }
+    100% {
+        transform: translateX(-15px) translateY(10px) scale(0.995);
+        opacity: 0.2;
+    }
+}
+
+/* Alternative: If wave-3 still flickers, try this dedicated keyframe */
+.wave-3 {
+    animation: waveFlowSlow 20s ease-in-out infinite alternate;
+    animation-delay: 2s;
+}
+
+@keyframes waveFlowSlow {
+    0% {
+        transform: translateX(-10px) translateY(0px) scale(1);
+        opacity: 0.05;
+    }
+    10% {
+        opacity: 0.15;
+    }
+    30% {
+        transform: translateX(10px) translateY(-8px) scale(1.01);
+        opacity: 0.4;
+    }
+    60% {
+        transform: translateX(-5px) translateY(6px) scale(0.99);
+        opacity: 0.3;
+    }
+    80% {
+        transform: translateX(15px) translateY(-3px) scale(1.005);
+        opacity: 0.35;
+    }
+    100% {
+        transform: translateX(-15px) translateY(10px) scale(0.995);
+        opacity: 0.15;
+    }
+}
+
+/* ========================================
+   ORBS - Floating energy spheres
+   ======================================== */
+.orb {
+    animation: orbFloat 10s ease-in-out infinite alternate;
+    transform-origin: center;
+    opacity: 0;
+    animation-fill-mode: forwards;
+}
+
+.orb-1 {
+    animation-duration: 12s;
+    animation-delay: 0.3s;
+}
+
+.orb-2 {
+    animation-duration: 14s;
+    animation-delay: 0.8s;
+}
+
+.orb-3 {
+    animation-duration: 13s;
+    animation-delay: 1.3s;
+}
+
+.orb-4 {
+    animation-duration: 15s;
+    animation-delay: 1.8s;
+}
+
+@keyframes orbFloat {
+    0% {
+        transform: translate(0px, 0px) scale(1);
+        opacity: 0.3;
+    }
+    33% {
+        transform: translate(15px, -10px) scale(1.15);
+        opacity: 0.7;
+    }
+    66% {
+        transform: translate(-8px, 12px) scale(0.85);
+        opacity: 0.25;
+    }
+    100% {
+        transform: translate(10px, -5px) scale(1.05);
+        opacity: 0.5;
+    }
+}
+
+/* ========================================
+   PARTICLES - Slowly drifting dots
+   ======================================== */
+.particle {
+    animation: particleFloat 8s ease-in-out infinite alternate;
+    opacity: 0;
+    animation-fill-mode: forwards;
+}
+
+.particle-1 { animation-delay: 0.1s; }
+.particle-2 { animation-delay: 0.7s; }
+.particle-3 { animation-delay: 1.3s; }
+.particle-4 { animation-delay: 1.9s; }
+.particle-5 { animation-delay: 2.5s; }
+.particle-6 { animation-delay: 3.1s; }
+.particle-7 { animation-delay: 3.7s; }
+.particle-8 { animation-delay: 4.3s; }
+.particle-9 { animation-delay: 4.9s; }
+.particle-10 { animation-delay: 5.5s; }
+.particle-11 { animation-delay: 6.1s; }
+.particle-12 { animation-delay: 6.7s; }
+
+@keyframes particleFloat {
+    0% {
+        transform: translate(0px, 0px) scale(1);
+        opacity: 0.1;
+    }
+    50% {
+        transform: translate(8px, -10px) scale(1.5);
+        opacity: 0.35;
+    }
+    100% {
+        transform: translate(-5px, 5px) scale(0.8);
+        opacity: 0.08;
+    }
+}
+
+/* ========================================
+   ENSURE HERO CONTENT ABOVE BACKGROUND
+   ======================================== */
+.hero-container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* ========================================
+   7. SCROLL BUTTON
+   ======================================== */
+.scroll-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2rem;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 2px solid var(--color-accent);
+    background: transparent;
+    color: var(--color-accent);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    animation: pulse 2s ease-in-out infinite;
+    position: relative;
+}
+
+.scroll-btn:hover {
+    background: var(--color-accent);
+    color: var(--color-white);
+    transform: translateY(4px);
+    animation: none;
+}
+
+.scroll-btn:active {
+    transform: translateY(8px) scale(0.95);
+}
+
+.scroll-btn svg {
+    width: 28px;
+    height: 28px;
+    transition: transform 0.3s ease;
+}
+
+.scroll-btn:hover svg {
+    transform: translateY(2px);
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(229, 72, 77, 0.4);
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.9;
+        box-shadow: 0 0 0 12px rgba(229, 72, 77, 0);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(229, 72, 77, 0);
+    }
+}
+
+.scroll-btn::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid var(--color-accent);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.scroll-btn:active::after {
+    animation: ripple 0.6s ease-out;
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+/* ========================================
+   8. FILTER NAVIGATION
    ======================================== */
 .filter-nav {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 0.75rem;
-    margin-top: 1rem;
-    margin-bottom: 2rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--border-color);
+    margin: 0 auto;
+    max-width: 1200px;
+    padding: 0.75rem 2rem;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg);
+    position: relative;
+    z-index: 99;
+}
+
+.filter-divider {
+    width: 1px;
+    height: 30px;
+    background: var(--color-border);
+    display: inline-block;
+    margin: 0 8px;
+    flex-shrink: 0;
 }
 
 /* ========================================
-   PORTFOLIO GRID & CARDS
+   9. PORTFOLIO GRID & CARDS
    ======================================== */
 .portfolio-container {
-    max-width: 1400px;
+    max-width: 1600px;
     margin: 0 auto;
+    padding: 0 2rem;
 }
 
 .portfolio-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
     gap: 2rem;
     margin: 2rem 0;
 }
 
 .portfolio-item {
-    background: var(--card-bg);
+    background: var(--color-card);
     border-radius: 20px;
     overflow: hidden;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--color-border);
     transition: transform 0.2s ease, box-shadow 0.2s;
     display: flex;
     flex-direction: column;
@@ -270,7 +700,7 @@ header {
     min-height: 220px;
     max-height: 220px;
     overflow: hidden;
-    background: var(--bg-secondary);
+    background: var(--color-bg-secondary);
     border-radius: 20px 20px 0 0;
     flex-shrink: 0;
 }
@@ -291,8 +721,8 @@ header {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--bg-primary);
-    color: var(--text-muted);
+    background: var(--color-bg);
+    color: var(--color-text-muted);
     font-size: 0.9rem;
 }
 
@@ -312,7 +742,7 @@ header {
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 600;
-    color: var(--accent-red);
+    color: var(--color-accent);
     cursor: pointer;
     transition: opacity 0.2s;
     display: inline-block;
@@ -330,52 +760,140 @@ header {
 }
 
 /* ========================================
-   CARD DESCRIPTION WITH CONSTRAINED HEIGHT & STYLIZED SCROLLBAR
+   FILTER ANIMATIONS - SUBTLE FLYING CARDS
+   ======================================== */
+.portfolio-item {
+    background: var(--color-card);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    transition: transform 0.2s ease, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    cursor: pointer;
+    height: 100%;
+    opacity: 0;
+    will-change: transform, opacity;
+    grid-column: auto;
+    grid-row: auto;
+}
+
+/* Initial load animation - subtle fly up */
+.portfolio-item.initial-load {
+    animation: initialFlyIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation-delay: calc(var(--item-index, 0) * 0.04s);
+}
+
+@keyframes initialFlyIn {
+    0% {
+        opacity: 0;
+        transform: translateY(30px) scale(0.97);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Fly in when filtering - subtle */
+.portfolio-item.fly-in {
+    animation: flyIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation-delay: calc(var(--item-index, 0) * 0.04s);
+}
+
+@keyframes flyIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.97);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Fly out when filtering out - subtle */
+.portfolio-item.fly-out {
+    animation: flyOut 0.3s ease-in forwards;
+    pointer-events: none;
+}
+
+@keyframes flyOut {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-15px) scale(0.95);
+    }
+}
+
+/* Hidden state - use visibility and grid tricks */
+.portfolio-item.hidden-item {
+    visibility: hidden !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    overflow: hidden !important;
+    transform: scale(0.95) !important;
+    animation: none !important;
+    order: 9999; /* Push hidden items to the end */
+}
+
+/* When a grid item is hidden, it should take up no space */
+.portfolio-grid:has(.hidden-item) {
+    grid-auto-rows: 0;
+}
+
+/* ========================================
+   10. CARD DESCRIPTION WITH CONSTRAINED HEIGHT
    ======================================== */
 .item-content p {
     font-size: 0.85rem;
-    color: var(--text-secondary);
+    color: var(--color-text-secondary);
     line-height: 1.6;
     word-break: break-word;
     white-space: pre-wrap;
-    
-    /* Constrain height and add scrollbar */
     max-height: 165px;
     overflow-y: auto;
-    
-    /* Padding for better scrollbar aesthetics */
+    overflow-x: hidden;
     padding-right: 6px;
-    
-    /* Custom scrollbar styling - Firefox */
     scrollbar-width: thin;
-    scrollbar-color: var(--accent-red) var(--border-color);
+    scrollbar-color: var(--color-accent) var(--color-border);
 }
 
-/* Webkit scrollbar styling (Chrome, Safari, Edge) */
 .item-content p::-webkit-scrollbar {
     width: 6px;
 }
 
 .item-content p::-webkit-scrollbar-track {
-    background: var(--border-color);
+    background: var(--color-border);
     border-radius: 3px;
 }
 
 .item-content p::-webkit-scrollbar-thumb {
-    background: var(--accent-red);
+    background: var(--color-accent);
     border-radius: 3px;
     transition: background 0.2s;
 }
 
 .item-content p::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-red-hover);
+    background: var(--color-accent-hover);
 }
 
-/* Ensure links inside scrollable area remain interactive */
 .item-content p a {
-    color: var(--accent-red);
+    color: var(--color-accent);
     text-decoration: none;
     display: inline-block;
+    word-break: break-all;
+    max-width: 100%;
 }
 
 .item-content p a:hover {
@@ -383,14 +901,14 @@ header {
 }
 
 /* ========================================
-   SHARE HINT ON CARDS - CLICKABLE VERSION
+   11. SHARE HINT ON CARDS
    ======================================== */
 .share-hint {
     position: absolute;
     bottom: 12px;
     right: 12px;
-    background: var(--accent-red);
-    color: white;
+    background: var(--color-accent);
+    color: var(--color-white);
     font-size: 0.7rem;
     padding: 4px 8px;
     border-radius: 20px;
@@ -406,12 +924,12 @@ header {
 }
 
 .share-hint:hover {
-    background: var(--accent-red-hover);
+    background: var(--color-accent-hover);
     transform: scale(1.02);
 }
 
 /* ========================================
-   CARD SWIPER (MINI CAROUSEL)
+   12. CARD SWIPER (MINI CAROUSEL)
    ======================================== */
 .card-swiper-container {
     position: relative;
@@ -426,7 +944,7 @@ header {
 
 .card-swiper-container .swiper-slide {
     text-align: center;
-    background: var(--card-bg);
+    background: var(--color-card);
 }
 
 .card-swiper-container .swiper-button-prev,
@@ -435,7 +953,7 @@ header {
     height: 28px;
     background: rgba(0, 0, 0, 0.6);
     border-radius: 50%;
-    color: white;
+    color: var(--color-white);
 }
 
 .card-swiper-container .swiper-button-prev:after,
@@ -455,13 +973,13 @@ header {
 .card-swiper-container .swiper-pagination-bullet {
     width: 6px;
     height: 6px;
-    background: white;
+    background: var(--color-white);
     opacity: 0.6;
 }
 
 .card-swiper-container .swiper-pagination-bullet-active {
     opacity: 1;
-    background: var(--accent-red, #ff4444);
+    background: var(--color-accent);
 }
 
 .card-swiper-container .swiper-pagination {
@@ -469,7 +987,236 @@ header {
 }
 
 /* ========================================
-   CUSTOM MODAL (FULLSCREEN MEDIA VIEWER)
+   13. LAZY LOADING - ANIMATED SHIMMER
+   ======================================== */
+.lazy-image {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    background: var(--color-bg-secondary);
+    position: relative;
+    overflow: hidden;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* Create a shimmer overlay that sits on top of the image */
+.lazy-image.loading {
+    opacity: 1 !important;
+    background: var(--color-bg-secondary) !important;
+}
+
+/* The shimmer effect as a pseudo-element on the image itself */
+.lazy-image.loading::before {
+    content: '' !important;
+    position: absolute;
+    top: 0;
+    left: -200%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        var(--color-transparent) 0%,
+        var(--shimmer-mid) 40%,
+        var(--shimmer-mid) 60%,
+        var(--color-transparent) 100%
+    );
+    animation: shimmer 1.5s ease-in-out infinite;
+    z-index: 10 !important;
+    pointer-events: none;
+    display: block !important;
+}
+
+/* Background pulse behind the image */
+.lazy-image.loading::after {
+    content: '' !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--shimmer-bg-pulse);
+    animation: pulseBg 1.2s ease-in-out infinite;
+    z-index: 1 !important;
+    pointer-events: none;
+    display: block !important;
+}
+
+@keyframes pulseBg {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(300%);
+    }
+}
+
+/* Dim the actual image while loading */
+.lazy-image.loading img,
+.lazy-image.loading video {
+    opacity: 0.15 !important;
+    filter: blur(4px) !important;
+    transform: scale(1.01);
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 0 !important;
+}
+
+/* Loaded state - remove all shimmer effects */
+.lazy-image.loaded {
+    opacity: 1 !important;
+    background: transparent !important;
+}
+
+.lazy-image.loaded img,
+.lazy-image.loaded video {
+    opacity: 1 !important;
+    filter: blur(0) !important;
+    transform: scale(1);
+}
+
+.lazy-image.loaded::before,
+.lazy-image.loaded::after {
+    display: none !important;
+    animation: none !important;
+    content: none !important;
+}
+
+/* Error state */
+.lazy-image.error {
+    opacity: 0.3;
+    background: var(--color-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lazy-image.error::before,
+.lazy-image.error::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Swiper slide lazy images */
+.swiper-slide .lazy-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ========================================
+   VIMEO & YOUTUBE THUMBNAIL SHIMMER FIX
+   ======================================== */
+/* Target the container, not the image itself */
+.item-image:has(.vimeo-thumb.loading)::before,
+.item-image:has(img[data-src*="youtube"].loading)::before,
+.item-image:has(img[data-src*="vimeo"].loading)::before {
+    content: '' !important;
+    position: absolute;
+    top: 0;
+    left: -200%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        var(--color-transparent) 0%,
+        var(--shimmer-mid) 40%,
+        var(--shimmer-mid) 60%,
+        var(--color-transparent) 100%
+    );
+    animation: shimmer 1.5s ease-in-out infinite;
+    z-index: 10 !important;
+    pointer-events: none;
+    display: block !important;
+}
+
+.item-image:has(.vimeo-thumb.loading)::after,
+.item-image:has(img[data-src*="youtube"].loading)::after,
+.item-image:has(img[data-src*="vimeo"].loading)::after {
+    content: '' !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--shimmer-bg-pulse);
+    animation: pulseBg 1.2s ease-in-out infinite;
+    z-index: 1 !important;
+    pointer-events: none;
+    display: block !important;
+}
+
+/* Dim the actual thumbnail while loading */
+.item-image:has(.vimeo-thumb.loading) img,
+.item-image:has(img[data-src*="youtube"].loading) img,
+.item-image:has(img[data-src*="vimeo"].loading) img {
+    opacity: 0.15 !important;
+    filter: blur(4px) !important;
+    transform: scale(1.01);
+    transition: all 0.3s ease;
+}
+
+/* Remove shimmer when loaded */
+.item-image:has(.vimeo-thumb.loaded)::before,
+.item-image:has(.vimeo-thumb.loaded)::after,
+.item-image:has(img[data-src*="youtube"].loaded)::before,
+.item-image:has(img[data-src*="youtube"].loaded)::after,
+.item-image:has(img[data-src*="vimeo"].loaded)::before,
+.item-image:has(img[data-src*="vimeo"].loaded)::after {
+    display: none !important;
+    animation: none !important;
+    content: none !important;
+}
+
+/* Ensure the container has proper positioning */
+.item-image {
+    position: relative;
+    height: 220px;
+    min-height: 220px;
+    max-height: 220px;
+    overflow: hidden;
+    background: var(--color-bg-secondary);
+    border-radius: 20px 20px 0 0;
+    flex-shrink: 0;
+}
+
+/* ========================================
+   14. AWARD BADGE
+   ======================================== */
+.award-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    font-size: 0.78em;
+    font-variant: small-caps;
+    letter-spacing: 0.04em;
+    color: #b8860b;
+    background: rgba(184, 134, 11, 0.1);
+    border: 1px solid rgba(184, 134, 11, 0.35);
+    border-radius: 4px;
+    padding: 0.1em 0.5em 0.15em;
+    white-space: nowrap;
+    vertical-align: middle;
+    line-height: 1.4;
+}
+
+[data-theme="dark"] .award-badge {
+    color: #f0c040;
+    background: rgba(240, 192, 64, 0.1);
+    border-color: rgba(240, 192, 64, 0.3);
+}
+
+/* ========================================
+   15. CUSTOM MODAL (FULLSCREEN MEDIA VIEWER)
    ======================================== */
 .media-modal {
     display: none;
@@ -499,7 +1246,7 @@ header {
     position: absolute;
     top: -40px;
     right: 0;
-    color: white;
+    color: var(--color-white);
     font-size: 35px;
     font-weight: bold;
     cursor: pointer;
@@ -508,7 +1255,7 @@ header {
 }
 
 .modal-close:hover {
-    color: var(--accent-red);
+    color: var(--color-accent);
 }
 
 .modal-swiper-container {
@@ -527,7 +1274,7 @@ header {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #000;
+    background: var(--color-black);
     border-radius: 12px;
     overflow: hidden;
 }
@@ -549,7 +1296,7 @@ header {
 
 .modal-swiper .swiper-button-prev,
 .modal-swiper .swiper-button-next {
-    color: white;
+    color: var(--color-white);
     background: rgba(0, 0, 0, 0.5);
     width: 44px;
     height: 44px;
@@ -563,22 +1310,21 @@ header {
 }
 
 .modal-swiper .swiper-pagination-bullet {
-    background: white;
+    background: var(--color-white);
     opacity: 0.5;
 }
 
 .modal-swiper .swiper-pagination-bullet-active {
     opacity: 1;
-    background: var(--accent-red, #ff4444);
+    background: var(--color-accent);
 }
 
-/* Video progress indicator */
 .video-progress-indicator {
     position: absolute;
     bottom: 0;
     left: 0;
     height: 3px;
-    background: var(--accent-red);
+    background: var(--color-accent);
     width: 0%;
     transition: width 0.3s;
     z-index: 10;
@@ -586,7 +1332,7 @@ header {
 }
 
 /* ========================================
-   ADMIN WORKSPACE
+   16. ADMIN WORKSPACE
    ======================================== */
 .admin-workspace {
     display: grid;
@@ -596,78 +1342,14 @@ header {
 }
 
 .admin-form {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
     border-radius: 28px;
     padding: 1.8rem;
 }
 
 .sorting-zone {
     position: relative;
-}
-
-/* ========================================
-   ADD CATEGORY INLINE FIELD
-   ======================================== */
-#add-category-field {
-    animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-#add-category-field input {
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    padding: 0.5rem;
-    color: var(--text-primary);
-    font-size: 0.85rem;
-}
-
-#add-category-field input:focus {
-    outline: none;
-    border-color: var(--accent-red);
-}
-
-/* ========================================
-   CATEGORY MANAGEMENT PANEL
-   ======================================== */
-#category-manager {
-    margin-top: 0.5rem;
-}
-
-#categories-list {
-    max-height: 200px;
-    overflow-y: auto;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-/* ========================================
-   PUBLISH CHECKBOX
-   ======================================== */
-.publish-group {
-    margin-top: 1.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.publish-group label {
-    transition: border-color 0.2s, background 0.2s;
-}
-
-.publish-group label:hover {
-    border-color: var(--accent-red);
-    background: var(--bg-secondary);
-}
-
-#form-published {
-    accent-color: var(--accent-red);
-    transform: scale(0.75);
-    margin-right: 0.25rem;
 }
 
 /* Admin search */
@@ -677,18 +1359,18 @@ header {
 
 .admin-search-input {
     width: 100%;
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
     border-radius: 14px;
     padding: 0.7rem 1rem;
-    color: var(--text-primary);
+    color: var(--color-text);
     font-size: 0.85rem;
     transition: border-color 0.2s;
 }
 
 .admin-search-input:focus {
     outline: none;
-    border-color: var(--accent-red);
+    border-color: var(--color-accent);
 }
 
 /* Form groups */
@@ -701,20 +1383,20 @@ header {
     font-size: 0.8rem;
     font-weight: 500;
     margin-bottom: 0.3rem;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
-.form-group input, 
-.form-group select, 
+.form-group input,
+.form-group select,
 .form-group textarea {
     width: 100%;
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
     border-radius: 14px;
     padding: 0.8rem 1rem;
-    color: var(--text-primary);
+    color: var(--color-text);
     font-size: 0.9rem;
     font-family: inherit;
     transition: border-color 0.2s;
@@ -724,20 +1406,14 @@ header {
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: var(--accent-red);
+    border-color: var(--color-accent);
 }
 
 .form-group textarea {
     min-height: 110px;
     resize: vertical;
-}
-
-/* ========================================
-   ADMIN DESCRIPTION SCROLLBAR - STYLED LIKE PORTFOLIO
-   ======================================== */
-.form-group textarea {
     scrollbar-width: thin;
-    scrollbar-color: var(--accent-red) var(--border-color);
+    scrollbar-color: var(--color-accent) var(--color-border);
 }
 
 .form-group textarea::-webkit-scrollbar {
@@ -745,39 +1421,58 @@ header {
 }
 
 .form-group textarea::-webkit-scrollbar-track {
-    background: var(--border-color);
+    background: var(--color-border);
     border-radius: 4px;
 }
 
 .form-group textarea::-webkit-scrollbar-thumb {
-    background: var(--accent-red);
+    background: var(--color-accent);
     border-radius: 4px;
     transition: background 0.2s;
 }
 
 .form-group textarea::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-red-hover);
+    background: var(--color-accent-hover);
+}
+
+.form-group input[type="checkbox"] {
+    width: auto;
+    margin-right: 0.5rem;
 }
 
 /* Character counter */
 #char-counter {
     text-align: right;
     font-size: 0.7rem;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     margin-top: 0.25rem;
     transition: color 0.2s;
 }
 
-/* Checkbox styling */
-.form-group input[type="checkbox"] {
-    width: auto;
-    margin-right: 0.5rem;
+/* Publish group */
+.publish-group {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.publish-group label {
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.publish-group label:hover {
+    border-color: var(--color-accent);
+    background: var(--color-bg-secondary);
+}
+
+#form-published {
+    accent-color: var(--color-accent);
+    transform: scale(0.75);
+    margin-right: 0.25rem;
 }
 
 /* ========================================
-   ADMIN MEDIA MANAGER (FILE PICKER + BADGES)
+   17. ADMIN MEDIA MANAGER
    ======================================== */
-/* Media input row */
 .media-input-row {
     display: flex;
     gap: 0.5rem;
@@ -788,10 +1483,9 @@ header {
     flex: 1;
 }
 
-/* Media badges container */
 .media-badges-container {
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
     border-radius: 14px;
     padding: 0.5rem;
     margin-top: 0.5rem;
@@ -802,8 +1496,8 @@ header {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
     border-radius: 20px;
     padding: 0.3rem 0.6rem 0.3rem 0.8rem;
     margin: 0.25rem;
@@ -813,11 +1507,11 @@ header {
 }
 
 .media-badge:hover {
-    border-color: var(--accent-red);
+    border-color: var(--color-accent);
 }
 
 .media-badge.dragging-over {
-    border: 2px dashed var(--accent-red);
+    border: 2px dashed var(--color-accent);
     background: rgba(229, 72, 77, 0.1);
 }
 
@@ -830,7 +1524,7 @@ header {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: var(--text-secondary);
+    color: var(--color-text-secondary);
 }
 
 .media-badge-preview,
@@ -846,10 +1540,9 @@ header {
 .media-badge-edit:hover,
 .media-badge-delete:hover {
     opacity: 1;
-    color: var(--accent-red);
+    color: var(--color-accent);
 }
 
-/* Paste area */
 .media-paste-area {
     margin-top: 0.5rem;
 }
@@ -858,21 +1551,68 @@ header {
     width: 100%;
     font-size: 0.8rem;
     font-family: monospace;
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
     border-radius: 10px;
     padding: 0.5rem;
-    color: var(--text-primary);
+    color: var(--color-text);
     resize: vertical;
 }
 
 .media-paste-textarea:focus {
     outline: none;
-    border-color: var(--accent-red);
+    border-color: var(--color-accent);
 }
 
 /* ========================================
-   SORTABLE PROJECT LIST (ADMIN)
+   18. ADD CATEGORY INLINE FIELD
+   ======================================== */
+#add-category-field {
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#add-category-field input {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 0.5rem;
+    color: var(--color-text);
+    font-size: 0.85rem;
+}
+
+#add-category-field input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+}
+
+/* ========================================
+   19. CATEGORY MANAGEMENT PANEL
+   ======================================== */
+#category-manager {
+    margin-top: 0.5rem;
+}
+
+#categories-list {
+    max-height: 200px;
+    overflow-y: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* ========================================
+   20. SORTABLE PROJECT LIST (ADMIN)
    ======================================== */
 .sortable-list {
     list-style: none;
@@ -883,8 +1623,8 @@ header {
 }
 
 .sort-item {
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
     border-radius: 20px;
     padding: 1rem 1.2rem;
     display: flex;
@@ -903,7 +1643,7 @@ header {
     cursor: grab;
     font-size: 1.2rem;
     user-select: none;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
 }
 
 .sort-handle:active {
@@ -916,10 +1656,9 @@ header {
 }
 
 .delete-item-btn:hover {
-    color: var(--accent-red) !important;
+    color: var(--color-accent) !important;
 }
 
-/* Row action buttons (move up/down/top/bottom, delete) */
 .row-btn {
     display: inline-flex;
     align-items: center;
@@ -929,105 +1668,30 @@ header {
     border-radius: 6px;
     font-size: 0.85rem;
     cursor: pointer;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     user-select: none;
     transition: background 0.15s, color 0.15s;
     flex-shrink: 0;
 }
+
 .row-btn:hover {
-    background: var(--bg-primary);
-    color: var(--text-primary);
+    background: var(--color-bg);
+    color: var(--color-text);
 }
-.move-top-btn:hover, .move-bottom-btn:hover {
-    color: var(--accent-red);
+
+.move-top-btn:hover,
+.move-bottom-btn:hover {
+    color: var(--color-accent);
 }
 
 /* ========================================
-   FOOTER
-   ======================================== */
-footer {
-    text-align: center;
-    margin-top: 4rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--border-color);
-    font-size: 0.75rem;
-    color: var(--text-muted);
-}
-
-/* ========================================
-   RESPONSIVE ADJUSTMENTS
-   ======================================== */
-@media (max-width: 880px) {
-    body {
-        padding: 1rem;
-    }
-    
-    .admin-workspace {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
-    
-    .portfolio-grid {
-        gap: 1.25rem;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    }
-    
-    .item-image {
-        height: 180px;
-        min-height: 180px;
-        max-height: 180px;
-    }
-    
-    .item-content p {
-        max-height: 160px;
-    }
-}
-
-@media (max-width: 640px) {
-    .filter-nav {
-        gap: 0.5rem;
-    }
-    
-    .filter-btn {
-        padding: 0.4rem 1rem;
-        font-size: 0.75rem;
-    }
-    
-    .portfolio-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .header-container {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .header-actions {
-        align-self: flex-end;
-    }
-    
-    .media-badge-text {
-        max-width: 120px;
-    }
-    
-    .item-content p {
-        max-height: 160px;
-    }
-    
-    .share-hint {
-        font-size: 0.6rem;
-        padding: 3px 6px;
-    }
-}
-
-/* ========================================
-   RICH TEXT EDITOR STYLES
+   21. RICH TEXT EDITOR
    ======================================== */
 .rich-text-toolbar {
     display: flex;
     gap: 0.5rem;
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
     border-bottom: none;
     border-radius: 14px 14px 0 0;
     padding: 0.5rem;
@@ -1035,14 +1699,14 @@ footer {
 }
 
 .rich-text-toolbar button {
-    background: var(--filter-bg);
-    border: 1px solid var(--border-color);
+    background: var(--color-filter-bg);
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     padding: 0.4rem 0.8rem;
     font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
-    color: var(--text-secondary);
+    color: var(--color-text-secondary);
     transition: all 0.2s;
     display: inline-flex;
     align-items: center;
@@ -1051,9 +1715,9 @@ footer {
 }
 
 .rich-text-toolbar button:hover {
-    background: var(--border-color);
-    color: var(--text-primary);
-    border-color: var(--accent-red);
+    background: var(--color-border);
+    color: var(--color-text);
+    border-color: var(--color-accent);
 }
 
 .rich-text-toolbar button:active {
@@ -1062,11 +1726,11 @@ footer {
 
 .rich-text-description {
     width: 100%;
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
     border-radius: 0 0 14px 14px;
     padding: 0.8rem 1rem;
-    color: var(--text-primary);
+    color: var(--color-text);
     font-size: 0.9rem;
     font-family: inherit;
     min-height: 150px;
@@ -1079,10 +1743,9 @@ footer {
 
 .rich-text-description:focus {
     outline: none;
-    border-color: var(--accent-red);
+    border-color: var(--color-accent);
 }
 
-/* Tag-editor textarea: monospace so tags are easy to read/edit */
 .rich-text-description.tag-editor {
     font-family: 'Courier New', Courier, monospace;
     font-size: 0.82rem;
@@ -1091,7 +1754,7 @@ footer {
     word-break: break-word;
 }
 
-.rich-text-description ul, 
+.rich-text-description ul,
 .rich-text-description ol {
     margin-left: 1.5rem;
     margin-top: 0.25rem;
@@ -1103,100 +1766,151 @@ footer {
 }
 
 .rich-text-description a {
-    color: var(--accent-red);
+    color: var(--color-accent);
     text-decoration: underline;
 }
 
-/* Award badge — rendered from <award>text</award> in descriptions */
-.award-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3em;
-    font-size: 0.78em;
-    font-variant: small-caps;
-    letter-spacing: 0.04em;
-    color: #b8860b;
-    background: rgba(184, 134, 11, 0.1);
-    border: 1px solid rgba(184, 134, 11, 0.35);
-    border-radius: 4px;
-    padding: 0.1em 0.5em 0.15em;
-    white-space: nowrap;
-    vertical-align: middle;
-    line-height: 1.4;
-}
-[data-theme="dark"] .award-badge {
-    color: #f0c040;
-    background: rgba(240, 192, 64, 0.1);
-    border-color: rgba(240, 192, 64, 0.3);
+/* ========================================
+   22. FOOTER
+   ======================================== */
+footer {
+    text-align: center;
+    margin-top: 4rem;
+    padding: 2rem;
+    border-top: 1px solid var(--color-border);
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
 }
 
 /* ========================================
-   GAMES FILTER - SPECIAL RED OUTLINE
+   23. RESPONSIVE ADJUSTMENTS
    ======================================== */
-.filter-btn-games {
-    border-color: var(--accent-red) !important;
-    color: var(--accent-red) !important;
-    background: var(--filter-bg) !important;
+@media (max-width: 880px) {
+    header {
+        padding: 0.75rem 1rem 0.5rem;
+    }
+
+    .filter-nav {
+        padding: 0.5rem 1rem;
+    }
+
+    .portfolio-container {
+        padding: 0 1rem;
+    }
+
+    .admin-workspace {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .portfolio-grid {
+        gap: 1.25rem;
+        grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    }
+
+    .item-image {
+        height: 180px;
+        min-height: 180px;
+        max-height: 180px;
+    }
+
+    .item-content p {
+        max-height: 160px;
+    }
 }
 
-.filter-btn-games.active {
-    background: var(--accent-red) !important;
-    border-color: var(--accent-red) !important;
-    color: white !important;
+@media (max-width: 640px) {
+    .filter-nav {
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .filter-btn {
+        padding: 0.4rem 1rem;
+        font-size: 0.75rem;
+    }
+
+    .portfolio-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .header-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .logo-zone {
+        text-align: center;
+    }
+
+    .header-actions {
+        align-self: center;
+        justify-content: center;
+    }
+
+    .media-badge-text {
+        max-width: 120px;
+    }
+
+    .item-content p {
+        max-height: 160px;
+    }
+
+    .share-hint {
+        font-size: 0.6rem;
+        padding: 3px 6px;
+    }
+
+    .hero-section {
+        padding: 1.5rem 0 1.5rem 0;
+    }
+
+    .hero-title {
+        font-size: clamp(1.8rem, 7vw, 2.8rem);
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .hero-description {
+        font-size: 0.9rem;
+    }
+
+    .scroll-btn {
+        width: 48px;
+        height: 48px;
+        margin-top: 1.5rem;
+    }
+
+    .scroll-btn svg {
+        width: 24px;
+        height: 24px;
+    }
 }
 
-.filter-btn-games:hover:not(.active) {
-    background: rgba(229, 72, 77, 0.08) !important;
-}
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: clamp(1.5rem, 6vw, 2.2rem);
+    }
 
-/* ========================================
-   FILTER DIVIDER
-   ======================================== */
-.filter-divider {
-    width: 1px;
-    height: 30px;
-    background: var(--border-color);
-    display: inline-block;
-    margin: 0 8px;
-    flex-shrink: 0;
-}
+    .hero-subtitle {
+        font-size: 0.9rem;
+    }
 
-/* ========================================
-   LAZY LOADING
-   ======================================== */
-.lazy-image {
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    background: var(--bg-secondary);
-}
+    .hero-description {
+        font-size: 0.8rem;
+    }
 
-.lazy-image.loading {
-    opacity: 0.5;
-    animation: pulse 1.5s infinite;
-}
+    .filter-nav {
+        gap: 0.4rem;
+        padding: 0.4rem 0.5rem;
+    }
 
-.lazy-image.loaded {
-    opacity: 1;
-    animation: none;
-}
-
-.lazy-image.error {
-    opacity: 0.3;
-    background: var(--bg-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-@keyframes pulse {
-    0% { opacity: 0.4; }
-    50% { opacity: 0.7; }
-    100% { opacity: 0.4; }
-}
-
-/* Ensure images in Swiper also lazy load */
-.swiper-slide .lazy-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    .filter-btn {
+        padding: 0.3rem 0.8rem;
+        font-size: 0.7rem;
+    }
 }
