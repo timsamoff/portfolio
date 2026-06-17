@@ -8,7 +8,7 @@
 .admin-btn {
     background: var(--color-accent) !important;
     border-color: var(--color-accent) !important;
-    color: var(--color-white) !important;
+    color: #000000 !important;
 }
 
 .admin-btn:hover {
@@ -16,7 +16,16 @@
     border-color: var(--color-accent-hover) !important;
 }
 
-/* DEMO badge styling */
+/* Make the gear icon black */
+.admin-btn i {
+    color: #000000 !important;
+}
+
+.admin-btn .fa-gear {
+    color: #000000 !important;
+}
+
+/* Demo badge styling */
 .demo-badge {
     font-size: 0.6rem;
     background: var(--color-accent);
