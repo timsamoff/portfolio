@@ -432,27 +432,103 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // SHARE URL GENERATION
-    // ========================================
-    function generateShareUrl(projectIndex, mediaIndex = 0, mediaArray = []) {
-        const shareData = { p: projectIndex, m: mediaIndex };
-        const hash = btoa(JSON.stringify(shareData));
-        return `${window.location.origin}${window.location.pathname}#share=${hash}`;
-    }
+// SHARE URL GENERATION
+// ========================================
 
-    function parseShareUrl() {
-        const hash = window.location.hash;
-        if (hash && hash.startsWith('#share=')) {
+function generateShareUrl(projectIndex, mediaIndex = 0, mediaArray = []) {
+    const shareData = {
+        p: projectIndex,
+        m: mediaIndex
+    };
+    const hash = btoa(JSON.stringify(shareData));
+    return `${window.location.origin}${window.location.pathname}#share=${hash}`;
+}
+
+
+// ========================================
+// DYNAMIC OPEN GRAPH / SOCIAL SHARING
+// ========================================
+
+function updateSocialMetaTags(project, mediaArray, mediaIndex) {
+    // Get the preview image
+    let previewImage = '';
+    if (mediaArray && mediaArray.length > 0) {
+        const media = mediaArray[mediaIndex || 0];
+        if (media) {
             try {
-                const encoded = hash.substring(7);
-                const shareData = JSON.parse(atob(encoded));
-                return shareData;
+                previewImage = new URL(media, window.location.href).href;
             } catch (e) {
-                console.error('Invalid share URL', e);
+                previewImage = media;
             }
         }
-        return null;
     }
+    
+    // Fallback to default social image
+    if (!previewImage) {
+        previewImage = new URL('tsp_social.png', window.location.href).href;
+    }
+    
+    // Strip HTML from description and truncate
+    let description = project.description || '';
+    description = description.replace(/<[^>]*>/g, '');
+    if (description.length > 150) {
+        description = description.substring(0, 147) + '...';
+    }
+    if (!description) {
+        description = 'Interactive Production, Design & Development. A curated collection of games, software, websites, and creative experiments.';
+    }
+    
+    // Remove existing dynamic meta tags
+    document.querySelectorAll('meta[data-dynamic]').forEach(el => el.remove());
+    
+    // Create dynamic meta tags
+    const tags = [
+        { property: 'og:title', content: `Tim Samoff | Portfolio - ${project.title}` },
+        { property: 'og:description', content: description },
+        { property: 'og:image', content: previewImage },
+        { property: 'og:url', content: window.location.href },
+        { property: 'twitter:title', content: `Tim Samoff | Portfolio - ${project.title}` },
+        { property: 'twitter:description', content: description },
+        { property: 'twitter:image', content: previewImage }
+    ];
+    
+    tags.forEach(tag => {
+        const meta = document.createElement('meta');
+        meta.setAttribute('data-dynamic', 'true');
+        meta.setAttribute('property', tag.property);
+        meta.setAttribute('content', tag.content);
+        document.head.appendChild(meta);
+    });
+    
+    // Update page title
+    document.title = `Tim Samoff | Portfolio - ${project.title}`;
+}
+
+
+function parseShareUrl() {
+    const hash = window.location.hash;
+    if (hash && hash.startsWith('#share=')) {
+        try {
+            const encoded = hash.substring(7);
+            const shareData = JSON.parse(atob(encoded));
+            
+            // Update meta tags for this specific project
+            if (shareData.p !== undefined && window.__projectsData) {
+                const project = window.__projectsData[shareData.p];
+                if (project) {
+                    const mediaArray = project.media || [];
+                    const mediaIndex = shareData.m || 0;
+                    updateSocialMetaTags(project, mediaArray, mediaIndex);
+                }
+            }
+            
+            return shareData;
+        } catch (e) {
+            console.error('Invalid share URL', e);
+        }
+    }
+    return null;
+}
 
     function openMediaModal(mediaArray, startIndex = 0, projectId = null) {
         const modalWrapper = document.getElementById('modal-swiper-wrapper');

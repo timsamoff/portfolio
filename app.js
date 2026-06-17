@@ -590,54 +590,103 @@ function showFloatingNotification(message, isSuccess = true) {
     }
 
     // ========================================
-    // MODAL MEDIA GENERATION
-    // ========================================
-    function generateModalMediaHtml(mediaUrl, mediaIndex) {
-        const isVideo = isVideoUrl(mediaUrl);
-        const youtubeEmbed = getYouTubeEmbedUrl(mediaUrl);
-        const vimeoEmbed = getVimeoEmbedUrl(mediaUrl);
+// SHARE URL GENERATION
+// ========================================
 
-        if (isVideo) {
-            if (youtubeEmbed) {
-                return `<iframe src="${youtubeEmbed}?autoplay=0&enablejsapi=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%; height:100%;"></iframe>`;
-            } else if (vimeoEmbed) {
-                return `<iframe src="${vimeoEmbed}?autoplay=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="width:100%; height:100%;"></iframe>`;
-            } else {
-                const savedProgress = getVideoProgress(mediaUrl);
-                return `<video controls data-url="${mediaUrl}" data-media-index="${mediaIndex}" data-saved-time="${savedProgress}" style="width:100%; height:100%;"><source src="${mediaUrl}" type="video/mp4">Your browser does not support video.</video>`;
-            }
-        } else {
-            return `<img src="${mediaUrl}" alt="Portfolio image" style="max-width:100%; max-height:100%; object-fit:contain;">`;
-        }
-    }
+function generateShareUrl(projectIndex, mediaIndex = 0, mediaArray = []) {
+    const shareData = {
+        p: projectIndex,
+        m: mediaIndex
+    };
+    const hash = btoa(JSON.stringify(shareData));
+    return `${window.location.origin}${window.location.pathname}#share=${hash}`;
+}
 
-    // ========================================
-    // SHARE URL GENERATION
-    // ========================================
-    function generateShareUrl(projectIndex, mediaIndex = 0, mediaArray = []) {
-        const firstImage = mediaArray.find(m => m.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)) || mediaArray[0] || '';
-        const shareData = {
-            p: projectIndex,
-            m: mediaIndex,
-            img: firstImage
-        };
-        const hash = btoa(JSON.stringify(shareData));
-        return `${window.location.origin}${window.location.pathname}#share=${hash}`;
-    }
 
-    function parseShareUrl() {
-        const hash = window.location.hash;
-        if (hash && hash.startsWith('#share=')) {
+// ========================================
+// DYNAMIC OPEN GRAPH / SOCIAL SHARING
+// ========================================
+
+function updateSocialMetaTags(project, mediaArray, mediaIndex) {
+    // Get the preview image
+    let previewImage = '';
+    if (mediaArray && mediaArray.length > 0) {
+        const media = mediaArray[mediaIndex || 0];
+        if (media) {
             try {
-                const encoded = hash.substring(7);
-                const shareData = JSON.parse(atob(encoded));
-                return shareData;
+                previewImage = new URL(media, window.location.href).href;
             } catch (e) {
-                console.error('Invalid share URL', e);
+                previewImage = media;
             }
         }
-        return null;
     }
+    
+    // Fallback to default social image
+    if (!previewImage) {
+        previewImage = new URL('tsp_social.png', window.location.href).href;
+    }
+    
+    // Strip HTML from description and truncate
+    let description = project.description || '';
+    description = description.replace(/<[^>]*>/g, '');
+    if (description.length > 150) {
+        description = description.substring(0, 147) + '...';
+    }
+    if (!description) {
+        description = 'Interactive Production, Design & Development. A curated collection of games, software, websites, and creative experiments.';
+    }
+    
+    // Remove existing dynamic meta tags
+    document.querySelectorAll('meta[data-dynamic]').forEach(el => el.remove());
+    
+    // Create dynamic meta tags
+    const tags = [
+        { property: 'og:title', content: `Tim Samoff | Portfolio - ${project.title}` },
+        { property: 'og:description', content: description },
+        { property: 'og:image', content: previewImage },
+        { property: 'og:url', content: window.location.href },
+        { property: 'twitter:title', content: `Tim Samoff | Portfolio - ${project.title}` },
+        { property: 'twitter:description', content: description },
+        { property: 'twitter:image', content: previewImage }
+    ];
+    
+    tags.forEach(tag => {
+        const meta = document.createElement('meta');
+        meta.setAttribute('data-dynamic', 'true');
+        meta.setAttribute('property', tag.property);
+        meta.setAttribute('content', tag.content);
+        document.head.appendChild(meta);
+    });
+    
+    // Update page title
+    document.title = `Tim Samoff | Portfolio - ${project.title}`;
+}
+
+
+function parseShareUrl() {
+    const hash = window.location.hash;
+    if (hash && hash.startsWith('#share=')) {
+        try {
+            const encoded = hash.substring(7);
+            const shareData = JSON.parse(atob(encoded));
+            
+            // Update meta tags for this specific project
+            if (shareData.p !== undefined && window.__projectsData) {
+                const project = window.__projectsData[shareData.p];
+                if (project) {
+                    const mediaArray = project.media || [];
+                    const mediaIndex = shareData.m || 0;
+                    updateSocialMetaTags(project, mediaArray, mediaIndex);
+                }
+            }
+            
+            return shareData;
+        } catch (e) {
+            console.error('Invalid share URL', e);
+        }
+    }
+    return null;
+}
 
     function openMediaModal(mediaArray, startIndex = 0, projectId = null) {
         const modalWrapper = document.getElementById('modal-swiper-wrapper');
