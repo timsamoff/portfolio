@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Demo Jones | Portfolio Demo</title>
+    
+    <!-- Default meta tags -->
+    <meta property="og:title" content="Demo Jones | Portfolio Demo">
+    <meta property="og:description" content="A fully functional demo of the portfolio management system. All project data is stored locally in your browser using localStorage.">
+    <meta property="og:image" content="https://samoff.com/portfolio/demo/tsp_social.png">
+    <meta property="og:url" content="https://samoff.com/portfolio/demo/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Demo Jones | Portfolio Demo">
+    <meta name="twitter:description" content="A fully functional demo of the portfolio management system. All project data is stored locally in your browser using localStorage.">
+    <meta name="twitter:image" content="https://samoff.com/portfolio/demo/tsp_social.png">
+    
+    <script>
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            const shareData = params.get('share');
+            
+            if (!shareData) {
+                window.location.href = 'https://samoff.com/portfolio/demo/';
+                return;
+            }
+            
+            let decoded;
+            try {
+                decoded = JSON.parse(atob(shareData));
+            } catch(e) {
+                window.location.href = 'https://samoff.com/portfolio/demo/';
+                return;
+            }
+            
+            // Get projects from localStorage or fallback
+            let projects = [];
+            const stored = localStorage.getItem('demo_portfolio_projects');
+            if (stored) {
+                try { projects = JSON.parse(stored); } catch(e) {}
+            }
+            if (!projects || projects.length === 0) {
+                // Fallback to DEMO_PROJECTS if available
+                if (window.DEMO_PROJECTS) {
+                    projects = window.DEMO_PROJECTS;
+                }
+            }
+            
+            const project = projects[decoded.p];
+            if (!project) {
+                window.location.href = 'https://samoff.com/portfolio/demo/';
+                return;
+            }
+            
+            const title = `Demo Jones | Portfolio - ${project.title}`;
+            document.title = title;
+            
+            function setMeta(selector, content) {
+                let el = document.querySelector(selector);
+                if (!el) {
+                    el = document.createElement('meta');
+                    const isProperty = selector.startsWith('[property=');
+                    if (isProperty) {
+                        const prop = selector.match(/property="([^"]+)"/)[1];
+                        el.setAttribute('property', prop);
+                    } else {
+                        const name = selector.match(/name="([^"]+)"/)[1];
+                        el.setAttribute('name', name);
+                    }
+                    document.head.appendChild(el);
+                }
+                el.setAttribute('content', content);
+            }
+            
+            setMeta('[property="og:title"]', title);
+            setMeta('[name="twitter:title"]', title);
+            
+            let description = project.description || '';
+            description = description.replace(/<[^>]*>/g, '');
+            if (description.length > 150) description = description.substring(0, 147) + '...';
+            if (!description) {
+                description = 'A fully functional demo of the portfolio management system. All project data is stored locally in your browser using localStorage.';
+            }
+            setMeta('[property="og:description"]', description);
+            setMeta('[name="twitter:description"]', description);
+            
+            let media = 'tsp_social.png';
+            if (project.media && project.media.length > 0) {
+                media = project.media[0];
+            }
+            if (!media.startsWith('http://') && !media.startsWith('https://')) {
+                media = 'https://samoff.com/portfolio/demo/' + media.replace(/^\.?\//, '');
+            }
+            setMeta('[property="og:image"]', media);
+            setMeta('[name="twitter:image"]', media);
+            
+            setMeta('[property="og:url"]', 'https://samoff.com/portfolio/demo/');
+            
+            setTimeout(function() {
+                window.location.href = 'https://samoff.com/portfolio/demo/?share=' + shareData;
+            }, 800);
+        })();
+    </script>
+</head>
+<body>
+    <p>Loading...</p>
+</body>
+</html>

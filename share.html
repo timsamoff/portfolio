@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Tim Samoff | Portfolio</title>
+    
+    <!-- Default meta tags (will be overridden) -->
+    <meta property="og:title" content="Tim Samoff | Portfolio">
+    <meta property="og:description" content="Interactive Production, Design &amp; Development. A curated collection of games, software, websites, and creative experiments.">
+    <meta property="og:image" content="https://samoff.com/portfolio/tsp_social.png">
+    <meta property="og:url" content="https://samoff.com/portfolio/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Tim Samoff | Portfolio">
+    <meta name="twitter:description" content="Interactive Production, Design &amp; Development. A curated collection of games, software, websites, and creative experiments.">
+    <meta name="twitter:image" content="https://samoff.com/portfolio/tsp_social.png">
+    
+    <script>
+        // This runs immediately, before the page renders
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            const shareData = params.get('share');
+            
+            if (!shareData) {
+                window.location.href = 'https://samoff.com/portfolio/';
+                return;
+            }
+            
+            let decoded;
+            try {
+                decoded = JSON.parse(atob(shareData));
+            } catch(e) {
+                window.location.href = 'https://samoff.com/portfolio/';
+                return;
+            }
+            
+            // Fetch the projects data
+            fetch('https://samoff.com/portfolio/projects.json')
+                .then(r => r.json())
+                .then(projects => {
+                    const project = projects[decoded.p];
+                    if (!project) {
+                        window.location.href = 'https://samoff.com/portfolio/';
+                        return;
+                    }
+                    
+                    // Update ALL meta tags
+                    const title = `Tim Samoff | Portfolio - ${project.title}`;
+                    document.title = title;
+                    
+                    // Helper to update or create meta tags
+                    function setMeta(selector, content) {
+                        let el = document.querySelector(selector);
+                        if (!el) {
+                            el = document.createElement('meta');
+                            const isProperty = selector.startsWith('[property=');
+                            if (isProperty) {
+                                const prop = selector.match(/property="([^"]+)"/)[1];
+                                el.setAttribute('property', prop);
+                            } else {
+                                const name = selector.match(/name="([^"]+)"/)[1];
+                                el.setAttribute('name', name);
+                            }
+                            document.head.appendChild(el);
+                        }
+                        el.setAttribute('content', content);
+                    }
+                    
+                    // Update all tags
+                    setMeta('[property="og:title"]', title);
+                    setMeta('[name="twitter:title"]', title);
+                    
+                    let description = project.description || '';
+                    description = description.replace(/<[^>]*>/g, '');
+                    if (description.length > 150) description = description.substring(0, 147) + '...';
+                    if (!description) {
+                        description = 'Interactive Production, Design & Development. A curated collection of games, software, websites, and creative experiments.';
+                    }
+                    setMeta('[property="og:description"]', description);
+                    setMeta('[name="twitter:description"]', description);
+                    
+                    let media = 'tsp_social.png';
+                    if (project.media && project.media.length > 0) {
+                        media = project.media[0];
+                    }
+                    if (!media.startsWith('http://') && !media.startsWith('https://')) {
+                        media = 'https://samoff.com/portfolio/' + media.replace(/^\.?\//, '');
+                    }
+                    setMeta('[property="og:image"]', media);
+                    setMeta('[name="twitter:image"]', media);
+                    
+                    // Keep the canonical URL clean
+                    setMeta('[property="og:url"]', 'https://samoff.com/portfolio/');
+                    
+                    // Redirect after meta tags are set
+                    setTimeout(function() {
+                        window.location.href = 'https://samoff.com/portfolio/?share=' + shareData;
+                    }, 800);
+                })
+                .catch(function() {
+                    // If fetch fails, still redirect
+                    setTimeout(function() {
+                        window.location.href = 'https://samoff.com/portfolio/';
+                    }, 500);
+                });
+        })();
+    </script>
+</head>
+<body>
+    <!-- Minimal content - crawlers will wait for JS to complete -->
+    <p>Loading...</p>
+</body>
+</html>

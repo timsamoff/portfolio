@@ -441,7 +441,8 @@ function generateShareUrl(projectIndex, mediaIndex = 0, mediaArray = []) {
         m: mediaIndex
     };
     const data = btoa(JSON.stringify(shareData));
-    return `${window.location.origin}${window.location.pathname}?share=${data}`;
+    // Point to share.html instead of index.html
+    return `${window.location.origin}${window.location.pathname}share.html?share=${data}`;
 }
 
 
