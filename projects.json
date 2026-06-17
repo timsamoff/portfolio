@@ -100,7 +100,7 @@
     "media": [
       "media/game/tfb_01.webp"
     ],
-    "description": "A sheepherding game inspired by a dream and made in Unity.\n\nRoles: Design, Development, Art, UI\n\n<a href=\"https://www.gertrauthecher.at/\"target=\"_blank\" rel=\"noopener noreferrer\"><em>Harp- Arpeggio - Nordic Tune - Shepherds Melody</em></a>, by Gertraut Hecher\n\n<a href=\"https://www.youtube.com/channel/UCXoTndjy3ufws987zYuh-5Q\"target=\"_blank\" rel=\"noopener noreferrer\"><em>Shepherd's Flute</em></a>, by Serge Quadrado\n\n<live><a href=\"https://timsamoff.itch.io/flock\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
+    "description": "A sheepherding game inspired by a dream and made in Unity.\n\n<strong>Roles:</strong> Design, Development, Art, UI\n\n<a href=\"https://www.gertrauthecher.at/\"target=\"_blank\" rel=\"noopener noreferrer\"><em>Harp- Arpeggio - Nordic Tune - Shepherds Melody</em></a>, by Gertraut Hecher\n\n<a href=\"https://www.youtube.com/channel/UCXoTndjy3ufws987zYuh-5Q\"target=\"_blank\" rel=\"noopener noreferrer\"><em>Shepherd’s Flute</em></a>, by Serge Quadrado\n\n<live><a href=\"https://timsamoff.itch.io/flock\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
     "imageAlign": "center",
     "published": true
   },
@@ -136,7 +136,7 @@
     "media": [
       "https://vimeo.com/897266720"
     ],
-    "description": "A simple script that breathes life into object rotation in Unity.\n\n<strong>Roles:</strong> Design, Development",
+    "description": "A simple script that breathes life into object rotation in Unity.\n\n<live><a href=\"https://github.com/timsamoff/Smart-Object-Rotator-for-Unity\"target=\"_blank\" rel=\"noopener noreferrer\">View project on GitHub!</a></live>\n\n<strong>Roles:</strong> Design, Development",
     "imageAlign": "center",
     "published": true
   },
@@ -152,9 +152,9 @@
     "published": true
   },
   {
-    "title": "Digital Art & Manipulation",
+    "title": "Misc. Digital Art",
     "category": "digital_art_&_design",
-    "cardHeading": "Digital Art",
+    "cardHeading": "",
     "media": [
       "media/digital/girl_dig_01.webp",
       "media/digital/bug_dig_01.webp",
@@ -235,11 +235,11 @@
   {
     "title": "Fire VFX",
     "category": "motion_graphics_&_animation",
-    "cardHeading": "Fire VFX",
+    "cardHeading": "",
     "media": [
       "https://vimeo.com/1196083451"
     ],
-    "description": "<b></b><b><b>Fire VFX </b></b>created in After Effects.",
+    "description": "Fire VFX created in After Effects.",
     "imageAlign": "center",
     "published": true
   },
@@ -271,11 +271,11 @@
   {
     "title": "Commercial Game Production & Design",
     "category": "game_design_&_development",
-    "cardHeading": "Game Production & Design",
+    "cardHeading": "",
     "media": [
       "media/game/tdk-all.webp"
     ],
-    "description": "Senior Producer and Game Designer on over forty retail commercial entertainment and edutainment games across major media brands.\n\n<strong>Roles:</strong> Senior Producer, Game Designer, Level Designer, Artist, UX Designer, QA",
+    "description": "Senior Producer and Game Designer on over forty commercial entertainment and edutainment games across major media brands.\n\n<strong>Roles:</strong> Senior Producer, Game Designer, Level Designer, Artist, UI Designer, UX Designer, QA",
     "imageAlign": "center",
     "published": true
   },
@@ -335,11 +335,11 @@
   {
     "title": "CodePen Experiments",
     "category": "user_experience",
-    "cardHeading": "Experiments",
+    "cardHeading": "",
     "media": [
       "media/web/cp_01.webp"
     ],
-    "description": "A lot of web-based user experience experiments happened on CodePen.\n\n<live><a href=\"https://codepen.io/timsamoff\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
+    "description": "A lot of web-based UI and UX experiments happened (and sometimes still happen) on CodePen.\n\n<live><a href=\"https://codepen.io/timsamoff\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
     "imageAlign": "center",
     "published": true
   },
@@ -468,12 +468,12 @@
   {
     "title": "The Abyss: Incident at Europa",
     "category": "game_design_&_development",
-    "cardHeading": "AAA",
+    "cardHeading": "",
     "media": [
       "media/game/abyss_01.webp",
       "media/game/abyss_02.webp"
     ],
-    "description": "Spiritual successor to James Cameron’s <em>The Abyss</em>.\n\n<strong>Roles:</strong> Senior producer, level designer, artist",
+    "description": "Spiritual successor to James Cameron’s <em>The Abyss</em>.\n\n<strong>Roles:</strong> Senior Production, Level Design, Art, Video, VO  Recording",
     "imageAlign": "top",
     "published": true
   },
@@ -491,11 +491,11 @@
   {
     "title": "The Land Before Time Animated Moviebook",
     "category": "game_design_&_development",
-    "cardHeading": "Edutainment",
+    "cardHeading": "",
     "media": [
       "media/game/tlbt.webp"
     ],
-    "description": "Edutainment title based on <em>The Land Before Time</em>.\n\n<strong>Roles:</strong> Game Designer, UX Designer, QA\n\n<award>Newsweek Editors’ Choice</award>",
+    "description": "Edutainment title based on <em>The Land Before Time</em>.\n\n<strong>Roles:</strong> Game Design, UX Design, QA\n\n<award>Newsweek Editors’ Choice</award>",
     "imageAlign": "center",
     "published": true
   }
