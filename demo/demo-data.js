@@ -49,7 +49,7 @@ const DEMO_PROJECTS = [
             "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
             "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&h=600&fit=crop"
         ],
-        "description": "A full-featured website for a luxury mountain retreat. Built with modern web technologies and a focus on immersive user experience.\n\n<a href=\"https://example.com\" target=\"_blank\" rel=\"noopener noreferrer\">View Project</a>",
+        "description": "A full-featured website for a luxury mountain retreat. Built with modern web technologies and a focus on immersive user experience.\n\n<live href=\"https://example.com\">Live Demo</live>",
         "imageAlign": "center",
         "published": true
     },
@@ -62,7 +62,7 @@ const DEMO_PROJECTS = [
             "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&h=600&fit=crop",
             "https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&h=600&fit=crop"
         ],
-        "description": "Urban Garden is a mobile app that helps city dwellers grow their own food. Features include planting guides, watering reminders, and a community forum.\n\n<award>Best Urban Innovation 2024</award>",
+        "description": "Urban Garden is a mobile app that helps city dwellers grow their own food. Features include planting guides, watering reminders, and a community forum.\n\n<live>Coming Soon</live>\n\n<award>Best Urban Innovation 2024</award>",
         "imageAlign": "center",
         "published": true
     },
@@ -73,8 +73,9 @@ const DEMO_PROJECTS = [
         "media": [
             "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&h=600&fit=crop",
             "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=800&h=600&fit=crop",
+            "https://images.unsplash.com/photo-1506703719100-a0f3a48c0b0c?w=800&h=600&fit=crop"
         ],
-        "description": "A space exploration game where players navigate procedurally generated galaxies. Built with Unity and featuring stunning visual effects.\n\n<a href=\"https://example.com\" target=\"_blank\" rel=\"noopener noreferrer\">Play Now</a>",
+        "description": "A space exploration game where players navigate procedurally generated galaxies. Built with Unity and featuring stunning visual effects.\n\n<live href=\"https://example.com/game\">Play Now</live>",
         "imageAlign": "center",
         "published": true
     },
@@ -111,7 +112,7 @@ const DEMO_PROJECTS = [
         "media": [
             "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&h=600&fit=crop"
         ],
-        "description": "A curated collection of motion graphics work from 2024. Featuring kinetic typography, abstract animations, and commercial projects.\n\n<a href=\"https://example.com\" target=\"_blank\" rel=\"noopener noreferrer\">Watch Reel</a>",
+        "description": "A curated collection of motion graphics work from 2024. Featuring kinetic typography, abstract animations, and commercial projects.\n\n<live href=\"https://example.com/reel\">Watch Reel</live>",
         "imageAlign": "center",
         "published": true
     },
@@ -121,6 +122,8 @@ const DEMO_PROJECTS = [
         "cardHeading": "Packaging",
         "media": [
             "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&h=600&fit=crop",
+            "https://images.unsplash.com/photo-1532996128859-f73fda1733be?w=800&h=600&fit=crop",
+            "https://images.unsplash.com/photo-1530822847156-5df684ec5ee4?w=800&h=600&fit=crop"
         ],
         "description": "Sustainable packaging design for a consumer goods brand. Focus on minimal materials, recyclability, and beautiful visual design.\n\n<strong>Materials:</strong> Recycled paper, soy-based inks",
         "imageAlign": "center",
@@ -133,8 +136,9 @@ const DEMO_PROJECTS = [
         "media": [
             "https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=800&h=600&fit=crop",
             "https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&h=600&fit=crop",
+            "https://images.unsplash.com/photo-1505765050516-f6bd2526c54b?w=800&h=600&fit=crop"
         ],
-        "description": "A complete redesign of a creative professional's portfolio website. Focus on clean typography, smooth animations, and a responsive layout.\n\n<a href=\"https://example.com\" target=\"_blank\" rel=\"noopener noreferrer\">View Live</a>",
+        "description": "A complete redesign of a creative professional's portfolio website. Focus on clean typography, smooth animations, and a responsive layout.\n\n<live href=\"https://example.com\">View Live Site</live>",
         "imageAlign": "center",
         "published": true
     },
@@ -169,7 +173,7 @@ const DEMO_PROJECTS = [
         "media": [
             "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&h=600&fit=crop"
         ],
-        "description": "A real-time music visualizer that creates stunning visual experiences from audio input. Built with WebGL and audio processing libraries.\n\n<a href=\"https://example.com\" target=\"_blank\" rel=\"noopener noreferrer\">Try Demo</a>",
+        "description": "A real-time music visualizer that creates stunning visual experiences from audio input. Built with WebGL and audio processing libraries.\n\n<live href=\"https://example.com/visualizer\">Try Demo</live>",
         "imageAlign": "center",
         "published": true
     },

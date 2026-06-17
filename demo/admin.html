@@ -9,10 +9,57 @@
     <link rel="stylesheet" href="demo-override.css">
 </head>
 <body data-theme="dark">
+    <!-- DEMO INFO MODAL -->
+    <div id="demo-info-modal" style="display:none;">
+        <div style="background: var(--color-card); border: 1px solid var(--color-border); border-radius: 24px; padding: 2rem; max-width: 560px; width: 90%; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div>
+                    <span style="background: var(--color-accent); color: white; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.2rem 0.8rem; border-radius: 100px; display: inline-block; margin-bottom: 0.5rem;">DEMO MODE</span>
+                    <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0; color: var(--color-text);">How This Works</h2>
+                </div>
+                <button id="demo-info-close" style="background: none; border: none; font-size: 1.8rem; color: var(--color-text-muted); cursor: pointer; transition: color 0.2s; line-height: 1; padding: 0.25rem;">&times;</button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.25rem 0;">
+                <div>
+                    <h3 style="font-size: 1rem; font-weight: 600; color: var(--color-text); margin: 0 0 0.5rem 0;">Real Site</h3>
+                    <p style="font-size: 0.85rem; color: var(--color-text-secondary); line-height: 1.6; margin: 0 0 0.75rem 0;">The live portfolio uses a local server to save your projects to a <strong style="color: var(--color-accent);">JSON file</strong>. This file is then published with the static site. Perfect for portfolios that don't need a database.</p>
+                    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem; font-size: 0.7rem; background: var(--color-bg); border-radius: 10px; padding: 0.5rem 0.75rem; border: 1px solid var(--color-border);">
+                        <span style="color: var(--color-text-secondary);">Admin Panel</span>
+                        <span style="color: var(--color-text-muted); font-size: 0.6rem;">→</span>
+                        <span style="color: var(--color-text-secondary);">Local Server</span>
+                        <span style="color: var(--color-text-muted); font-size: 0.6rem;">→</span>
+                        <span style="color: var(--color-text-secondary);">projects.json</span>
+                        <span style="color: var(--color-text-muted); font-size: 0.6rem;">→</span>
+                        <span style="color: var(--color-text-secondary);">Live Site</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 style="font-size: 1rem; font-weight: 600; color: var(--color-text); margin: 0 0 0.5rem 0;">This Demo</h3>
+                    <p style="font-size: 0.85rem; color: var(--color-text-secondary); line-height: 1.6; margin: 0 0 0.75rem 0;">This demo simulates the exact same workflow, but saves everything to your <strong style="color: var(--color-accent);">browser's localStorage</strong> instead of a server. No setup required. Just open and start editing.</p>
+                    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem; font-size: 0.7rem; background: var(--color-bg); border-radius: 10px; padding: 0.5rem 0.75rem; border: 1px solid var(--color-border);">
+                        <span style="color: var(--color-text-secondary);">Admin Panel</span>
+                        <span style="color: var(--color-text-muted); font-size: 0.6rem;">→</span>
+                        <span style="color: var(--color-text-secondary);">localStorage</span>
+                        <span style="color: var(--color-text-muted); font-size: 0.6rem;">→</span>
+                        <span style="color: var(--color-text-secondary);">Live Demo</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: rgba(229, 72, 77, 0.06); border: 1px solid rgba(229, 72, 77, 0.15); border-radius: 14px; padding: 1rem 1.25rem; margin: 0 0 1.25rem 0;">
+                <p style="font-size: 0.85rem; color: var(--color-text-secondary); line-height: 1.6; margin: 0;"><strong style="color: var(--color-text);">Try it out:</strong> Add a project, publish it, then click "View Live Site" to see your changes instantly. Everything is saved automatically. Refresh the page and your work persists.</p>
+            </div>
+
+            <button id="demo-info-gotit" style="background: var(--color-accent); border: none; color: white; font-size: 0.95rem; font-weight: 600; padding: 0.8rem 2rem; border-radius: 100px; cursor: pointer; transition: all 0.25s; width: 100%; text-align: center;">Let's Go!</button>
+        </div>
+    </div>
+
     <header>
         <div class="header-container">
             <div class="logo-zone">
-                <h1>Portfolio Management Cockpit <span class="demo-badge">DEMO</span></h1>
+                <h1>Portfolio Management Panel <span class="demo-badge">DEMO</span></h1>
                 <p class="subtitle demo-subtitle">📦 localStorage mode — data stored in your browser</p>
             </div>
             <div class="admin-demo-header">
@@ -24,127 +71,130 @@
 
     <main class="portfolio-container">
         <div class="admin-workspace">
-            <form id="add-project-form" class="admin-form">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h3 id="form-action-title" style="margin-bottom: 0;">New Portfolio Project</h3>
-                    <button type="button" id="new-project-btn" class="filter-btn" style="padding: 0.4rem 1rem; display: none;">✨ New Project</button>
-                </div>
-                <input type="hidden" id="form-edit-index" value="">
-                
-                <div class="form-group">
-                    <label>Project Title</label>
-                    <input type="text" id="form-title" required placeholder="e.g., My Awesome Project">
-                </div>
-                
-                <div class="form-group">
-                    <label>Category Identifier</label>
-                    <div style="display: flex; gap: 0.5rem; align-items: center;">
-                        <select id="form-category" style="flex: 1;">
-                            <option value="">Uncategorized</option>
-                            <option disabled>──────────</option>
-                            <option value="brand_&_identity">Brand & Identity</option>
-                            <option value="production_&_installation">Production & Installation</option>
-                            <option value="game_design_&_development">Game Design</option>
-                            <option value="web_design_&_development">Web & Interactive</option>
-                            <option value="digital_art_&_design">Digital Art</option>
-                            <option value="motion_graphics_&_animation">Motion Graphics</option>
-                            <option value="app_design_&_development">App Development</option>
-                            <option value="user_experience">User Experience</option>
+            <div class="admin-form-sticky">
+                <form id="add-project-form" class="admin-form">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 id="form-action-title" style="margin-bottom: 0;">New Portfolio Project</h3>
+                        <button type="button" id="new-project-btn" class="filter-btn" style="padding: 0.4rem 1rem; display: none;">✨ New Project</button>
+                    </div>
+                    <input type="hidden" id="form-edit-index" value="">
+                    
+                    <div class="form-group">
+                        <label>Project Title</label>
+                        <input type="text" id="form-title" required placeholder="e.g., My Awesome Project">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Category Identifier</label>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <select id="form-category" style="flex: 1;">
+                                <option value="">Uncategorized</option>
+                                <option disabled>──────────</option>
+                                <option value="brand_&_identity">Brand & Identity</option>
+                                <option value="production_&_installation">Production & Installation</option>
+                                <option value="game_design_&_development">Game Design</option>
+                                <option value="web_design_&_development">Web & Interactive</option>
+                                <option value="digital_art_&_design">Digital Art</option>
+                                <option value="motion_graphics_&_animation">Motion Graphics</option>
+                                <option value="app_design_&_development">App Development</option>
+                                <option value="user_experience">User Experience</option>
+                            </select>
+                            <button type="button" id="add-category-btn" class="filter-btn" style="padding: 0 1rem; white-space: nowrap;">+ Add Category</button>
+                            <button type="button" id="manage-categories-btn" class="btn-small" style="white-space: nowrap;">⚙️ Manage</button>
+                        </div>
+                        <div id="add-category-field" style="display: none; margin-top: 0.75rem;">
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="text" id="new-category-name" placeholder="New category name" style="flex: 1; padding: 0.5rem; border-radius: 10px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
+                                <button type="button" id="confirm-add-category-btn" class="filter-btn" style="padding: 0.5rem 1rem;">Add</button>
+                                <button type="button" id="cancel-add-category-btn" class="btn-small">Cancel</button>
+                            </div>
+                        </div>
+                        <small id="category-help-text" style="color: var(--text-muted); display: block; margin-top: 0.3rem;">📁 Select a category or click "+ Add Category" to create a new one</small>
+                    </div>
+                    
+                    <div id="category-manager" style="display: none; background: var(--bg-primary); border-radius: 14px; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                            <strong style="font-size: 0.85rem;">Manage Categories (Delete Only)</strong>
+                            <button type="button" id="close-category-manager" class="btn-small" style="padding: 0.2rem 0.5rem;">✕ Close</button>
+                        </div>
+                        <div id="categories-list" style="display: flex; flex-wrap: wrap; gap: 0.5rem;"></div>
+                        <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">💡 Click ✕ to delete a category. Projects using this category will become Uncategorized.</small>
+                    </div>
+                    
+                    <!-- Card Heading removed (commented out in main) -->
+                    
+                    <div class="form-group publish-group">
+                        <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 0.75rem; background: var(--bg-primary); border-radius: 14px; border: 1px solid var(--border-color); transition: all 0.2s;">
+                            <input type="checkbox" id="form-published" class="custom-checkbox-input">
+                            <span class="custom-checkbox-box"></span>
+                            <span style="font-weight: 500;">📢 Publish Project (visible on live site)</span>
+                        </label>
+                        <small style="color: var(--text-muted); display: block; margin-top: 0.5rem; margin-left: 0.25rem;">🔒 Check to publish. Uncheck to save as draft (only visible in admin panel)</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Image Crop Alignment</label>
+                        <select id="form-image-align">
+                            <option value="center">Center (Default)</option>
+                            <option value="top">Top</option>
+                            <option value="bottom">Bottom</option>
                         </select>
-                        <button type="button" id="add-category-btn" class="filter-btn" style="padding: 0 1rem; white-space: nowrap;">+ Add Category</button>
-                        <button type="button" id="manage-categories-btn" class="btn-small" style="white-space: nowrap;">⚙️ Manage</button>
-                    </div>
-                    <div id="add-category-field" style="display: none; margin-top: 0.75rem;">
-                        <div style="display: flex; gap: 0.5rem;">
-                            <input type="text" id="new-category-name" placeholder="New category name" style="flex: 1; padding: 0.5rem; border-radius: 10px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
-                            <button type="button" id="confirm-add-category-btn" class="filter-btn" style="padding: 0.5rem 1rem;">Add</button>
-                            <button type="button" id="cancel-add-category-btn" class="btn-small">Cancel</button>
-                        </div>
-                    </div>
-                    <small id="category-help-text" style="color: var(--text-muted); display: block; margin-top: 0.3rem;">📁 Select a category or click "+ Add Category" to create a new one</small>
-                </div>
-                
-                <div id="category-manager" style="display: none; background: var(--bg-primary); border-radius: 14px; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--border-color);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                        <strong style="font-size: 0.85rem;">Manage Categories (Delete Only)</strong>
-                        <button type="button" id="close-category-manager" class="btn-small" style="padding: 0.2rem 0.5rem;">✕ Close</button>
-                    </div>
-                    <div id="categories-list" style="display: flex; flex-wrap: wrap; gap: 0.5rem;"></div>
-                    <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">💡 Click ✕ to delete a category. Projects using this category will become Uncategorized.</small>
-                </div>
-                
-                <div class="form-group">
-                    <label>Card Heading</label>
-                    <input type="text" id="form-tag" required placeholder="e.g., Web App">
-                    <small style="color: var(--text-muted); display: block; margin-top: 0.3rem;">🏷️ This appears as the heading on the portfolio card</small>
-                </div>
-                
-                <div class="form-group publish-group">
-                    <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 0.75rem; background: var(--bg-primary); border-radius: 14px; border: 1px solid var(--border-color); transition: all 0.2s;">
-                        <input type="checkbox" id="form-published" style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--accent-red);">
-                        <span style="font-weight: 500;">📢 Publish Project (visible on live site)</span>
-                    </label>
-                    <small style="color: var(--text-muted); display: block; margin-top: 0.5rem; margin-left: 0.25rem;">🔒 Check to publish. Uncheck to save as draft (only visible in admin panel)</small>
-                </div>
-                
-                <div class="form-group">
-                    <label>Image Crop Alignment</label>
-                    <select id="form-image-align">
-                        <option value="center">Center (Default)</option>
-                        <option value="top">Top</option>
-                        <option value="bottom">Bottom</option>
-                    </select>
-                    <small style="color: var(--text-muted); display: block; margin-top: 0.3rem;">🎨 Controls how portrait/landscape images are cropped in the card preview</small>
-                </div>
-                
-                <div class="form-group">
-                    <label>Media Resources</label>
-                    <div class="media-input-row">
-                        <input type="text" id="media-input" placeholder="https://images.unsplash.com/photo-...">
-                        <button type="button" id="add-media-btn" class="filter-btn" style="padding: 0 1rem;">+ Add</button>
+                        <small style="color: var(--text-muted); display: block; margin-top: 0.3rem;">🎨 Controls how portrait/landscape images are cropped in the card preview</small>
                     </div>
                     
-                    <div id="media-badges" class="media-badges-container"></div>
+                    <div class="form-group">
+                        <label>Media Resources</label>
+                        
+                        <div class="media-input-row">
+                            <input type="text" id="media-input" placeholder="media/image.jpg, https://youtu.be/..., video.mp4">
+                            <button type="button" id="add-media-btn" class="filter-btn" style="padding: 0 1rem;">+ Add</button>
+                        </div>
+                        
+                        <input type="file" id="multi-file-input" multiple accept="image/*,video/mp4,video/webm,video/quicktime,video/x-msvideo,.mov,.ogg" style="display: none;">
+                        
+                        <div id="media-badges" class="media-badges-container"></div>
+                        
+                        <div class="media-paste-area">
+                            <button type="button" id="toggle-paste-btn" class="btn-small">📋 Paste Multiple URLs</button>
+                            <div id="paste-area" style="display: none; margin-top: 0.5rem;">
+                                <textarea id="paste-urls" class="media-paste-textarea" rows="3" placeholder="Paste URLs here (one per line):&#10;media/image1.jpg&#10;https://youtu.be/abc123&#10;media/video.mp4"></textarea>
+                                <button type="button" id="process-paste-btn" class="btn-small" style="margin-top: 0.3rem;">Add All</button>
+                            </div>
+                        </div>
+
+                        <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">
+                            💡 Type a relative path or URL and click Add, or click the Add button to select files from your computer (multi-select supported). 
+                            Drag ⋮⋮ to reorder media items.
+                        </small>
+                    </div>
                     
-                    <div class="media-paste-area">
-                        <button type="button" id="toggle-paste-btn" class="btn-small">📋 Paste Multiple URLs</button>
-                        <div id="paste-area" style="display: none; margin-top: 0.5rem;">
-                            <textarea id="paste-urls" class="media-paste-textarea" rows="3" placeholder="Paste URLs here (one per line):&#10;https://images.unsplash.com/photo-...&#10;https://images.unsplash.com/photo-..."></textarea>
-                            <button type="button" id="process-paste-btn" class="btn-small" style="margin-top: 0.3rem;">Add All</button>
+                    <div class="form-group">
+                        <label>Project Narrative Summary</label>
+                        <div class="rich-text-container">
+                            <div class="rich-text-toolbar">
+                                <button type="button" id="toolbar-bold"   title="Wrap in &lt;strong&gt;"><strong>B</strong></button>
+                                <button type="button" id="toolbar-italic" title="Wrap in &lt;em&gt;"><em>I</em></button>
+                                <button type="button" id="toolbar-ul"     title="Wrap lines in &lt;ul&gt;&lt;li&gt;">• List</button>
+                                <button type="button" id="toolbar-link"   title="Wrap in &lt;a href&gt;">🔗 Link</button>
+                                <button type="button" id="toolbar-award"  title="Wrap in &lt;award&gt; (displays as award badge)">🏆 Award</button>
+                                <button type="button" id="toolbar-live"   title="Wrap in &lt;live&gt;">🔴 Live</button>
+                            </div>
+                            <textarea id="form-description" class="rich-text-description tag-editor" rows="7"
+                                placeholder="Type description here. Use toolbar to insert tags, or type them directly.&#10;e.g. &lt;strong&gt;bold&lt;/strong&gt;, &lt;em&gt;italic&lt;/em&gt;, &lt;a href=&quot;https://...&quot; target=&quot;_blank&quot;&gt;link text&lt;/a&gt;"></textarea>
                         </div>
+                        <div id="char-counter" style="text-align: right; font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;"></div>
+                        <small style="color: var(--text-muted); display: block; margin-top: 0.3rem;">
+                            📝 Type HTML tags directly or use the toolbar. Select text then click a button to wrap it.
+                        </small>
                     </div>
-                    <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">
-                        💡 Add Unsplash URLs or any image/video URL. Drag ⋮⋮ to reorder media items.
-                    </small>
-                </div>
-                
-                <div class="form-group">
-                    <label>Project Narrative Summary</label>
-                    <div class="rich-text-container">
-                        <div class="rich-text-toolbar">
-                            <button type="button" id="toolbar-bold" title="Wrap in &lt;strong&gt;"><strong>B</strong></button>
-                            <button type="button" id="toolbar-italic" title="Wrap in &lt;em&gt;"><em>I</em></button>
-                            <button type="button" id="toolbar-ul" title="Wrap lines in &lt;ul&gt;&lt;li&gt;">• List</button>
-                            <button type="button" id="toolbar-link" title="Wrap in &lt;a href&gt;">🔗 Link</button>
-                            <button type="button" id="toolbar-award" title="Wrap in &lt;award&gt; (displays as award badge)">🏆 Award</button>
-                        </div>
-                        <textarea id="form-description" class="rich-text-description tag-editor" rows="7"
-                            placeholder="Type description here. Use toolbar to insert tags, or type them directly.&#10;e.g. &lt;strong&gt;bold&lt;/strong&gt;, &lt;em&gt;italic&lt;/em&gt;, &lt;a href=&quot;https://...&quot; target=&quot;_blank&quot;&gt;link text&lt;/a&gt;"></textarea>
-                    </div>
-                    <div id="char-counter" style="text-align: right; font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;"></div>
-                    <small style="color: var(--text-muted); display: block; margin-top: 0.3rem;">
-                        📝 Type HTML tags directly or use the toolbar. Select text then click a button to wrap it.
-                    </small>
-                </div>
-                
-                <button type="submit" id="submit-btn" class="filter-btn active" style="width: 100%; margin-top: 0.5rem;">+ Add Portfolio Project</button>
-            </form>
+                    
+                    <button type="submit" id="submit-btn" class="filter-btn active" style="width: 100%; margin-top: 0.5rem;">+ Add Portfolio Project</button>
+                </form>
+            </div><!-- /.admin-form-sticky -->
 
             <div class="sorting-zone">
                 <h3>Arrange Project Priority <span style="font-size:0.75rem; text-transform:none; color:var(--text-muted); font-weight:normal;">(Click a row to edit, drag rows to reorder)</span></h3>
-                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
-                    <button type="button" id="cleanup-links-btn" class="filter-btn" style="padding: 0.4rem 1rem;">🧹 Clean Up Links</button>
-                </div>
+                <!-- Cleanup Links button removed (commented out in main) -->
                 <div class="admin-search">
                     <div style="position:relative; display:flex; align-items:center;">
                         <input type="text" id="admin-search-input" placeholder="🔍 Filter projects by title..." class="admin-search-input" style="padding-right:2.2rem; width:100%;">

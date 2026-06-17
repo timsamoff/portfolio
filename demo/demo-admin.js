@@ -42,6 +42,7 @@ const togglePasteBtn = document.getElementById('toggle-paste-btn');
 const pasteArea = document.getElementById('paste-area');
 const pasteUrls = document.getElementById('paste-urls');
 const processPasteBtn = document.getElementById('process-paste-btn');
+const multiFileInput = document.getElementById('multi-file-input');
 
 // Form elements
 const adminSearchInput = document.getElementById('admin-search-input');
@@ -69,6 +70,7 @@ const toolbarItalic = document.getElementById('toolbar-italic');
 const toolbarUl = document.getElementById('toolbar-ul');
 const toolbarLink = document.getElementById('toolbar-link');
 const toolbarAward = document.getElementById('toolbar-award');
+const toolbarLive = document.getElementById('toolbar-live');
 
 // Floating notification
 let floatingNotification = null;
@@ -275,6 +277,43 @@ function applyInlineFormat(tagName) {
     insertAtCursor(open, close, start, end, sel);
 }
 
+// LIVE BUTTON - wraps selected text in <live></live>
+function applyLiveTag() {
+    if (!descTextarea || !capturedSel) return;
+    const start = capturedSel.start;
+    const end = capturedSel.end;
+    const sel = capturedSel.sel;
+    
+    if (!sel || sel.trim() === '') {
+        insertAtCursor('<live>', '</live>', start, end, sel);
+        return;
+    }
+    
+    if (sel.startsWith('<live>') && sel.endsWith('</live>')) {
+        const inner = sel.slice(6, sel.length - 7);
+        descTextarea.setRangeText(inner, start, end, 'select');
+        descTextarea.focus();
+        updateCharCount();
+        if (isEditingMode) debouncedAutoSave();
+        return;
+    }
+    
+    const beforeSel = capturedSel.val.slice(0, start);
+    const afterSel = capturedSel.val.slice(end);
+    if (beforeSel.endsWith('<live>') && afterSel.startsWith('</live>')) {
+        const newVal = capturedSel.val.slice(0, start - 6) + sel + capturedSel.val.slice(end + 7);
+        descTextarea.value = newVal;
+        descTextarea.setSelectionRange(start - 6, start - 6 + sel.length);
+        descTextarea.focus();
+        updateCharCount();
+        if (isEditingMode) debouncedAutoSave();
+        return;
+    }
+    
+    insertAtCursor('<live>', '</live>', start, end, sel);
+}
+
+// AWARD BUTTON
 function applyAwardTag() {
     if (!descTextarea || !capturedSel) return;
     const start = capturedSel.start;
@@ -343,14 +382,14 @@ function insertLink() {
         background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);
         z-index: 20000; display: flex; align-items: center; justify-content: center;
     `;
-    const preview = sel ? `<p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem;">Wrapping: <em>&ldquo;${escapeHtml(sel.length > 60 ? sel.slice(0,60)+'…' : sel)}&rdquo;</em></p>` : '';
+    const preview = sel ? `<p style="font-size:0.8rem;color:var(--color-text-muted);margin-bottom:1rem;">Wrapping: <em>&ldquo;${escapeHtml(sel.length > 60 ? sel.slice(0,60)+'…' : sel)}&rdquo;</em></p>` : '';
     modalOverlay.innerHTML = `
-        <div style="background:var(--card-bg);border:1px solid var(--border-color);border-radius:24px;padding:1.5rem;max-width:450px;width:90%;">
-            <h3 style="margin-bottom:0.5rem;font-size:1.1rem;">Insert Link</h3>
+        <div style="background:var(--color-card);border:1px solid var(--color-border);border-radius:24px;padding:1.5rem;max-width:450px;width:90%;">
+            <h3 style="margin-bottom:0.5rem;font-size:1.1rem;color:var(--color-text);">Insert Link</h3>
             ${preview}
             <input type="text" id="link-url-input" placeholder="https://example.com or /relative/path" value=""
-                style="width:100%;padding:0.8rem;border-radius:12px;background:var(--bg-primary);
-                       border:1px solid var(--border-color);color:var(--text-primary);
+                style="width:100%;padding:0.8rem;border-radius:12px;background:var(--color-bg);
+                       border:1px solid var(--color-border);color:var(--color-text);
                        margin-bottom:1rem;box-sizing:border-box;">
             <div style="display:flex;gap:1rem;justify-content:flex-end;">
                 <button id="link-modal-cancel" class="btn-small">Cancel</button>
@@ -468,8 +507,8 @@ function showConfirmModal(message, onConfirm, onCancel) {
     
     const modalContent = document.createElement('div');
     modalContent.style.cssText = `
-        background: var(--card-bg);
-        border: 1px solid var(--border-color);
+        background: var(--color-card);
+        border: 1px solid var(--color-border);
         border-radius: 24px;
         padding: 1.5rem;
         max-width: 400px;
@@ -478,10 +517,10 @@ function showConfirmModal(message, onConfirm, onCancel) {
     `;
     
     modalContent.innerHTML = `
-        <p style="margin-bottom: 1.5rem; line-height: 1.5; color: var(--text-primary); white-space: pre-wrap;">${escapeHtml(message)}</p>
+        <p style="margin-bottom: 1.5rem; line-height: 1.5; color: var(--color-text); white-space: pre-wrap;">${escapeHtml(message)}</p>
         <div style="display: flex; gap: 1rem; justify-content: flex-end;">
             <button id="modal-cancel-btn" class="btn-small" style="padding: 0.5rem 1rem;">Cancel</button>
-            <button id="modal-confirm-btn" class="filter-btn" style="padding: 0.5rem 1rem; background: var(--accent-red);">Confirm</button>
+            <button id="modal-confirm-btn" class="filter-btn" style="padding: 0.5rem 1rem; background: var(--color-accent); color: var(--color-white);">Confirm</button>
         </div>
     `;
     
@@ -513,7 +552,10 @@ function showConfirmModal(message, onConfirm, onCancel) {
 }
 
 function showEditMediaModal(currentUrl, index) {
-    if (activeModal) activeModal.remove();
+    if (activeModal) {
+        activeModal.remove();
+        activeModal = null;
+    }
     
     const modalOverlay = document.createElement('div');
     modalOverlay.style.cssText = `
@@ -522,8 +564,9 @@ function showEditMediaModal(currentUrl, index) {
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.8);
+        background: rgba(0, 0, 0, 0.85);
         backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
         z-index: 20000;
         display: flex;
         align-items: center;
@@ -532,20 +575,50 @@ function showEditMediaModal(currentUrl, index) {
     
     const modalContent = document.createElement('div');
     modalContent.style.cssText = `
-        background: var(--card-bg);
-        border: 1px solid var(--border-color);
+        background: var(--color-card);
+        border: 1px solid var(--color-border);
         border-radius: 24px;
         padding: 1.5rem;
         max-width: 500px;
         width: 90%;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
     `;
     
     modalContent.innerHTML = `
-        <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">Edit Media URL</h3>
-        <input type="text" id="edit-media-input" value="${escapeHtml(currentUrl)}" style="width: 100%; padding: 0.8rem; border-radius: 12px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); margin-bottom: 1rem;">
+        <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem; color: var(--color-text);">Edit Media URL</h3>
+        <input type="text" id="edit-media-input" value="${escapeHtml(currentUrl)}" placeholder="Enter media URL..." style="
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 12px;
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            margin: 0.5rem 0 1rem 0;
+        ">
         <div style="display: flex; gap: 1rem; justify-content: flex-end;">
-            <button id="edit-media-cancel" class="btn-small">Cancel</button>
-            <button id="edit-media-save" class="filter-btn">Save</button>
+            <button id="edit-media-cancel" style="
+                font-size: 0.75rem;
+                padding: 0.5rem 1rem;
+                background: var(--color-filter-bg);
+                border: 1px solid var(--color-border);
+                border-radius: 8px;
+                cursor: pointer;
+                color: var(--color-text-secondary);
+                transition: all 0.2s;
+            ">Cancel</button>
+            <button id="edit-media-save" style="
+                background: var(--color-filter-bg);
+                border: 1px solid var(--color-border);
+                padding: 0.5rem 1rem;
+                border-radius: 100px;
+                font-size: 0.85rem;
+                font-weight: 500;
+                cursor: pointer;
+                color: var(--color-text-secondary);
+                transition: all 0.2s;
+            ">Save</button>
         </div>
     `;
     
@@ -555,42 +628,63 @@ function showEditMediaModal(currentUrl, index) {
     
     const input = modalContent.querySelector('#edit-media-input');
     input.focus();
+    input.select();
     
     const saveBtn = modalContent.querySelector('#edit-media-save');
-    saveBtn.addEventListener('click', () => {
+    const cancelBtn = modalContent.querySelector('#edit-media-cancel');
+    
+    saveBtn.addEventListener('mouseenter', () => {
+        saveBtn.style.background = 'var(--color-accent)';
+        saveBtn.style.borderColor = 'var(--color-accent)';
+        saveBtn.style.color = 'var(--color-white)';
+    });
+    saveBtn.addEventListener('mouseleave', () => {
+        saveBtn.style.background = 'var(--color-filter-bg)';
+        saveBtn.style.borderColor = 'var(--color-border)';
+        saveBtn.style.color = 'var(--color-text-secondary)';
+    });
+    
+    cancelBtn.addEventListener('mouseenter', () => {
+        cancelBtn.style.background = 'var(--color-border)';
+        cancelBtn.style.color = 'var(--color-text)';
+    });
+    cancelBtn.addEventListener('mouseleave', () => {
+        cancelBtn.style.background = 'var(--color-filter-bg)';
+        cancelBtn.style.color = 'var(--color-text-secondary)';
+    });
+    
+    function saveMedia() {
         const newValue = input.value.trim();
         if (newValue) {
             currentMediaArray[index] = newValue;
             renderMediaBadges();
             if (isEditingMode) debouncedAutoSave();
         }
-        modalOverlay.remove();
-        activeModal = null;
-    });
+        if (activeModal) {
+            activeModal.remove();
+            activeModal = null;
+        }
+    }
     
-    const cancelBtn = modalContent.querySelector('#edit-media-cancel');
+    saveBtn.addEventListener('click', saveMedia);
     cancelBtn.addEventListener('click', () => {
-        modalOverlay.remove();
-        activeModal = null;
-    });
-    
-    modalOverlay.addEventListener('click', (e) => {
-        if (e.target === modalOverlay) {
-            modalOverlay.remove();
+        if (activeModal) {
+            activeModal.remove();
             activeModal = null;
         }
     });
-    
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) {
+            if (activeModal) {
+                activeModal.remove();
+                activeModal = null;
+            }
+        }
+    });
     input.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-            const newValue = input.value.trim();
-            if (newValue) {
-                currentMediaArray[index] = newValue;
-                renderMediaBadges();
-                if (isEditingMode) debouncedAutoSave();
-            }
-            modalOverlay.remove();
-            activeModal = null;
+            e.preventDefault();
+            saveMedia();
         }
     });
 }
@@ -602,7 +696,7 @@ function showInlineError(inputElement, message) {
     const errorDiv = document.createElement('div');
     errorDiv.className = 'inline-error';
     errorDiv.style.cssText = `
-        color: var(--accent-red);
+        color: var(--color-accent);
         font-size: 0.7rem;
         margin-top: 0.4rem;
         padding-left: 0.25rem;
@@ -708,9 +802,7 @@ function addNewCategory(rawName, applyToCurrentProject = true) {
         }
     }
     
-    // Save categories to localStorage
     saveDemoCategories(availableCategories);
-    
     showFloatingNotification(`✓ Added category "${formatCategoryForDisplay(normalized)}"`);
     return true;
 }
@@ -782,7 +874,7 @@ function renderCategoriesList() {
     });
     
     if (availableCategories.length === 0) {
-        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.75rem; padding: 0.5rem;">No categories yet. Add one using the "+ Add Category" button above.</div>';
+        container.innerHTML = '<div style="color: var(--color-text-muted); font-size: 0.75rem; padding: 0.5rem;">No categories yet. Add one using the "+ Add Category" button above.</div>';
     }
 }
 
@@ -808,13 +900,12 @@ if (addForm) {
         renderAdminView();
         saveToLocalStorage();
         startNewProject();
-        showFloatingNotification("✓ Project added with " + mediaToSave.length + " media item(s)!");
+        showFloatingNotification("✓ Project added with " + mediaToSave.length + " media resources(s)!");
         return false;
     });
 }
 
 function saveToLocalStorage() {
-    // Clean up malformed links
     localProjectCache = localProjectCache.map(project => {
         if (project.description) {
             project.description = cleanupMalformedLinks(project.description);
@@ -824,7 +915,6 @@ function saveToLocalStorage() {
     
     saveDemoProjects(localProjectCache);
     
-    // Also save categories
     const cats = [...new Set(localProjectCache.map(p => p.category).filter(c => c && c !== ''))];
     if (cats.length > 0) {
         availableCategories = cats;
@@ -853,7 +943,7 @@ function getMediaIcon(url) {
 function getMediaPreview(mediaArray) {
     if (!mediaArray || mediaArray.length === 0) return "No media";
     const icons = mediaArray.map(m => getMediaIcon(m)).join(' ');
-    return `${icons} ${mediaArray.length} media item(s)`;
+    return `${icons} ${mediaArray.length} media resources(s)`;
 }
 
 function loadData() {
@@ -861,7 +951,6 @@ function loadData() {
     localProjectCache = data.projects;
     availableCategories = data.categories;
     
-    // Clean up malformed links
     localProjectCache = localProjectCache.map(project => {
         if (project.description) {
             project.description = cleanupMalformedLinks(project.description);
@@ -879,7 +968,7 @@ function renderAdminView() {
     sortableListElement.innerHTML = '';
     
     if (localProjectCache.length === 0) {
-        sortableListElement.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No projects yet. Fill out the form and click "Add Portfolio Project".</div>';
+        sortableListElement.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--color-text-muted);">No projects yet. Fill out the form and click "Add Portfolio Project".</div>';
         return;
     }
     
@@ -897,14 +986,14 @@ function renderAdminView() {
         const mediaArray = project.media || [];
         const mediaPreview = getMediaPreview(mediaArray);
         const draftBadge = project.published === false ? ' [DRAFT]' : '';
-        const heading = project.cardHeading || project.tag || '';
+        const category = project.category ? formatCategoryForDisplay(project.category) : 'Uncategorized';
         
         if (project.published === false) li.style.opacity = '0.5';
         li.innerHTML = `
             <div class="sort-content" style="flex-grow:1; cursor:pointer; min-width:0; overflow:hidden;">
                 <strong>${escapeHtml(project.title)}${draftBadge}</strong>
-                <small style="color:var(--text-muted); margin-left:0.5rem;">(${escapeHtml(heading)})</small>
-                <div style="font-size:0.7rem; color:var(--accent-red); margin-top:0.2rem;">${mediaPreview}</div>
+                <small style="color:var(--color-text-muted); margin-left:0.5rem;">(${escapeHtml(category)})</small>
+                <div style="font-size:0.7rem; color:var(--color-accent); margin-top:0.2rem;">${mediaPreview}</div>
             </div>
             <div style="display:flex; gap:0.25rem; align-items:center; flex-shrink:0; margin-left:0.5rem;">
                 <span class="row-btn move-top-btn" title="Move to top">⇈</span>
@@ -986,7 +1075,7 @@ function getCurrentFormData() {
     return {
         title: formTitle.value,
         category: formCategory.value,
-        cardHeading: formTag.value,
+        cardHeading: formTag ? formTag.value : '',
         media: [...currentMediaArray].filter(m => m && m.trim()),
         description: getEditorContent(),
         imageAlign: formImageAlign.value,
@@ -1023,7 +1112,9 @@ function debouncedAutoSave() {
 let autoSaveListenersActive = false;
 
 function setupAutoSaveListeners(enable) {
-    const inputs = [formTitle, formCategory, formTag, formImageAlign];
+    const inputs = [formTitle, formCategory, formImageAlign];
+    if (formTag) inputs.push(formTag);
+    
     const checkboxes = [formPublished];
     const editor = descTextarea;
     
@@ -1076,14 +1167,22 @@ function startNewProject() {
     
     formTitle.value = "";
     formCategory.value = "";
-    formTag.value = "";
+    if (formTag) formTag.value = "";
     formPublished.checked = false;
     formImageAlign.value = "center";
     currentMediaArray = [];
     renderMediaBadges();
     setEditorContent("");
     
-    document.querySelectorAll('.sort-item').forEach(el => el.style.borderColor = 'var(--border-color)');
+    // Remove highlight from ALL items
+    document.querySelectorAll('.sort-item').forEach(el => {
+        el.classList.remove('editing');
+        el.style.borderColor = '';
+        el.style.borderWidth = '';
+        el.style.borderStyle = '';
+        el.style.boxShadow = '';
+        el.style.backgroundColor = '';
+    });
     
     if (newProjectBtn) newProjectBtn.style.display = 'none';
     if (submitBtn) submitBtn.style.display = 'block';
@@ -1105,7 +1204,7 @@ function loadProjectIntoForm(index) {
     
     formTitle.value = target.title;
     formCategory.value = target.category || "";
-    formTag.value = target.cardHeading || target.tag || "";
+    if (formTag) formTag.value = target.cardHeading || target.tag || "";
     formPublished.checked = target.published !== false;
     formImageAlign.value = target.imageAlign || 'center';
     
@@ -1117,9 +1216,31 @@ function loadProjectIntoForm(index) {
     lastSavedFormData = getCurrentFormData();
     setupAutoSaveListeners(true);
     
-    document.querySelectorAll('.sort-item').forEach(el => el.style.borderColor = 'var(--border-color)');
+    // Remove highlight from ALL items first
+    document.querySelectorAll('.sort-item').forEach(el => {
+        el.classList.remove('editing');
+        el.style.borderColor = '';
+        el.style.borderWidth = '';
+        el.style.borderStyle = '';
+        el.style.boxShadow = '';
+        el.style.backgroundColor = '';
+    });
+    
+    // Then highlight only the selected one
     const selectedRow = document.querySelector(`.sort-item[data-index="${index}"]`);
-    if (selectedRow) selectedRow.style.borderColor = 'var(--accent-red)';
+    if (selectedRow) {
+        selectedRow.classList.add('editing');
+        selectedRow.style.borderColor = 'var(--color-accent)';
+        selectedRow.style.borderWidth = '2px';
+        selectedRow.style.borderStyle = 'solid';
+        selectedRow.style.boxShadow = '0 0 0 2px rgba(229, 72, 77, 0.3)';
+        selectedRow.style.backgroundColor = 'var(--color-bg-secondary)';
+        
+        // Scroll the selected row into view
+        setTimeout(() => {
+            selectedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+    }
     
     if (newProjectBtn) newProjectBtn.style.display = 'inline-block';
     if (submitBtn) submitBtn.style.display = 'none';
@@ -1185,7 +1306,7 @@ function renderMediaBadges() {
     if (!mediaBadgesContainer) return;
     mediaBadgesContainer.innerHTML = '';
     if (currentMediaArray.length === 0) {
-        mediaBadgesContainer.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 0.5rem; font-size: 0.75rem;">No media added yet.</div>';
+        mediaBadgesContainer.innerHTML = '<div style="color: var(--color-text-muted); text-align: center; padding: 0.5rem; font-size: 0.75rem;">No media added yet.</div>';
         return;
     }
     
@@ -1269,11 +1390,110 @@ function handleAddButtonClick() {
             showFloatingNotification("Media already in list", false);
         }
     } else {
-        showFloatingNotification("Please enter a URL or path", false);
+        multiFileInput.click();
     }
 }
 
+function showDirectoryPrompt(files) {
+    if (!files || files.length === 0) return;
+    
+    const fileArray = Array.from(files);
+    
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);z-index:20000;display:flex;align-items:center;justify-content:center;';
+    const names = fileArray.map(f => f.name).join(', ');
+    const truncated = names.length > 80 ? names.slice(0, 80) + '…' : names;
+    overlay.innerHTML = `
+        <div style="background:var(--color-card);border:1px solid var(--color-border);border-radius:24px;padding:1.5rem;max-width:480px;width:90%;">
+            <h3 style="margin-bottom:0.4rem;font-size:1.05rem;color:var(--color-text);">Set Media Path</h3>
+            <p style="font-size:0.78rem;color:var(--color-text-muted);margin-bottom:0.8rem;">${truncated}</p>
+            <div style="display:flex;align-items:center;gap:0.5rem;background:var(--color-bg);border-radius:12px;border:1px solid var(--color-border);padding:0 0.75rem;margin-bottom:0.25rem;">
+                <span style="color:var(--color-text-muted);font-weight:500;font-size:0.85rem;white-space:nowrap;">media/</span>
+                <input type="text" id="dir-prompt-input" placeholder="subfolder/ (optional)" 
+                    style="width:100%;padding:0.75rem 0;background:transparent;border:none;color:var(--color-text);font-family:monospace;outline:none;">
+            </div>
+            <p style="font-size:0.72rem;color:var(--color-text-muted);margin-bottom:1rem;">Files will be saved to: <code style="background:var(--color-bg-secondary);padding:0.1rem 0.4rem;border-radius:4px;color:var(--color-text-secondary);">media/<span id="dir-prompt-preview">...</span></code></p>
+            <div style="display:flex;gap:1rem;justify-content:flex-end;">
+                <button id="dir-prompt-cancel" class="btn-small">Cancel</button>
+                <button id="dir-prompt-confirm" class="filter-btn">Add Files</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+    
+    const input = overlay.querySelector('#dir-prompt-input');
+    const preview = overlay.querySelector('#dir-prompt-preview');
+    
+    input.addEventListener('input', () => {
+        const val = input.value.trim();
+        preview.textContent = val ? val + '/' : 'filename';
+    });
+    preview.textContent = 'filename';
+    
+    input.focus();
+    
+    const doConfirm = () => {
+        let subfolder = input.value.trim();
+        let prefix = 'media/';
+        if (subfolder) {
+            if (!subfolder.endsWith('/')) subfolder += '/';
+            prefix += subfolder;
+        }
+        
+        let added = 0;
+        let skipped = 0;
+        
+        fileArray.forEach(f => {
+            let filename = f.name.replace(/[#?&]/g, '_').replace(/\s+/g, '_');
+            filename = filename.replace(/[\(\)\[\]\{\}]/g, '_');
+            
+            const fullPath = prefix + filename;
+            
+            const exists = currentMediaArray.some(existing => 
+                existing.toLowerCase() === fullPath.toLowerCase()
+            );
+            
+            if (!exists) {
+                currentMediaArray.push(fullPath);
+                added++;
+            } else {
+                skipped++;
+            }
+        });
+        
+        overlay.remove();
+        
+        if (added > 0) {
+            renderMediaBadges();
+            if (isEditingMode) {
+                debouncedAutoSave();
+            }
+            let message = '✓ Added ' + added + ' file(s) to ' + prefix;
+            if (skipped > 0) {
+                message += ' (' + skipped + ' duplicate(s) skipped)';
+            }
+            showFloatingNotification(message);
+        } else if (skipped > 0) {
+            showFloatingNotification('All ' + skipped + ' file(s) were duplicates and were skipped', false);
+        } else {
+            showFloatingNotification('No files to add', false);
+        }
+    };
+    
+    overlay.querySelector('#dir-prompt-confirm').addEventListener('click', doConfirm);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); doConfirm(); } });
+    overlay.querySelector('#dir-prompt-cancel').addEventListener('click', () => overlay.remove());
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+function addFilesToMediaList(files) {
+    if (!files || files.length === 0) return;
+    showDirectoryPrompt(files);
+    multiFileInput.value = '';
+}
+
 if (addMediaBtn) addMediaBtn.addEventListener('click', handleAddButtonClick);
+if (multiFileInput) multiFileInput.addEventListener('change', (e) => addFilesToMediaList(multiFileInput.files));
 
 if (togglePasteBtn) togglePasteBtn.addEventListener('click', () => {
     pasteArea.style.display = pasteArea.style.display === 'none' ? 'block' : 'none';
@@ -1376,7 +1596,7 @@ function captureTextareaSel(e) {
     };
 }
 
-[toolbarBold, toolbarItalic, toolbarUl, toolbarLink, toolbarAward].forEach(btn => {
+[toolbarBold, toolbarItalic, toolbarUl, toolbarLink, toolbarAward, toolbarLive].forEach(btn => {
     if (btn) btn.addEventListener('mousedown', captureTextareaSel);
 });
 
@@ -1385,6 +1605,7 @@ if (toolbarItalic) toolbarItalic.addEventListener('click', () => applyInlineForm
 if (toolbarUl) toolbarUl.addEventListener('click', () => applyUnorderedList());
 if (toolbarLink) toolbarLink.addEventListener('click', () => insertLink());
 if (toolbarAward) toolbarAward.addEventListener('click', () => applyAwardTag());
+if (toolbarLive) toolbarLive.addEventListener('click', () => applyLiveTag());
 
 if (descTextarea) {
     descTextarea.addEventListener('input', () => {
@@ -1394,10 +1615,68 @@ if (descTextarea) {
     descTextarea.addEventListener('blur', applySmartQuotesToEditor);
 }
 
+// ========================
+// DEMO INFO MODAL
+// ========================
+function initDemoInfoModal() {
+    const modal = document.getElementById('demo-info-modal');
+    const closeBtn = document.getElementById('demo-info-close');
+    const gotItBtn = document.getElementById('demo-info-gotit');
+    const hasSeenModal = localStorage.getItem('demo_info_seen');
+
+    function closeModal() {
+        if (modal) {
+            modal.style.display = 'none';
+            localStorage.setItem('demo_info_seen', 'true');
+        }
+    }
+
+    function openModal() {
+        if (modal) {
+            modal.style.display = 'flex';
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100%';
+            modal.style.height = '100%';
+            modal.style.zIndex = '50000';
+            modal.style.background = 'rgba(0, 0, 0, 0.7)';
+            modal.style.backdropFilter = 'blur(8px)';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+        }
+    }
+
+    if (!hasSeenModal && modal) {
+        setTimeout(openModal, 800);
+    }
+
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (gotItBtn) gotItBtn.addEventListener('click', closeModal);
+
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal && modal.style.display !== 'none') {
+            closeModal();
+        }
+    });
+}
+
+// ========================
+// INITIALIZATION
+// ========================
 function init() {
     renderMediaBadges();
     loadData();
     updateCharCount();
+    initDemoInfoModal();
 }
 
 init();

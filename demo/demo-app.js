@@ -174,6 +174,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 el.parentNode.replaceChild(badge, el);
             });
 
+            // Handle <live> tags
+            tmp.querySelectorAll('live').forEach(el => {
+                const hasUrl = el.hasAttribute('href');
+                const url = el.getAttribute('href') || '';
+                let badge;
+                
+                if (hasUrl && url.trim()) {
+                    badge = document.createElement('a');
+                    badge.className = 'live-badge-link';
+                    badge.href = url;
+                    badge.target = '_blank';
+                    badge.rel = 'noopener noreferrer';
+                    badge.innerHTML = `<span class="live-dot"></span>${el.innerHTML}`;
+                } else {
+                    badge = document.createElement('span');
+                    badge.className = 'live-badge';
+                    badge.innerHTML = `<span class="live-dot"></span>${el.innerHTML}`;
+                }
+                el.parentNode.replaceChild(badge, el);
+            });
+
             return tmp.innerHTML;
         }
 
@@ -523,7 +544,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function applyFilter() {
         const grid = document.getElementById('portfolio-grid');
         const items = allPortfolioItems;
-        const fragment = document.createDocumentFragment();
         const visibleItems = [];
 
         items.forEach((item) => {
@@ -556,30 +576,6 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 item.classList.add('fly-in');
             }, 50 + (index * 40));
-        });
-
-        // Re-setup swipers
-        const projects = window.__projectsData || [];
-        projects.forEach((project, idx) => {
-            if (project.published === false) return;
-            const mediaArray = project.media || [];
-            if (mediaArray.length > 1) {
-                const swiperContainer = document.querySelector(`.card-swiper-${idx}`);
-                if (swiperContainer) {
-                    new Swiper(`.card-swiper-${idx}`, {
-                        loop: true,
-                        navigation: {
-                            nextEl: `.card-swiper-next-${idx}`,
-                            prevEl: `.card-swiper-prev-${idx}`,
-                        },
-                        pagination: {
-                            el: `.card-swiper-pagination-${idx}`,
-                            clickable: true,
-                        },
-                        autoplay: false,
-                    });
-                }
-            }
         });
     }
 

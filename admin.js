@@ -1003,7 +1003,7 @@ function getMediaIcon(url) {
 function getMediaPreview(mediaArray) {
     if (!mediaArray || mediaArray.length === 0) return "No media";
     const icons = mediaArray.map(m => getMediaIcon(m)).join(' ');
-    return `${icons} ${mediaArray.length} media resources(s)`;
+    return `${icons} ${mediaArray.length} media item(s)`;
 }
 
 function loadData() {
