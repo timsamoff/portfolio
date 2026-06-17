@@ -1,6 +1,6 @@
 # Admin files - keep private
-admin.html
-admin.js
+./admin.html
+./admin.js
 fix-links.js
 fix-json-quote.js
 convert-images-to-webp.js
