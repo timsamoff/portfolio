@@ -599,10 +599,8 @@ function generateShareUrl(projectIndex, mediaIndex = 0, mediaArray = []) {
         m: mediaIndex
     };
     const data = btoa(JSON.stringify(shareData));
-    // Point to share.html instead of index.html
     return `${window.location.origin}${window.location.pathname}share.html?share=${data}`;
 }
-
 
 // ========================================
 // DYNAMIC OPEN GRAPH / SOCIAL SHARING
@@ -670,14 +668,14 @@ function updateSocialMetaTags(project, mediaArray, mediaIndex) {
 
 
 function parseShareUrl() {
-    // Check query parameter first (for social crawlers)
+    // Check query parameter first (for share.html redirects)
     const params = new URLSearchParams(window.location.search);
     let encoded = params.get('share');
     let shareData = null;
     
     if (encoded) {
         try {
-            shareData = JSON.parse(atob(encoded));
+            shareData = JSON.parse(atob(decodeURIComponent(encoded)));
         } catch(e) {
             console.error('Invalid share data in query param', e);
         }
