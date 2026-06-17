@@ -149,64 +149,169 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1500);
     }
 
-    // ========================================
-    // DESCRIPTION RENDERER
-    // ========================================
-    function renderDescription(raw) {
-        if (!raw) return '';
+// ========================================
+// DESCRIPTION RENDERER
+// ========================================
+function renderDescription(raw) {
+    if (!raw) return '';
 
-        const isHtml = /<[a-z][\s\S]*>/i.test(raw);
+    const isHtml = /<[a-z][\s\S]*>/i.test(raw);
 
-        if (isHtml) {
-            const tmp = document.createElement('div');
-            tmp.innerHTML = raw;
+    if (isHtml) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = raw;
 
-            tmp.querySelectorAll('a').forEach(a => {
-                a.target = '_blank';
-                a.rel = 'noopener noreferrer';
-            });
+        tmp.querySelectorAll('a').forEach(a => {
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+        });
 
-            const walker = document.createTreeWalker(tmp, NodeFilter.SHOW_TEXT, {
-                acceptNode(node) {
-                    return node.parentElement.closest('a')
-                        ? NodeFilter.FILTER_REJECT
-                        : NodeFilter.FILTER_ACCEPT;
-                }
-            });
-            const textNodes = [];
-            let n;
-            while ((n = walker.nextNode())) textNodes.push(n);
+        const walker = document.createTreeWalker(tmp, NodeFilter.SHOW_TEXT, {
+            acceptNode(node) {
+                return node.parentElement.closest('a')
+                    ? NodeFilter.FILTER_REJECT
+                    : NodeFilter.FILTER_ACCEPT;
+            }
+        });
+        const textNodes = [];
+        let n;
+        while ((n = walker.nextNode())) textNodes.push(n);
 
-            textNodes.forEach(textNode => {
-                const urlRegex = /(https?:\/\/[^\s<>"']+)/g;
-                if (!urlRegex.test(textNode.nodeValue)) return;
-                urlRegex.lastIndex = 0;
-                const span = document.createElement('span');
-                span.innerHTML = textNode.nodeValue.replace(
-                    /(https?:\/\/[^\s<>"']+)/g,
-                    url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
-                );
-                textNode.parentNode.replaceChild(span, textNode);
-            });
+        textNodes.forEach(textNode => {
+            const urlRegex = /(https?:\/\/[^\s<>"']+)/g;
+            if (!urlRegex.test(textNode.nodeValue)) return;
+            urlRegex.lastIndex = 0;
+            const span = document.createElement('span');
+            span.innerHTML = textNode.nodeValue.replace(
+                /(https?:\/\/[^\s<>"']+)/g,
+                url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
+            );
+            textNode.parentNode.replaceChild(span, textNode);
+        });
 
-            tmp.querySelectorAll('award').forEach(el => {
-                const badge = document.createElement('span');
-                badge.className = 'award-badge';
-                badge.innerHTML = '🏆 ' + el.innerHTML;
-                el.parentNode.replaceChild(badge, el);
-            });
+        tmp.querySelectorAll('award').forEach(el => {
+            const badge = document.createElement('span');
+            badge.className = 'award-badge';
+            badge.innerHTML = '🏆 ' + el.innerHTML;
+            el.parentNode.replaceChild(badge, el);
+        });
 
-            return tmp.innerHTML;
+        // In renderDescription() - replace the existing <live> handler
+
+tmp.querySelectorAll('live').forEach(el => {
+    const badge = document.createElement('span');
+    badge.className = 'live-badge';
+    
+    // Check if there's an <a> tag inside
+    const innerLink = el.querySelector('a');
+    let url = el.getAttribute('href') || '';
+    let text = el.textContent || 'Live';
+    
+    if (innerLink) {
+        url = innerLink.getAttribute('href') || '';
+        text = innerLink.textContent || 'Live';
+        // Remove the inner <a> from the live element
+        while (innerLink.firstChild) {
+            el.insertBefore(innerLink.firstChild, innerLink);
         }
-
-        let escaped = raw.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
-        escaped = escaped.replace(
-            /(https?:\/\/[^\s]+)/g,
-            url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
-        );
-        escaped = escaped.replace(/\n/g, '<br>');
-        return escaped;
+        el.removeChild(innerLink);
     }
+    
+    // Clean up any remaining text
+    text = el.textContent.trim() || 'Live';
+    
+    // If there's a valid URL, wrap the badge in an <a>
+    if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+        const link = document.createElement('a');
+        link.href = url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.className = 'live-badge-link';
+        
+        // Build the badge content inside the link
+        const dot = document.createElement('span');
+        dot.className = 'live-dot';
+        const label = document.createTextNode(text);
+        
+        link.appendChild(dot);
+        link.appendChild(label);
+        
+        el.parentNode.replaceChild(link, el);
+    } else {
+        // No URL — just show the badge as a non-interactive element
+        const dot = document.createElement('span');
+        dot.className = 'live-dot';
+        const label = document.createTextNode(text);
+        
+        badge.appendChild(dot);
+        badge.appendChild(label);
+        
+        el.parentNode.replaceChild(badge, el);
+    }
+});
+
+        return tmp.innerHTML;
+    }
+
+    let escaped = raw.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+    escaped = escaped.replace(
+        /(https?:\/\/[^\s]+)/g,
+        url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
+    );
+    escaped = escaped.replace(/\n/g, '<br>');
+    return escaped;
+}
+
+// ========================================
+// FLOATING NOTIFICATION (for Live button)
+// ========================================
+function showFloatingNotification(message, isSuccess = true) {
+    // Remove existing notification
+    const existing = document.querySelector('.floating-notification');
+    if (existing) existing.remove();
+
+    const notification = document.createElement('div');
+    notification.className = 'floating-notification';
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: ${isSuccess ? '#10b981' : '#ef4444'};
+        color: white;
+        padding: 10px 20px;
+        border-radius: 40px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        z-index: 10000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        pointer-events: none;
+        animation: slideInRight 0.3s ease;
+    `;
+
+    if (!document.querySelector('#notification-style')) {
+        const style = document.createElement('style');
+        style.id = 'notification-style';
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateX(100%)';
+        notification.style.transition = 'opacity 0.3s, transform 0.3s';
+        setTimeout(() => {
+            if (notification.parentNode) notification.remove();
+        }, 300);
+    }, 2500);
+}
 
     // ========================================
     // MEDIA HELPERS
@@ -625,10 +730,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         filterButtons.forEach(button => {
             button.removeEventListener('click', filterHandler);
+            button.removeEventListener('touchstart', filterHandler);
             button.addEventListener('click', filterHandler);
+            button.addEventListener('touchstart', filterHandler, { passive: true });
         });
 
         function filterHandler(e) {
+            // Prevent duplicate triggers on mobile
+            if (e.type === 'touchstart' && e.target.closest('.filter-btn') !== e.currentTarget) {
+                return;
+            }
+            
             const button = e.currentTarget;
             filterButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
@@ -1022,6 +1134,107 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 }
+
+    // ========================================
+    // TOUCH SUPPORT
+    // ========================================
+    function applyFilter() {
+        const grid = document.getElementById('portfolio-grid');
+        const items = allPortfolioItems;
+        let visibleCount = 0;
+        
+        // Create document fragment for visible items
+        const fragment = document.createDocumentFragment();
+        const visibleItems = [];
+        
+        // Collect visible items in order
+        items.forEach((item) => {
+            const itemCategory = item.getAttribute('data-category');
+            let shouldShow = false;
+            
+            if (currentFilterValue === 'all') {
+                shouldShow = true;
+            } else if (currentFilterValue === 'uncategorized') {
+                shouldShow = (!itemCategory || itemCategory === 'uncategorized' || itemCategory === '');
+            } else {
+                shouldShow = (itemCategory === currentFilterValue);
+            }
+            
+            if (shouldShow) {
+                visibleItems.push(item);
+            }
+        });
+        
+        // Clear grid
+        grid.innerHTML = '';
+        
+        // Re-add visible items with animation
+        visibleItems.forEach((item, index) => {
+            // Reset item's display
+            item.style.display = 'flex';
+            item.style.visibility = 'visible';
+            item.style.height = '';
+            item.style.minHeight = '';
+            item.style.maxHeight = '';
+            item.style.padding = '';
+            item.style.margin = '';
+            item.style.overflow = '';
+            item.style.border = '';
+            item.style.opacity = '';
+            item.style.order = index;
+            
+            // Remove all animation classes
+            item.classList.remove('hidden-item', 'fly-out', 'fly-in', 'initial-load');
+            
+            // Set item index for stagger
+            item.style.setProperty('--item-index', index);
+            
+            // Add to grid
+            grid.appendChild(item);
+            
+            // Force reflow for mobile (critical for animations on touch devices)
+            void item.offsetHeight;
+            
+            // Trigger animation with delay - use requestAnimationFrame for mobile
+            setTimeout(() => {
+                requestAnimationFrame(() => {
+                    item.classList.add('fly-in');
+                });
+            }, 50 + (index * 40));
+        });
+        
+        // Re-setup swipers for visible items
+        const projects = window.__projectsData || [];
+        projects.forEach((project, idx) => {
+            if (project.published === false) return;
+            const mediaArray = project.media || (project.image ? [project.image] : []);
+            if (mediaArray.length > 1) {
+                const swiperContainer = document.querySelector(`.card-swiper-${idx}`);
+                if (swiperContainer) {
+                    // Create swiper instance
+                    const swiper = new Swiper(`.card-swiper-${idx}`, {
+                        loop: true,
+                        navigation: {
+                            nextEl: `.card-swiper-next-${idx}`,
+                            prevEl: `.card-swiper-prev-${idx}`,
+                        },
+                        pagination: {
+                            el: `.card-swiper-pagination-${idx}`,
+                            clickable: true,
+                        },
+                        autoplay: false,
+                    });
+                    
+                    // Store swiper instance on container for later use
+                    swiperContainer.swiper = swiper;
+                    
+                    // Store media array on the container
+                    swiperContainer.dataset.mediaArray = JSON.stringify(mediaArray);
+                    swiperContainer.dataset.projectIndex = idx;
+                }
+            }
+        });
+    }
 
     // ========================================
     // INITIALIZATION

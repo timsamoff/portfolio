@@ -11,6 +11,7 @@
     --color-text-muted: #71717a;
     --color-border: #2a2a30;
     --color-accent: #e5484d;
+    --color-accent-rgb: 229, 72, 77;
     --color-accent-hover: #ff6369;
     --color-filter-bg: #1f1f24;
     --color-white: #ffffff;
@@ -30,7 +31,7 @@
     --hero-pad-top: 4rem;
     --hero-pad-bottom: 6rem;
     
-    /* ⏱Animations */
+    /* Animations */
     --shimmer-duration: 2s;
     --shimmer-pulse-duration: 1.5s;
     --shimmer-blur-amount: 6px;
@@ -48,6 +49,7 @@
     --color-text-muted: #6c6c7a;
     --color-border: #e2e2e8;
     --color-accent: #d32f2f;
+    --color-accent-rgb: 211, 47, 47;
     --color-accent-hover: #b71c1c;
     --color-filter-bg: #eef2f5;
     
@@ -89,7 +91,7 @@ h1 {
     font-size: 1.8rem;
     font-weight: 600;
     letter-spacing: -0.02em;
-    background: linear-gradient(135deg, var(--color-text) 0%, var(--color-accent) 15%);
+    background: linear-gradient(135deg, var(--color-text) 0%, var(--color-accent) 33%);
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
@@ -782,6 +784,8 @@ header.scrolled {
 .portfolio-item.initial-load {
     animation: initialFlyIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     animation-delay: calc(var(--item-index, 0) * 0.04s);
+    -webkit-animation: initialFlyIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    -webkit-animation-delay: calc(var(--item-index, 0) * 0.04s);
 }
 
 @keyframes initialFlyIn {
@@ -799,6 +803,8 @@ header.scrolled {
 .portfolio-item.fly-in {
     animation: flyIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     animation-delay: calc(var(--item-index, 0) * 0.04s);
+    -webkit-animation: flyIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    -webkit-animation-delay: calc(var(--item-index, 0) * 0.04s);
 }
 
 @keyframes flyIn {
@@ -1215,6 +1221,98 @@ header.scrolled {
 }
 
 /* ========================================
+   LIVE BADGE
+   ======================================== */
+.live-badge-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8em;
+    font-size: 0.78em;
+    font-variant: small-caps;
+    letter-spacing: 0.04em;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    background: transparent;
+    border: 1px solid rgba(var(--color-accent-rgb), 0.25);
+    border-radius: 4px;
+    padding: 0.1em 0.5em 0.15em;
+    white-space: nowrap;
+    vertical-align: middle;
+    line-height: 1.4;
+    text-decoration: none !important;
+    transition: border-color 0.25s ease, opacity 0.25s ease;
+    cursor: pointer;
+}
+
+.live-badge-link:hover {
+    border-color: rgba(var(--color-accent-rgb), 0.6);
+    opacity: 0.85;
+    text-decoration: none !important;
+}
+
+.live-badge-link:active {
+    transform: scale(0.97);
+}
+
+/* Non-interactive badge (no URL) */
+.live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8em;
+    font-size: 0.78em;
+    font-variant: small-caps;
+    letter-spacing: 0.04em;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    background: transparent;
+    border: 1px solid rgba(var(--color-accent-rgb), 0.25);
+    border-radius: 4px;
+    padding: 0.1em 0.5em 0.15em;
+    white-space: nowrap;
+    vertical-align: middle;
+    line-height: 1.4;
+    cursor: default;
+}
+
+/* Pulsing dot */
+.live-dot {
+    display: inline-block;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background-color: var(--color-accent);
+    vertical-align: middle;
+    margin-right: 4px;
+    animation: livePulse 1.8s ease-in-out infinite;
+    flex-shrink: 0;
+    margin-top: -0.1em;
+}
+
+@keyframes livePulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.15;
+        transform: scale(0.6);
+    }
+}
+
+/* Light theme */
+[data-theme="light"] .live-badge-link {
+    border-color: rgba(var(--color-accent-rgb), 0.25);
+}
+
+[data-theme="light"] .live-badge-link:hover {
+    border-color: rgba(var(--color-accent-rgb), 0.6);
+}
+
+[data-theme="light"] .live-badge {
+    border-color: rgba(var(--color-accent-rgb), 0.25);
+}
+
+/* ========================================
    CUSTOM MODAL (FULLSCREEN MEDIA VIEWER)
    ======================================== */
 .media-modal {
@@ -1338,8 +1436,46 @@ header.scrolled {
     grid-template-columns: 1fr 1.2fr;
     gap: 2rem;
     margin: 2rem 0;
+    align-items: start;
 }
 
+/* Sticky wrapper — this is what sticks and scrolls.
+   The card inside stays full, unclipped, no inner scrollbar. */
+.admin-form-sticky {
+    position: sticky;
+    top: 80px;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+    /* Pull the scrollbar flush to the column edge, outside the card */
+    padding-right: 4px;
+    margin-right: -4px;
+}
+
+.admin-form-sticky:hover {
+    scrollbar-color: var(--color-accent) transparent;
+}
+
+.admin-form-sticky::-webkit-scrollbar {
+    width: 4px;
+}
+
+.admin-form-sticky::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.admin-form-sticky::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 4px;
+}
+
+.admin-form-sticky:hover::-webkit-scrollbar-thumb {
+    background: var(--color-accent);
+}
+
+/* The card itself — no overflow, no scrollbar, fully rounded */
 .admin-form {
     background: var(--color-card);
     border: 1px solid var(--color-border);
@@ -1349,6 +1485,16 @@ header.scrolled {
 
 .sorting-zone {
     position: relative;
+}
+
+/* Editing state for sort items */
+.sort-item.editing {
+    border-color: var(--color-accent) !important;
+    border-width: 2px !important;
+    border-style: solid !important;
+    box-shadow: 0 0 0 2px rgba(229, 72, 77, 0.2) !important;
+    background: var(--color-bg-secondary) !important;
+    transition: all 0.2s ease;
 }
 
 /* Admin search */
@@ -1469,6 +1615,68 @@ header.scrolled {
     margin-right: 0.25rem;
 }
 
+/* Hide the native checkbox */
+.custom-checkbox-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+/* Custom checkbox box */
+.custom-checkbox-box {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--color-border);
+    border-radius: 6px;
+    display: inline-block;
+    position: relative;
+    flex-shrink: 0;
+    background: var(--color-bg);
+    transition: all 0.2s ease;
+}
+
+/* Checked state - Red with white checkmark */
+.custom-checkbox-input:checked + .custom-checkbox-box {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+}
+
+/* White checkmark */
+.custom-checkbox-input:checked + .custom-checkbox-box::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--color-white);
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* Hover effect */
+.publish-group label:hover .custom-checkbox-box {
+    border-color: var(--color-accent);
+}
+
+/* Responsive: disable sticky on mobile */
+@media (max-width: 880px) {
+    .admin-workspace {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .admin-form-sticky {
+        position: relative;
+        top: auto;
+        max-height: none;
+        overflow-y: visible;
+        padding-right: 0;
+        margin-right: 0;
+    }
+}
+
 /* ========================================
    ADMIN MEDIA MANAGER
    ======================================== */
@@ -1561,6 +1769,109 @@ header.scrolled {
 .media-paste-textarea:focus {
     outline: none;
     border-color: var(--color-accent);
+}
+
+/* ========================================
+   ADMIN MODAL (Edit Media, Confirm, etc.)
+   ======================================== */
+.admin-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 20000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-modal-overlay > div {
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: 24px;
+    padding: 1.5rem;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.admin-modal-overlay h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    color: var(--color-text);
+}
+
+.admin-modal-overlay p {
+    color: var(--color-text-secondary);
+    margin-bottom: 1rem;
+}
+
+.admin-modal-overlay input {
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 12px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    font-size: 0.9rem;
+    box-sizing: border-box;
+    margin-bottom: 1rem;
+}
+
+.admin-modal-overlay input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+}
+
+.admin-modal-overlay .btn-small {
+    font-size: 0.75rem;
+    padding: 0.5rem 1rem;
+    background: var(--color-filter-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    transition: all 0.2s;
+}
+
+.admin-modal-overlay .btn-small:hover {
+    background: var(--color-border);
+    color: var(--color-text);
+}
+
+.admin-modal-overlay .filter-btn {
+    background: var(--color-filter-bg);
+    border: 1px solid var(--color-border);
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    transition: all 0.2s;
+}
+
+.admin-modal-overlay .filter-btn:hover {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-white);
+}
+
+.admin-modal-overlay .filter-btn.active {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-white);
+}
+
+.admin-modal-overlay .modal-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
 }
 
 /* ========================================
@@ -1684,7 +1995,7 @@ header.scrolled {
 }
 
 /* ========================================
-   RICH TEXT EDITOR (not so "rich" anymore
+   RICH TEXT EDITOR (not so "rich" anymore)
    ======================================== */
 .rich-text-toolbar {
     display: flex;
