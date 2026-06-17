@@ -67,6 +67,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+// ========================================
+// MODAL MEDIA HTML GENERATION
+// ========================================
+
+function generateModalMediaHtml(mediaUrl, mediaIndex) {
+    const isVideo = isVideoUrl(mediaUrl);
+    const youtubeEmbed = getYouTubeEmbedUrl(mediaUrl);
+    const vimeoEmbed = getVimeoEmbedUrl(mediaUrl);
+
+    if (isVideo) {
+        if (youtubeEmbed) {
+            return `<iframe src="${youtubeEmbed}?autoplay=0&enablejsapi=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%; height:100%;"></iframe>`;
+        } else if (vimeoEmbed) {
+            return `<iframe src="${vimeoEmbed}?autoplay=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="width:100%; height:100%;"></iframe>`;
+        } else {
+            const savedProgress = getVideoProgress(mediaUrl);
+            return `<video controls data-url="${mediaUrl}" data-media-index="${mediaIndex}" data-saved-time="${savedProgress}" style="width:100%; height:100%;"><source src="${mediaUrl}" type="video/mp4">Your browser does not support video.</video>`;
+        }
+    } else {
+        return `<img src="${mediaUrl}" alt="Portfolio image" style="max-width:100%; max-height:100%; object-fit:contain;">`;
+    }
+}
+
     // ========================================
     // VIDEO PROGRESS TRACKING
     // ========================================
