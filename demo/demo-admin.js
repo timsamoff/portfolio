@@ -22,6 +22,9 @@ let inlineErrorTimeout = null;
 // Selection captured on toolbar mousedown
 let capturedSel = null;
 
+// Track the currently selected/editing project index
+let currentlySelectedIndex = null;
+
 // Description textarea
 const descTextarea = document.getElementById('form-description');
 const charCounter = document.getElementById('char-counter');
@@ -46,9 +49,11 @@ const multiFileInput = document.getElementById('multi-file-input');
 
 // Form elements
 const adminSearchInput = document.getElementById('admin-search-input');
+const adminFilterSelect = document.getElementById('admin-filter-select');
 const formTitle = document.getElementById('form-title');
 const formCategory = document.getElementById('form-category');
 const formTag = document.getElementById('form-tag');
+const formSelected = document.getElementById('form-selected');
 const formPublished = document.getElementById('form-published');
 const formImageAlign = document.getElementById('form-image-align');
 const categoryHelpText = document.getElementById('category-help-text');
@@ -81,7 +86,7 @@ if (window.history.scrollRestoration) {
 }
 
 // ========================
-// SMART QUOTES
+// SMART QUOTES - FIXED TO PRESERVE HTML
 // ========================
 function convertToSmartQuotes(text) {
     if (!text) return '';
@@ -277,7 +282,7 @@ function applyInlineFormat(tagName) {
     insertAtCursor(open, close, start, end, sel);
 }
 
-// LIVE BUTTON - wraps selected text in <live></live>
+// LIVE BUTTON
 function applyLiveTag() {
     if (!descTextarea || !capturedSel) return;
     const start = capturedSel.start;
@@ -893,6 +898,7 @@ if (addForm) {
             media: mediaToSave,
             description: getEditorContent(),
             imageAlign: formImageAlign.value,
+            selected: formSelected.checked,
             published: formPublished.checked
         };
         
@@ -909,6 +915,9 @@ function saveToLocalStorage() {
     localProjectCache = localProjectCache.map(project => {
         if (project.description) {
             project.description = cleanupMalformedLinks(project.description);
+        }
+        if (project.selected === undefined) {
+            project.selected = false;
         }
         return project;
     });
@@ -955,14 +964,111 @@ function loadData() {
         if (project.description) {
             project.description = cleanupMalformedLinks(project.description);
         }
+        if (project.selected === undefined) {
+            project.selected = false;
+        }
         return project;
     });
     
     updateCategoryDropdown();
+    updateCategoryFilterOptions();
     renderAdminView();
     showFloatingNotification(`✓ Loaded ${localProjectCache.length} projects from localStorage`);
 }
 
+// ========================
+// FILTER FUNCTIONS - NONDESTRUCTIVE
+// ========================
+
+function filterProjects(project) {
+    const searchTerm = currentSearchTerm.toLowerCase();
+    const filterValue = adminFilterSelect ? adminFilterSelect.value : 'all';
+    
+    const titleMatch = project.title.toLowerCase().includes(searchTerm);
+    if (!titleMatch) return false;
+    
+    if (filterValue === 'all') {
+        return true;
+    } else if (filterValue === 'published') {
+        return project.published !== false;
+    } else if (filterValue === 'unpublished') {
+        return project.published === false;
+    } else if (filterValue === 'selected') {
+        return project.selected === true;
+    } else if (filterValue === 'uncategorized') {
+        return !project.category || project.category === '';
+    } else if (filterValue.startsWith('cat_')) {
+        const category = filterValue.replace('cat_', '');
+        return project.category === category;
+    }
+    
+    return true;
+}
+
+function updateCategoryFilterOptions() {
+    if (!adminFilterSelect) return;
+    
+    const categories = [...new Set(localProjectCache.map(p => p.category).filter(c => c && c !== ''))];
+    
+    const separatorIndex = Array.from(adminFilterSelect.options).findIndex(opt => opt.value === 'category_separator');
+    if (separatorIndex !== -1) {
+        while (adminFilterSelect.options.length > separatorIndex + 1) {
+            adminFilterSelect.remove(separatorIndex + 1);
+        }
+    }
+    
+    categories.sort((a, b) => a.localeCompare(b));
+    categories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = `cat_${cat}`;
+        option.textContent = `📂 ${formatCategoryForDisplay(cat)}`;
+        adminFilterSelect.appendChild(option);
+    });
+}
+
+// ========================
+// REAPPLY SELECTION HIGHLIGHT
+// ========================
+function reapplySelectionHighlight() {
+    if (currentlySelectedIndex === null) return;
+    
+    const selectedRow = document.querySelector(`.sort-item[data-index="${currentlySelectedIndex}"]`);
+    if (selectedRow) {
+        document.querySelectorAll('.sort-item').forEach(el => {
+            el.classList.remove('editing');
+            el.style.borderColor = '';
+            el.style.borderWidth = '';
+            el.style.borderStyle = '';
+            el.style.boxShadow = '';
+            el.style.backgroundColor = '';
+        });
+        
+        selectedRow.classList.add('editing');
+        selectedRow.style.borderColor = 'var(--color-accent)';
+        selectedRow.style.borderWidth = '2px';
+        selectedRow.style.borderStyle = 'solid';
+        selectedRow.style.boxShadow = '0 0 0 2px rgba(229, 72, 77, 0.3)';
+        selectedRow.style.backgroundColor = 'var(--color-bg-secondary)';
+        
+        setTimeout(() => {
+            selectedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+    } else {
+        currentlySelectedIndex = null;
+        document.querySelectorAll('.sort-item').forEach(el => {
+            el.classList.remove('editing');
+            el.style.borderColor = '';
+            el.style.borderWidth = '';
+            el.style.borderStyle = '';
+            el.style.boxShadow = '';
+            el.style.backgroundColor = '';
+        });
+    }
+}
+
+// ========================
+// RENDER ADMIN VIEW - WITH WORKING DRAG & DROP
+// ========================
 function renderAdminView() {
     if (!sortableListElement) return;
     sortableListElement.innerHTML = '';
@@ -972,9 +1078,13 @@ function renderAdminView() {
         return;
     }
     
-    const filteredProjects = currentSearchTerm 
-        ? localProjectCache.filter(project => project.title.toLowerCase().includes(currentSearchTerm))
-        : [...localProjectCache];
+    // Filter for display only - localProjectCache remains unchanged
+    const filteredProjects = localProjectCache.filter(project => filterProjects(project));
+    
+    if (filteredProjects.length === 0) {
+        sortableListElement.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--color-text-muted);">No projects match the current filters.</div>';
+        return;
+    }
     
     filteredProjects.forEach((project) => {
         const originalIndex = localProjectCache.findIndex(p => p === project);
@@ -982,16 +1092,18 @@ function renderAdminView() {
         li.className = 'sort-item';
         li.draggable = true;
         li.setAttribute('data-index', originalIndex);
+        li.setAttribute('data-filtered-index', filteredProjects.indexOf(project));
         
         const mediaArray = project.media || [];
         const mediaPreview = getMediaPreview(mediaArray);
         const draftBadge = project.published === false ? ' [DRAFT]' : '';
+        const selectedBadge = project.selected === true ? ' <span class="selected-star">⭐</span>' : '';
         const category = project.category ? formatCategoryForDisplay(project.category) : 'Uncategorized';
         
         if (project.published === false) li.style.opacity = '0.5';
         li.innerHTML = `
             <div class="sort-content" style="flex-grow:1; cursor:pointer; min-width:0; overflow:hidden;">
-                <strong>${escapeHtml(project.title)}${draftBadge}</strong>
+                <strong>${escapeHtml(project.title)}${draftBadge}${selectedBadge}</strong>
                 <small style="color:var(--color-text-muted); margin-left:0.5rem;">(${escapeHtml(category)})</small>
                 <div style="font-size:0.7rem; color:var(--color-accent); margin-top:0.2rem;">${mediaPreview}</div>
             </div>
@@ -1007,6 +1119,7 @@ function renderAdminView() {
         
         li.querySelector('.sort-content').addEventListener('click', () => loadProjectIntoForm(originalIndex));
 
+        // Move functions use originalIndex directly from the full cache
         const moveProject = (fromIdx, toIdx) => {
             toIdx = Math.max(0, Math.min(localProjectCache.length - 1, toIdx));
             if (fromIdx === toIdx) return;
@@ -1030,13 +1143,62 @@ function renderAdminView() {
             }, () => {});
         });
 
-        li.addEventListener('dragstart', () => li.classList.add('dragging'));
+        li.addEventListener('dragstart', (e) => {
+            li.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', originalIndex);
+            draggedMediaIndexForReorder = originalIndex;
+        });
+        
         li.addEventListener('dragend', () => {
             li.classList.remove('dragging');
-            recalculateCacheOrder();
+            reorderFullCacheFromFilteredView();
         });
+        
         sortableListElement.appendChild(li);
     });
+    
+    setTimeout(reapplySelectionHighlight, 50);
+}
+
+// ========================
+// DRAG & DROP REORDERING - WORKS WITH FILTERS
+// ========================
+
+function reorderFullCacheFromFilteredView() {
+    const currentRows = [...sortableListElement.querySelectorAll('.sort-item')];
+    
+    const filteredIndicesInOrder = currentRows.map(row => parseInt(row.getAttribute('data-index')));
+    
+    const visibleProjects = currentRows.map(row => {
+        const idx = parseInt(row.getAttribute('data-index'));
+        return localProjectCache[idx];
+    });
+    
+    const visibleIndices = new Set(filteredIndicesInOrder);
+    const hiddenProjects = localProjectCache.filter((_, idx) => !visibleIndices.has(idx));
+    
+    const newCache = [...visibleProjects, ...hiddenProjects];
+    
+    let changed = false;
+    for (let i = 0; i < newCache.length; i++) {
+        if (newCache[i] !== localProjectCache[i]) {
+            changed = true;
+            break;
+        }
+    }
+    
+    if (changed) {
+        localProjectCache = newCache;
+        currentRows.forEach((row, i) => {
+            const project = visibleProjects[i];
+            const newIndex = localProjectCache.indexOf(project);
+            row.setAttribute('data-index', newIndex);
+        });
+        saveToLocalStorage();
+        showFloatingNotification('✓ Reordered projects');
+    }
+    
+    renderAdminView();
 }
 
 if (sortableListElement) {
@@ -1079,6 +1241,7 @@ function getCurrentFormData() {
         media: [...currentMediaArray].filter(m => m && m.trim()),
         description: getEditorContent(),
         imageAlign: formImageAlign.value,
+        selected: formSelected.checked,
         published: formPublished.checked
     };
 }
@@ -1115,7 +1278,7 @@ function setupAutoSaveListeners(enable) {
     const inputs = [formTitle, formCategory, formImageAlign];
     if (formTag) inputs.push(formTag);
     
-    const checkboxes = [formPublished];
+    const checkboxes = [formPublished, formSelected];
     const editor = descTextarea;
     
     inputs.forEach(input => {
@@ -1160,6 +1323,7 @@ function startNewProject() {
     
     isEditingMode = false;
     currentEditIndex = null;
+    currentlySelectedIndex = null;
     lastSavedFormData = null;
     
     formActionTitle.textContent = "New Portfolio Project";
@@ -1168,13 +1332,13 @@ function startNewProject() {
     formTitle.value = "";
     formCategory.value = "";
     if (formTag) formTag.value = "";
+    formSelected.checked = false;
     formPublished.checked = false;
     formImageAlign.value = "center";
     currentMediaArray = [];
     renderMediaBadges();
     setEditorContent("");
     
-    // Remove highlight from ALL items
     document.querySelectorAll('.sort-item').forEach(el => {
         el.classList.remove('editing');
         el.style.borderColor = '';
@@ -1198,6 +1362,7 @@ function loadProjectIntoForm(index) {
     
     isEditingMode = true;
     currentEditIndex = index;
+    currentlySelectedIndex = index;
     
     formActionTitle.textContent = `Editing: ${target.title}`;
     formEditIndex.value = index;
@@ -1205,6 +1370,7 @@ function loadProjectIntoForm(index) {
     formTitle.value = target.title;
     formCategory.value = target.category || "";
     if (formTag) formTag.value = target.cardHeading || target.tag || "";
+    formSelected.checked = target.selected === true;
     formPublished.checked = target.published !== false;
     formImageAlign.value = target.imageAlign || 'center';
     
@@ -1216,7 +1382,6 @@ function loadProjectIntoForm(index) {
     lastSavedFormData = getCurrentFormData();
     setupAutoSaveListeners(true);
     
-    // Remove highlight from ALL items first
     document.querySelectorAll('.sort-item').forEach(el => {
         el.classList.remove('editing');
         el.style.borderColor = '';
@@ -1226,7 +1391,6 @@ function loadProjectIntoForm(index) {
         el.style.backgroundColor = '';
     });
     
-    // Then highlight only the selected one
     const selectedRow = document.querySelector(`.sort-item[data-index="${index}"]`);
     if (selectedRow) {
         selectedRow.classList.add('editing');
@@ -1236,7 +1400,6 @@ function loadProjectIntoForm(index) {
         selectedRow.style.boxShadow = '0 0 0 2px rgba(229, 72, 77, 0.3)';
         selectedRow.style.backgroundColor = 'var(--color-bg-secondary)';
         
-        // Scroll the selected row into view
         setTimeout(() => {
             selectedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, 100);
@@ -1518,6 +1681,10 @@ if (processPasteBtn) processPasteBtn.addEventListener('click', () => {
     pasteArea.style.display = 'none';
 });
 
+// ========================
+// ADMIN SEARCH AND FILTER - NONDESTRUCTIVE
+// ========================
+
 if (adminSearchInput) {
     adminSearchInput.addEventListener('input', (e) => {
         currentSearchTerm = e.target.value.toLowerCase();
@@ -1526,6 +1693,7 @@ if (adminSearchInput) {
         renderAdminView();
     });
 }
+
 const adminSearchClear = document.getElementById('admin-search-clear');
 if (adminSearchClear) {
     adminSearchClear.addEventListener('click', () => {
@@ -1536,6 +1704,22 @@ if (adminSearchClear) {
         renderAdminView();
     });
 }
+
+// Admin filter dropdown
+if (adminFilterSelect) {
+    adminFilterSelect.value = 'all';
+    
+    adminFilterSelect.addEventListener('change', () => {
+        currentlySelectedIndex = null;
+        renderAdminView();
+    });
+}
+
+const originalUpdateCategoryDropdown = updateCategoryDropdown;
+updateCategoryDropdown = function() {
+    originalUpdateCategoryDropdown();
+    updateCategoryFilterOptions();
+};
 
 // ========================
 // CLEANUP LINKS BUTTON
@@ -1574,6 +1758,7 @@ if (resetDataBtn) {
                 localProjectCache = data.projects;
                 availableCategories = data.categories;
                 updateCategoryDropdown();
+                updateCategoryFilterOptions();
                 renderAdminView();
                 startNewProject();
                 showFloatingNotification('✓ Demo data reset successfully!');

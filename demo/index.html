@@ -179,9 +179,11 @@
 
     <!-- HERO SECTION -->
     <section class="hero-section">
+        <!-- Abstract Background -->
         <div class="hero-bg">
-            <svg viewBox="0 0 1200 600" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <svg viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
                 <defs>
+                    <!-- Flowing gradients -->
                     <linearGradient id="flow1" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" style="stop-color:var(--color-accent);stop-opacity:0" />
                         <stop offset="30%" style="stop-color:var(--color-accent);stop-opacity:0.25" />
@@ -207,13 +209,24 @@
                         </feMerge>
                     </filter>
                 </defs>
-                <path class="wave wave-1" d="M-100,200 C100,50 300,350 500,150 C700,-50 900,300 1100,100 C1200,0 1300,200 1400,150" fill="none" stroke="url(#flow1)" stroke-width="3" filter="url(#softGlow)"/>
-                <path class="wave wave-2" d="M-100,350 C150,200 350,500 550,250 C750,0 950,400 1150,200 C1250,100 1350,300 1450,250" fill="none" stroke="url(#flow2)" stroke-width="2" filter="url(#softGlow)"/>
-                <path class="wave wave-3" d="M-100,450 C200,300 400,600 600,350 C800,100 1000,450 1200,300 C1300,200 1400,400 1500,350" fill="none" stroke="var(--color-accent)" stroke-width="1.5" opacity="0.15"/>
+                
+                <!-- Flowing waves -->
+                <path class="wave wave-1" d="M-100,200 C100,50 300,350 500,150 C700,-50 900,300 1100,100 C1200,0 1300,200 1400,150" 
+                    fill="none" stroke="url(#flow1)" stroke-width="3" filter="url(#softGlow)"/>
+                
+                <path class="wave wave-2" d="M-100,350 C150,200 350,500 550,250 C750,0 950,400 1150,200 C1250,100 1350,300 1450,250" 
+                    fill="none" stroke="url(#flow2)" stroke-width="2" filter="url(#softGlow)"/>
+                
+                <path class="wave wave-3" d="M-100,450 C200,300 400,600 600,350 C800,100 1000,450 1200,300 C1300,200 1400,400 1500,350" 
+                    fill="none" stroke="var(--color-accent)" stroke-width="1.5" opacity="0.15"/>
+                
+                <!-- Floating orbs -->
                 <circle class="orb orb-1" cx="150" cy="120" r="30" fill="url(#glowOrb)" filter="url(#softGlow)"/>
                 <circle class="orb orb-2" cx="750" cy="380" r="45" fill="url(#glowOrb)" filter="url(#softGlow)"/>
                 <circle class="orb orb-3" cx="1050" cy="180" r="25" fill="url(#glowOrb)" filter="url(#softGlow)"/>
                 <circle class="orb orb-4" cx="350" cy="480" r="35" fill="url(#glowOrb)" filter="url(#softGlow)"/>
+                
+                <!-- Sparkle/dot particles -->
                 <circle class="particle particle-1" cx="200" cy="250" r="2" fill="var(--color-accent)" opacity="0.4"/>
                 <circle class="particle particle-2" cx="450" cy="150" r="1.5" fill="var(--color-accent)" opacity="0.3"/>
                 <circle class="particle particle-3" cx="700" cy="300" r="2.5" fill="var(--color-accent)" opacity="0.35"/>
@@ -227,16 +240,6 @@
                 <circle class="particle particle-11" cx="1000" cy="100" r="1.5" fill="var(--color-accent)" opacity="0.2"/>
                 <circle class="particle particle-12" cx="400" cy="300" r="2" fill="var(--color-accent)" opacity="0.25"/>
             </svg>
-        </div>
-        <div class="hero-container">
-            <h1 class="hero-title">Portfolio Demo</h1>
-            <p class="hero-subtitle">This is a fully functional demo of the portfolio management system. All project data is stored locally in your browser using localStorage, so you can add, edit, and rearrange projects without a server or database.<br>(Learn more about it at the Admin Panel.)</p>
-            <p class="hero-description">The demo includes a collection of sample projects with placeholder images and categories to showcase the portfolio grid, filtering, and media carousels. Use the Admin Panel to create new projects, publish or unpublish them, reorder the list via drag-and-drop, and see changes reflected immediately on the live site. Everything you do is saved automatically to your browser — refresh the page and your work persists. To start fresh, click the Reset Demo Data button in the Admin panel.</p>
-            <button class="scroll-btn" aria-label="Scroll to content">
-                <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-            </button>
         </div>
     </section>
 
