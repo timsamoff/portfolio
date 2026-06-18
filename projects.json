@@ -48,7 +48,7 @@
       "media/app/ep_02.webp",
       "https://www.youtube.com/watch?v=jDg9bKsPez0"
     ],
-    "description": "A cross-platform precision drill hole layout tool for effect pedal enclosures. Built with TypeScript, JS, CSS, and Electron.\n\n<live><a href=\"https://samoff.com/enclosure-pro/\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
+    "description": "A cross-platform precision drill hole layout tool for effect pedal enclosures. Built with TypeScript, JS, CSS, and Electron.\n\nOver 1,000 downloads and counting.\n\n<live><a href=\"https://samoff.com/enclosure-pro/\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
     "imageAlign": "center",
     "published": true
   },
