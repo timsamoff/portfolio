@@ -91,35 +91,40 @@ if (window.history.scrollRestoration) {
 function convertToSmartQuotes(text) {
     if (!text) return '';
     
+    // If no HTML tags, do simple conversion with proper opening/closing detection
     if (!/<[a-z][\s\S]*>/i.test(text)) {
-        let r = text.replace(/(^|[-—\s(\[{])"/g, '$1“');
-        r = r.replace(/"/g, '”');
-        r = r.replace(/(^|[-—\s(\[{])'/g, '$1‘');
-        r = r.replace(/'/g, '’');
-        return r;
+        return convertPlainTextToSmartQuotes(text);
     }
     
+    // Parse character by character, tracking HTML context
     let result = '';
     let inTag = false;
     let inAttribute = false;
     let attributeQuoteChar = '';
     
-    for (let i = 0; i < text.length; i++) {
-        const char = text[i];
+    // Build an array of characters with their positions for context analysis
+    const chars = text.split('');
+    
+    for (let i = 0; i < chars.length; i++) {
+        const char = chars[i];
+        const nextChar = chars[i + 1] || '';
+        const prevChar = chars[i - 1] || '';
         
-        if (char === '<') {
+        // HTML tag detection
+        if (char === '<' && !inTag) {
             inTag = true;
             inAttribute = false;
             result += char;
             continue;
         }
-        if (char === '>') {
+        if (char === '>' && inTag) {
             inTag = false;
             inAttribute = false;
             result += char;
             continue;
         }
         
+        // Inside HTML tags, preserve everything as-is
         if (inTag) {
             if (char === '"' || char === "'") {
                 if (!inAttribute) {
@@ -128,31 +133,123 @@ function convertToSmartQuotes(text) {
                 } else if (char === attributeQuoteChar) {
                     inAttribute = false;
                 }
-                result += char;
+                result += char; // Preserve quote
                 continue;
             }
             result += char;
             continue;
         }
         
-        if (!inTag && !inAttribute) {
-            if (char === '"') {
-                const prevChar = text[i-1] || '';
-                if (/[\s(\[{]/.test(prevChar) || i === 0) {
-                    result += '“';
-                } else {
-                    result += '”';
-                }
-            } else if (char === "'") {
-                const prevChar = text[i-1] || '';
-                if (/[\s(\[{]/.test(prevChar) || i === 0) {
-                    result += '‘';
-                } else {
-                    result += '’';
-                }
-            } else {
-                result += char;
-            }
+        // If inside an attribute value (after the quote), preserve
+        if (inAttribute) {
+            result += char;
+            continue;
+        }
+        
+        // === NOT IN HTML TAGS ===
+        // Convert quotes with proper context awareness
+        
+        if (char === '"') {
+            const isOpening = isOpeningQuote(text, i, result);
+            result += isOpening ? '“' : '”';
+        } else if (char === "'") {
+            result += convertApostrophe(text, i, result);
+        } else {
+            result += char;
+        }
+    }
+    
+    return result;
+}
+
+// Determine if a double quote is an opening quote
+function isOpeningQuote(text, position, processedResult) {
+    const prevChar = text[position - 1] || '';
+    const nextChar = text[position + 1] || '';
+    
+    const isStartOrAfterWhitespace = position === 0 || /[\s(\[{]/.test(prevChar);
+    
+    const nextIsWord = /\w/.test(nextChar);
+    
+    // Check if this might be a measurement or number (e.g., 5" or "5)
+    const prevIsNumber = /\d/.test(prevChar);
+    const nextIsNumber = /\d/.test(nextChar);
+    
+    // Don't convert if it's part of a measurement (like 5" or "5")
+    if (prevIsNumber || nextIsNumber) {
+        const beforePrev = text[position - 2] || '';
+        if (/\d/.test(prevChar) || (prevIsNumber && beforePrev !== '"')) {
+            return false; // Keep as straight quote for measurements
+        }
+    }
+    
+    if (isStartOrAfterWhitespace && nextIsWord) {
+        return true;
+    }
+    
+    if (position > 0 && /[>]/.test(prevChar) && nextIsWord) {
+        const beforeQuote = text.substring(Math.max(0, position - 20), position);
+        if (/[>]\s*$/.test(beforeQuote)) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+// Determine the correct apostrophe type
+function convertApostrophe(text, position, processedResult) {
+    const prevChar = text[position - 1] || '';
+    const nextChar = text[position + 1] || '';
+    const nextNextChar = text[position + 2] || '';
+    const prevPrevChar = text[position - 2] || '';
+    
+    if (/\w/.test(prevChar) && /\w/.test(nextChar)) {
+        return '’'; // Smart apostrophe for contractions
+    }
+    
+    // === POSSESSIVES WITH NO FOLLOWING WORD ===
+    if (/\w/.test(prevChar) && /\s/.test(nextChar)) {
+        return '’'; // Smart apostrophe for possessives
+    }
+    
+    // === POSSESSIVE PLURAL ===
+    // Pattern: word + s' + space (e.g., girls' room)
+    if (prevChar === 's' && /\w/.test(prevPrevChar) && /\s/.test(nextChar)) {
+        return '’'; // Smart apostrophe for plural possessives
+    }
+    
+    // === MEASUREMENTS / NUMBERS ===
+    if (/\d/.test(prevChar) || /\d/.test(nextChar)) {
+        return "'"; // Keep straight for measurements
+    }
+    
+    // === OPENING QUOTE (e.g., 'Twas, 'Tis) ===
+    const isStartOrAfterWhitespace = position === 0 || /[\s(\[{]/.test(prevChar);
+    if (isStartOrAfterWhitespace && /\w/.test(nextChar)) {
+        return '‘'; // Opening smart quote
+    }
+    
+    // === CLOSING QUOTE ===
+    if (/\w/.test(prevChar) && /[.,!?;:)\]}]\s*/.test(nextChar)) {
+        return '’'; // Closing smart quote
+    }
+    
+    return "'";
+}
+
+// Convert plain text (no HTML)
+function convertPlainTextToSmartQuotes(text) {
+    let result = '';
+    
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        
+        if (char === '"') {
+            const isOpening = isOpeningQuote(text, i, result);
+            result += isOpening ? '“' : '”';
+        } else if (char === "'") {
+            result += convertApostrophe(text, i, result);
         } else {
             result += char;
         }
