@@ -349,7 +349,13 @@ header.scrolled {
     padding: var(--hero-pad-top) 0 var(--hero-pad-bottom) 0;
     text-align: center;
     margin-bottom: 0;
-    background: var(--color-bg);
+    background: 
+        radial-gradient(
+            circle at 50% 20%,
+            rgba(229,72,77,.08),
+            transparent 50%
+        ),
+        var(--color-bg);
 }
 
 .hero-bg {
@@ -367,9 +373,18 @@ header.scrolled {
     width: 100%;
     height: 100%;
     display: block;
+    /* This ensures the SVG maintains its aspect ratio while filling the container */
+    object-fit: contain;
 }
 
-    /* ========================================
+@media (max-width: 768px) {
+    .hero-bg svg {
+        object-fit: cover;
+        /* object-fit: contain; */
+    }
+}
+
+/* ========================================
    WAVES
    ======================================== */
 .wave {
