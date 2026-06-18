@@ -1,11 +1,6 @@
 # Admin files - keep private
 ./admin.html
 # ./admin.js
-fix-links.js
-fix-json-quote.js
-convert-images-to-webp.js
-update-media-to-webp.js
-add-selected-work-to-json.js
 test.html
 
 # Backup files
@@ -39,14 +34,9 @@ yarn-error.log*
 .env.local
 .env.*.local
 
-<<<<<<< HEAD
 # Server files
-save-server.js
-server.js
-=======
-# Server files (if you want to exclude your save-server)
-save-server.js
->>>>>>> 06d540a1cb698d880b37645d34fd6c4aa9079e43
+# save-server.js
+# server.js
 node_modules/
 
 # Temporary files
