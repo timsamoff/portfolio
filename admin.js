@@ -77,6 +77,9 @@ const toolbarLive = document.getElementById('toolbar-live');
 let floatingNotification = null;
 let notificationTimeout = null;
 
+// Track the currently selected/editing project index
+let currentlySelectedIndex = null;
+
 if (window.history.scrollRestoration) {
     window.history.scrollRestoration = 'manual';
 }
@@ -1061,6 +1064,51 @@ function updateCategoryFilterOptions() {
 }
 
 // ========================
+// REAPPLY SELECTION HIGHLIGHT
+// ========================
+function reapplySelectionHighlight() {
+    if (currentlySelectedIndex === null) return;
+    
+    // Find the row with the matching index
+    const selectedRow = document.querySelector(`.sort-item[data-index="${currentlySelectedIndex}"]`);
+    if (selectedRow) {
+        // Remove highlight from all rows first
+        document.querySelectorAll('.sort-item').forEach(el => {
+            el.classList.remove('editing');
+            el.style.borderColor = '';
+            el.style.borderWidth = '';
+            el.style.borderStyle = '';
+            el.style.boxShadow = '';
+            el.style.backgroundColor = '';
+        });
+        
+        // Add highlight to the selected row
+        selectedRow.classList.add('editing');
+        selectedRow.style.borderColor = 'var(--color-accent)';
+        selectedRow.style.borderWidth = '2px';
+        selectedRow.style.borderStyle = 'solid';
+        selectedRow.style.boxShadow = '0 0 0 2px rgba(229, 72, 77, 0.3)';
+        selectedRow.style.backgroundColor = 'var(--color-bg-secondary)';
+        
+        // Scroll it into view
+        setTimeout(() => {
+            selectedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+    } else {
+        // The selected project might not be in the filtered view, clear the highlight
+        currentlySelectedIndex = null;
+        document.querySelectorAll('.sort-item').forEach(el => {
+            el.classList.remove('editing');
+            el.style.borderColor = '';
+            el.style.borderWidth = '';
+            el.style.borderStyle = '';
+            el.style.boxShadow = '';
+            el.style.backgroundColor = '';
+        });
+    }
+}
+
+// ========================
 // RENDER ADMIN VIEW - WITH WORKING DRAG & DROP
 // ========================
 function renderAdminView() {
@@ -1152,6 +1200,9 @@ function renderAdminView() {
         
         sortableListElement.appendChild(li);
     });
+    
+    // After rendering, reapply the selection highlight if there is one
+    setTimeout(reapplySelectionHighlight, 50);
 }
 
 // ========================
@@ -1327,6 +1378,7 @@ function startNewProject() {
     
     isEditingMode = false;
     currentEditIndex = null;
+    currentlySelectedIndex = null; // Clear the selection
     lastSavedFormData = null;
     
     formActionTitle.textContent = "New Portfolio Project";
@@ -1365,6 +1417,7 @@ function loadProjectIntoForm(index) {
     
     isEditingMode = true;
     currentEditIndex = index;
+    currentlySelectedIndex = index; // Store the selected index
     
     formActionTitle.textContent = `Editing: ${target.title}`;
     formEditIndex.value = index;
@@ -1384,6 +1437,7 @@ function loadProjectIntoForm(index) {
     lastSavedFormData = getCurrentFormData();
     setupAutoSaveListeners(true);
     
+    // Remove highlight from ALL items first
     document.querySelectorAll('.sort-item').forEach(el => {
         el.classList.remove('editing');
         el.style.borderColor = '';
@@ -1393,6 +1447,7 @@ function loadProjectIntoForm(index) {
         el.style.backgroundColor = '';
     });
     
+    // Then highlight only the selected one
     const selectedRow = document.querySelector(`.sort-item[data-index="${index}"]`);
     if (selectedRow) {
         selectedRow.classList.add('editing');
@@ -1709,6 +1764,8 @@ if (adminFilterSelect) {
     adminFilterSelect.value = 'all';
     
     adminFilterSelect.addEventListener('change', () => {
+        // Clear selection when filter changes
+        currentlySelectedIndex = null;
         renderAdminView();
     });
 }
