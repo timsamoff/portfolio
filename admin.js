@@ -46,9 +46,11 @@ const multiFileInput = document.getElementById('multi-file-input');
 
 // Form elements
 const adminSearchInput = document.getElementById('admin-search-input');
+const adminFilterSelect = document.getElementById('admin-filter-select');
 const formTitle = document.getElementById('form-title');
 const formCategory = document.getElementById('form-category');
-const formTag = document.getElementById('form-tag'); // May be null if removed from HTML
+const formTag = document.getElementById('form-tag');
+const formSelected = document.getElementById('form-selected');
 const formPublished = document.getElementById('form-published');
 const formImageAlign = document.getElementById('form-image-align');
 const categoryHelpText = document.getElementById('category-help-text');
@@ -85,7 +87,6 @@ if (window.history.scrollRestoration) {
 function convertToSmartQuotes(text) {
     if (!text) return '';
     
-    // If there are no HTML tags, just do the simple conversion
     if (!/<[a-z][\s\S]*>/i.test(text)) {
         let r = text.replace(/(^|[-—\s(\[{])"/g, '$1“');
         r = r.replace(/"/g, '”');
@@ -94,7 +95,6 @@ function convertToSmartQuotes(text) {
         return r;
     }
     
-    // For HTML content, only convert quotes outside of tags
     let result = '';
     let inTag = false;
     let inAttribute = false;
@@ -103,7 +103,6 @@ function convertToSmartQuotes(text) {
     for (let i = 0; i < text.length; i++) {
         const char = text[i];
         
-        // Toggle tag state
         if (char === '<') {
             inTag = true;
             inAttribute = false;
@@ -117,7 +116,6 @@ function convertToSmartQuotes(text) {
             continue;
         }
         
-        // Inside a tag, check if we're in an attribute value
         if (inTag) {
             if (char === '"' || char === "'") {
                 if (!inAttribute) {
@@ -126,17 +124,15 @@ function convertToSmartQuotes(text) {
                 } else if (char === attributeQuoteChar) {
                     inAttribute = false;
                 }
-                result += char; // Keep straight quotes in HTML attributes
+                result += char;
                 continue;
             }
             result += char;
             continue;
         }
         
-        // Only convert quotes when not inside a tag or attribute
         if (!inTag && !inAttribute) {
             if (char === '"') {
-                // Opening quote if preceded by space, start, or opening bracket
                 const prevChar = text[i-1] || '';
                 if (/[\s(\[{]/.test(prevChar) || i === 0) {
                     result += '“';
@@ -169,21 +165,17 @@ function cleanupMalformedLinks(html) {
     
     let cleaned = html;
     
-    // Fix href with smart quotes - pattern: href="”URL”" or href=”URL”
     cleaned = cleaned.replace(/href=["'”‘’]\s*["'”‘’]?(https?:\/\/[^"'\s>]+)["'”‘’]\s*["'”‘’]?/g, 'href="$1"');
     cleaned = cleaned.replace(/href=”(https?:\/\/[^”\s>]+)”/g, 'href="$1"');
     cleaned = cleaned.replace(/href=‘([^’\s>]+)’/g, 'href="$1"');
     
-    // Fix URLs that got double-wrapped (http://domain.com/"http://actual.com")
     cleaned = cleaned.replace(/href="https?:\/\/[^"]*?(https?:\/\/[^"]+)/g, function(match, captured) {
         return 'href="' + captured;
     });
     
-    // Remove any stray quotes that got URL-encoded
     cleaned = cleaned.replace(/%E2%80%9C/g, '').replace(/%E2%80%9D/g, '');
     cleaned = cleaned.replace(/%E2%80%98/g, '').replace(/%E2%80%99/g, '');
     
-    // Fix target and rel attributes with smart quotes
     cleaned = cleaned.replace(/target=”(_blank|_self|_parent|_top)”/g, 'target="$1"');
     cleaned = cleaned.replace(/target=‘(_blank|_self|_parent|_top)’/g, 'target="$1"');
     cleaned = cleaned.replace(/rel=”(noopener noreferrer|nofollow|noopener)”/g, 'rel="$1"');
@@ -203,7 +195,6 @@ function updateCharCount() {
     }
 }
 
-/** Insert or wrap text at the textarea cursor. */
 function insertAtCursor(before, after, selStart, selEnd, selText) {
     if (after === undefined) after = '';
     if (!descTextarea) return;
@@ -233,7 +224,6 @@ function getEditorContent() {
     return descTextarea ? descTextarea.value : '';
 }
 
-// Apply smart quotes to editor - FIXED to preserve HTML
 function applySmartQuotesToEditor() {
     if (!descTextarea) return;
     const pos = descTextarea.selectionStart;
@@ -254,8 +244,6 @@ function applyInlineFormat(tagName) {
     const val   = capturedSel.val;
     const sel   = capturedSel.sel;
 
-    // ── Toggle OFF case 1 ──────────────────────────────────────────────────
-    // Selection is exactly <tag>content</tag> — strip both tags
     if (sel.startsWith(open) && sel.endsWith(close) && sel.length > open.length + close.length) {
         const inner = sel.slice(open.length, sel.length - close.length);
         descTextarea.setRangeText(inner, start, end, 'select');
@@ -265,8 +253,6 @@ function applyInlineFormat(tagName) {
         return;
     }
 
-    // ── Toggle OFF case 2 ──────────────────────────────────────────────────
-    // Tags are immediately outside the selection: <tag>[sel]</tag>
     const beforeSel = val.slice(0, start);
     const afterSel  = val.slice(end);
     if (beforeSel.endsWith(open) && afterSel.startsWith(close)) {
@@ -279,8 +265,6 @@ function applyInlineFormat(tagName) {
         return;
     }
 
-    // ── Toggle OFF case 3 ──────────────────────────────────────────────────
-    // Selection is somewhere inside an enclosing <tag>…[sel]…</tag>.
     const openIdx  = val.lastIndexOf(open, start);
     const closeIdx = val.indexOf(close, end);
     if (openIdx !== -1 && closeIdx !== -1) {
@@ -301,26 +285,22 @@ function applyInlineFormat(tagName) {
         }
     }
 
-    // ── Toggle ON ─────────────────────────────────────────────────────────
     insertAtCursor(open, close, start, end, sel);
 }
 
-// LIVE BUTTON - wraps selected text in <live></live>
 function applyLiveTag() {
     if (!descTextarea || !capturedSel) return;
     const start = capturedSel.start;
     const end   = capturedSel.end;
     const sel   = capturedSel.sel;
     
-    // If no text selected, insert placeholder
     if (!sel || sel.trim() === '') {
         insertAtCursor('<live>', '</live>', start, end, sel);
         return;
     }
     
-    // Toggle OFF if already wrapped
     if (sel.startsWith('<live>') && sel.endsWith('</live>')) {
-        const inner = sel.slice(6, sel.length - 7); // <live> is 6 chars, </live> is 7 chars
+        const inner = sel.slice(6, sel.length - 7);
         descTextarea.setRangeText(inner, start, end, 'select');
         descTextarea.focus();
         updateCharCount();
@@ -328,7 +308,6 @@ function applyLiveTag() {
         return;
     }
     
-    // Check if tags are immediately outside selection
     const beforeSel = capturedSel.val.slice(0, start);
     const afterSel = capturedSel.val.slice(end);
     if (beforeSel.endsWith('<live>') && afterSel.startsWith('</live>')) {
@@ -341,26 +320,22 @@ function applyLiveTag() {
         return;
     }
     
-    // Wrap selection
     insertAtCursor('<live>', '</live>', start, end, sel);
 }
 
-// AWARD BUTTON - wraps selected text in <award></award>
 function applyAwardTag() {
     if (!descTextarea || !capturedSel) return;
     const start = capturedSel.start;
     const end   = capturedSel.end;
     const sel   = capturedSel.sel;
     
-    // If no text selected, insert placeholder
     if (!sel || sel.trim() === '') {
         insertAtCursor('<award>', '</award>', start, end, sel);
         return;
     }
     
-    // Toggle OFF if already wrapped
     if (sel.startsWith('<award>') && sel.endsWith('</award>')) {
-        const inner = sel.slice(7, sel.length - 8); // <award> is 7 chars, </award> is 8 chars
+        const inner = sel.slice(7, sel.length - 8);
         descTextarea.setRangeText(inner, start, end, 'select');
         descTextarea.focus();
         updateCharCount();
@@ -368,7 +343,6 @@ function applyAwardTag() {
         return;
     }
     
-    // Check if tags are immediately outside selection
     const beforeSel = capturedSel.val.slice(0, start);
     const afterSel = capturedSel.val.slice(end);
     if (beforeSel.endsWith('<award>') && afterSel.startsWith('</award>')) {
@@ -381,7 +355,6 @@ function applyAwardTag() {
         return;
     }
     
-    // Wrap selection
     insertAtCursor('<award>', '</award>', start, end, sel);
 }
 
@@ -411,7 +384,6 @@ function insertLink() {
     const end   = capturedSel.end;
     const sel   = capturedSel.sel;
 
-    // Build and show the URL modal
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'link-modal-overlay';
     modalOverlay.style.cssText = `
@@ -445,14 +417,12 @@ function insertLink() {
         let url = urlInput.value.trim();
         if (!url) { closeModal(); return; }
         
-        // Only add https:// if the URL looks like a domain without protocol
         if (!url.startsWith('http://') && !url.startsWith('https://') && 
             !url.startsWith('/') && !url.startsWith('./') && !url.startsWith('../') && 
             !url.startsWith('#') && !url.startsWith('mailto:') && !url.startsWith('tel:')) {
             url = 'https://' + url;
         }
         
-        // Use straight quotes (") not smart quotes
         const tag = '<a href="' + url + '" target="_blank" rel="noopener noreferrer">';
         insertAtCursor(tag, '</a>', start, end, sel);
         closeModal();
@@ -597,13 +567,11 @@ function showConfirmModal(message, onConfirm, onCancel) {
 }
 
 function showEditMediaModal(currentUrl, index) {
-    // Remove any existing modal
     if (activeModal) {
         activeModal.remove();
         activeModal = null;
     }
     
-    // Create overlay
     const modalOverlay = document.createElement('div');
     modalOverlay.style.cssText = `
         position: fixed;
@@ -620,7 +588,6 @@ function showEditMediaModal(currentUrl, index) {
         justify-content: center;
     `;
     
-    // Create content
     const modalContent = document.createElement('div');
     modalContent.style.cssText = `
         background: var(--color-card);
@@ -678,7 +645,6 @@ function showEditMediaModal(currentUrl, index) {
     input.focus();
     input.select();
     
-    // Add hover effects for buttons
     const saveBtn = modalContent.querySelector('#edit-media-save');
     const cancelBtn = modalContent.querySelector('#edit-media-cancel');
     
@@ -938,16 +904,15 @@ if (addForm) {
     addForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // Make sure currentMediaArray is properly captured
         const mediaToSave = [...currentMediaArray].filter(m => m && m.trim());
         
         const projectData = {
             title: formTitle.value,
             category: formCategory.value,
-            // cardHeading: formTag ? formTag.value : undefined,
             media: mediaToSave,
             description: getEditorContent(),
             imageAlign: formImageAlign.value,
+            selected: formSelected.checked,
             published: formPublished.checked
         };
         
@@ -962,8 +927,13 @@ if (addForm) {
 }
 
 function saveToServer() {
-    // Clean up any malformed links before saving
-    localProjectCache = localProjectCache.map(project => {
+    if (localProjectCache.length === 0) {
+        console.warn('⚠️ Attempting to save empty project cache!');
+        showFloatingNotification('Warning: No projects to save!', false);
+        return;
+    }
+    
+    const projectsToSave = localProjectCache.map(project => {
         if (project.description) {
             project.description = cleanupMalformedLinks(project.description);
         }
@@ -973,7 +943,7 @@ function saveToServer() {
     fetch('http://localhost:3001/api/save-projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(localProjectCache)
+        body: JSON.stringify(projectsToSave)
     })
     .then(res => res.json())
     .then(res => {
@@ -1010,10 +980,12 @@ function loadData() {
     fetch('projects.json')
         .then(res => res.json())
         .then(data => {
-            // Clean up any malformed links in the loaded data
             data = data.map(project => {
                 if (project.description) {
                     project.description = cleanupMalformedLinks(project.description);
+                }
+                if (project.selected === undefined) {
+                    project.selected = false;
                 }
                 return project;
             });
@@ -1026,6 +998,8 @@ function loadData() {
                 updateCategoryDropdown();
             }
             
+            updateCategoryFilterOptions();
+            
             renderAdminView();
             showFloatingNotification(`✓ Loaded ${localProjectCache.length} projects`);
         })
@@ -1036,6 +1010,59 @@ function loadData() {
         });
 }
 
+// ========================
+// FILTER FUNCTIONS - NONDESTRUCTIVE
+// ========================
+
+function filterProjects(project) {
+    const searchTerm = currentSearchTerm.toLowerCase();
+    const filterValue = adminFilterSelect ? adminFilterSelect.value : 'all';
+    
+    const titleMatch = project.title.toLowerCase().includes(searchTerm);
+    if (!titleMatch) return false;
+    
+    if (filterValue === 'all') {
+        return true;
+    } else if (filterValue === 'published') {
+        return project.published !== false;
+    } else if (filterValue === 'unpublished') {
+        return project.published === false;
+    } else if (filterValue === 'selected') {
+        return project.selected === true;
+    } else if (filterValue === 'uncategorized') {
+        return !project.category || project.category === '';
+    } else if (filterValue.startsWith('cat_')) {
+        const category = filterValue.replace('cat_', '');
+        return project.category === category;
+    }
+    
+    return true;
+}
+
+function updateCategoryFilterOptions() {
+    if (!adminFilterSelect) return;
+    
+    const categories = [...new Set(localProjectCache.map(p => p.category).filter(c => c && c !== ''))];
+    
+    const separatorIndex = Array.from(adminFilterSelect.options).findIndex(opt => opt.value === 'category_separator');
+    if (separatorIndex !== -1) {
+        while (adminFilterSelect.options.length > separatorIndex + 1) {
+            adminFilterSelect.remove(separatorIndex + 1);
+        }
+    }
+    
+    categories.sort((a, b) => a.localeCompare(b));
+    categories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = `cat_${cat}`;
+        option.textContent = `📂 ${formatCategoryForDisplay(cat)}`;
+        adminFilterSelect.appendChild(option);
+    });
+}
+
+// ========================
+// RENDER ADMIN VIEW - WITH WORKING DRAG & DROP
+// ========================
 function renderAdminView() {
     if (!sortableListElement) return;
     sortableListElement.innerHTML = '';
@@ -1045,9 +1072,13 @@ function renderAdminView() {
         return;
     }
     
-    const filteredProjects = currentSearchTerm 
-        ? localProjectCache.filter(project => project.title.toLowerCase().includes(currentSearchTerm))
-        : [...localProjectCache];
+    // Filter for display only - localProjectCache remains unchanged
+    const filteredProjects = localProjectCache.filter(project => filterProjects(project));
+    
+    if (filteredProjects.length === 0) {
+        sortableListElement.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--color-text-muted);">No projects match the current filters.</div>';
+        return;
+    }
     
     filteredProjects.forEach((project) => {
         const originalIndex = localProjectCache.findIndex(p => p === project);
@@ -1055,16 +1086,18 @@ function renderAdminView() {
         li.className = 'sort-item';
         li.draggable = true;
         li.setAttribute('data-index', originalIndex);
+        li.setAttribute('data-filtered-index', filteredProjects.indexOf(project));
         
         const mediaArray = project.media || [];
         const mediaPreview = getMediaPreview(mediaArray);
         const draftBadge = project.published === false ? ' [DRAFT]' : '';
+        const selectedBadge = project.selected === true ? ' <span class="selected-star">⭐</span>' : '';
         const category = project.category ? formatCategoryForDisplay(project.category) : 'Uncategorized';
         
         if (project.published === false) li.style.opacity = '0.5';
         li.innerHTML = `
             <div class="sort-content" style="flex-grow:1; cursor:pointer; min-width:0; overflow:hidden;">
-                <strong>${escapeHtml(project.title)}${draftBadge}</strong>
+                <strong>${escapeHtml(project.title)}${draftBadge}${selectedBadge}</strong>
                 <small style="color:var(--color-text-muted); margin-left:0.5rem;">(${escapeHtml(category)})</small>
                 <div style="font-size:0.7rem; color:var(--color-accent); margin-top:0.2rem;">${mediaPreview}</div>
             </div>
@@ -1080,6 +1113,7 @@ function renderAdminView() {
         
         li.querySelector('.sort-content').addEventListener('click', () => loadProjectIntoForm(originalIndex));
 
+        // Move functions use originalIndex directly from the full cache
         const moveProject = (fromIdx, toIdx) => {
             toIdx = Math.max(0, Math.min(localProjectCache.length - 1, toIdx));
             if (fromIdx === toIdx) return;
@@ -1103,13 +1137,70 @@ function renderAdminView() {
             }, () => {});
         });
 
-        li.addEventListener('dragstart', () => li.classList.add('dragging'));
+        li.addEventListener('dragstart', (e) => {
+            li.classList.add('dragging');
+            // Store both the original index and the filtered position
+            e.dataTransfer.setData('text/plain', originalIndex);
+            draggedMediaIndexForReorder = originalIndex;
+        });
+        
         li.addEventListener('dragend', () => {
             li.classList.remove('dragging');
-            recalculateCacheOrder();
+            // After drag ends, reorder the full cache based on the new visual order
+            reorderFullCacheFromFilteredView();
         });
+        
         sortableListElement.appendChild(li);
     });
+}
+
+// ========================
+// DRAG & DROP REORDERING - WORKS WITH FILTERS
+// ========================
+
+// This function reorders the FULL cache based on the visual order of the filtered view
+function reorderFullCacheFromFilteredView() {
+    const currentRows = [...sortableListElement.querySelectorAll('.sort-item')];
+    
+    // Get the current filtered order (list of original indices in visual order)
+    const filteredIndicesInOrder = currentRows.map(row => parseInt(row.getAttribute('data-index')));
+    
+    // Get all projects that are currently visible (filtered)
+    const visibleProjects = currentRows.map(row => {
+        const idx = parseInt(row.getAttribute('data-index'));
+        return localProjectCache[idx];
+    });
+    
+    // Get all projects that are NOT visible (filtered out)
+    const visibleIndices = new Set(filteredIndicesInOrder);
+    const hiddenProjects = localProjectCache.filter((_, idx) => !visibleIndices.has(idx));
+    
+    // Rebuild the cache: visible projects in their new order, then hidden projects
+    const newCache = [...visibleProjects, ...hiddenProjects];
+    
+    // Check if the order actually changed
+    let changed = false;
+    for (let i = 0; i < newCache.length; i++) {
+        if (newCache[i] !== localProjectCache[i]) {
+            changed = true;
+            break;
+        }
+    }
+    
+    if (changed) {
+        localProjectCache = newCache;
+        // Update the data-index attributes to match the new cache positions
+        currentRows.forEach((row, i) => {
+            const project = visibleProjects[i];
+            const newIndex = localProjectCache.indexOf(project);
+            row.setAttribute('data-index', newIndex);
+        });
+        saveToServer();
+        showFloatingNotification('✓ Reordered projects');
+    }
+    
+    // Re-render to update the view
+    renderAdminView();
 }
 
 if (sortableListElement) {
@@ -1137,6 +1228,7 @@ function getDragAfterElement(container, y) {
     }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
+// Legacy recalculate function - kept for compatibility but no longer used for drag/drop
 function recalculateCacheOrder() {
     const currentRows = [...sortableListElement.querySelectorAll('.sort-item')];
     localProjectCache = currentRows.map(row => localProjectCache[row.getAttribute('data-index')]);
@@ -1152,6 +1244,7 @@ function getCurrentFormData() {
         media: [...currentMediaArray].filter(m => m && m.trim()),
         description: getEditorContent(),
         imageAlign: formImageAlign.value,
+        selected: formSelected.checked,
         published: formPublished.checked
     };
 }
@@ -1186,10 +1279,9 @@ let autoSaveListenersActive = false;
 
 function setupAutoSaveListeners(enable) {
     const inputs = [formTitle, formCategory, formImageAlign];
-    // Only include formTag if it exists
     if (formTag) inputs.push(formTag);
     
-    const checkboxes = [formPublished];
+    const checkboxes = [formPublished, formSelected];
     const editor = descTextarea;
     
     inputs.forEach(input => {
@@ -1243,13 +1335,13 @@ function startNewProject() {
     formTitle.value = "";
     formCategory.value = "";
     if (formTag) formTag.value = "";
+    formSelected.checked = false;
     formPublished.checked = false;
     formImageAlign.value = "center";
     currentMediaArray = [];
     renderMediaBadges();
     setEditorContent("");
     
-    // Remove highlight from ALL items
     document.querySelectorAll('.sort-item').forEach(el => {
         el.classList.remove('editing');
         el.style.borderColor = '';
@@ -1280,6 +1372,7 @@ function loadProjectIntoForm(index) {
     formTitle.value = target.title;
     formCategory.value = target.category || "";
     if (formTag) formTag.value = target.cardHeading || target.tag || "";
+    formSelected.checked = target.selected === true;
     formPublished.checked = target.published !== false;
     formImageAlign.value = target.imageAlign || 'center';
     
@@ -1291,7 +1384,6 @@ function loadProjectIntoForm(index) {
     lastSavedFormData = getCurrentFormData();
     setupAutoSaveListeners(true);
     
-    // Remove highlight from ALL items first
     document.querySelectorAll('.sort-item').forEach(el => {
         el.classList.remove('editing');
         el.style.borderColor = '';
@@ -1301,7 +1393,6 @@ function loadProjectIntoForm(index) {
         el.style.backgroundColor = '';
     });
     
-    // Then highlight only the selected one
     const selectedRow = document.querySelector(`.sort-item[data-index="${index}"]`);
     if (selectedRow) {
         selectedRow.classList.add('editing');
@@ -1311,7 +1402,6 @@ function loadProjectIntoForm(index) {
         selectedRow.style.boxShadow = '0 0 0 2px rgba(229, 72, 77, 0.3)';
         selectedRow.style.backgroundColor = 'var(--color-bg-secondary)';
         
-        // Scroll the selected row into view
         setTimeout(() => {
             selectedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, 100);
@@ -1472,7 +1562,6 @@ function handleAddButtonClick() {
 function showDirectoryPrompt(files) {
     if (!files || files.length === 0) return;
     
-    // Convert FileList to array for easier handling
     const fileArray = Array.from(files);
     
     const overlay = document.createElement('div');
@@ -1500,7 +1589,6 @@ function showDirectoryPrompt(files) {
     const input = overlay.querySelector('#dir-prompt-input');
     const preview = overlay.querySelector('#dir-prompt-preview');
     
-    // Update preview on input
     input.addEventListener('input', () => {
         const val = input.value.trim();
         preview.textContent = val ? val + '/' : 'filename';
@@ -1520,17 +1608,12 @@ function showDirectoryPrompt(files) {
         let added = 0;
         let skipped = 0;
         
-        // Process each file
         fileArray.forEach(f => {
-            // Sanitize the filename - replace spaces and special chars
             let filename = f.name.replace(/[#?&]/g, '_').replace(/\s+/g, '_');
-            // Also replace any other problematic characters
             filename = filename.replace(/[\(\)\[\]\{\}]/g, '_');
             
             const fullPath = prefix + filename;
             
-            // Check if this exact path already exists in the media array
-            // Use a case-insensitive comparison to avoid duplicates with different casing
             const exists = currentMediaArray.some(existing => 
                 existing.toLowerCase() === fullPath.toLowerCase()
             );
@@ -1538,10 +1621,8 @@ function showDirectoryPrompt(files) {
             if (!exists) {
                 currentMediaArray.push(fullPath);
                 added++;
-                console.log('Added media:', fullPath); // Debug log
             } else {
                 skipped++;
-                console.log('Skipped duplicate:', fullPath); // Debug log
             }
         });
         
@@ -1549,7 +1630,6 @@ function showDirectoryPrompt(files) {
         
         if (added > 0) {
             renderMediaBadges();
-            // Trigger auto-save after adding media
             if (isEditingMode) {
                 debouncedAutoSave();
             }
@@ -1601,6 +1681,10 @@ if (processPasteBtn) processPasteBtn.addEventListener('click', () => {
     pasteArea.style.display = 'none';
 });
 
+// ========================
+// ADMIN SEARCH AND FILTER - NONDESTRUCTIVE
+// ========================
+
 if (adminSearchInput) {
     adminSearchInput.addEventListener('input', (e) => {
         currentSearchTerm = e.target.value.toLowerCase();
@@ -1609,6 +1693,7 @@ if (adminSearchInput) {
         renderAdminView();
     });
 }
+
 const adminSearchClear = document.getElementById('admin-search-clear');
 if (adminSearchClear) {
     adminSearchClear.addEventListener('click', () => {
@@ -1619,6 +1704,20 @@ if (adminSearchClear) {
         renderAdminView();
     });
 }
+
+if (adminFilterSelect) {
+    adminFilterSelect.value = 'all';
+    
+    adminFilterSelect.addEventListener('change', () => {
+        renderAdminView();
+    });
+}
+
+const originalUpdateCategoryDropdown = updateCategoryDropdown;
+updateCategoryDropdown = function() {
+    originalUpdateCategoryDropdown();
+    updateCategoryFilterOptions();
+};
 
 // ========================
 // CLEANUP LINKS BUTTON
@@ -1659,7 +1758,6 @@ function captureTextareaSel(e) {
     };
 }
 
-// Add award button to the mousedown capture
 [toolbarBold, toolbarItalic, toolbarUl, toolbarLink, toolbarAward, toolbarLive].forEach(btn => {
     if (btn) btn.addEventListener('mousedown', captureTextareaSel);
 });

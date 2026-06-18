@@ -28,7 +28,7 @@
     --hero-pad-bottom: 2.5rem;
 
     /* Hero Height */
-    --hero-pad-top: 4rem;
+    --hero-pad-top: 5rem;
     --hero-pad-bottom: 6rem;
     
     /* Animations */
@@ -994,30 +994,26 @@ header.scrolled {
 /* ========================================
    LAZY LOADING w/ ANIMATED SHIMMER
    ======================================== */
-.lazy-image {
-    opacity: 0;
-    transition: opacity 0.5s ease;
-    background: var(--color-bg-secondary);
+
+/* Shimmer wrapper — this is where pseudo-elements live.
+   Replaced elements (img, video) cannot render ::before/::after,
+   so the wrapper div carries the animation instead. */
+.thumb-shimmer {
     position: relative;
-    overflow: hidden;
-    display: block;
     width: 100%;
     height: 100%;
+    overflow: hidden;
+    background: var(--color-bg-secondary);
+    display: block;
 }
 
-/* Create a shimmer overlay that sits on top of the image */
-.lazy-image.loading {
-    opacity: 1 !important;
-    background: var(--color-bg-secondary) !important;
-}
-
-/* Shimmer effect as a pseudo-element on image */
-.lazy-image.loading::before {
-    content: '' !important;
+/* Loading state: animate the wrapper */
+.thumb-shimmer.loading::before {
+    content: '';
     position: absolute;
     top: 0;
-    left: -200%;
-    width: 200%;
+    left: 0;
+    width: 100%;
     height: 100%;
     background: linear-gradient(
         90deg,
@@ -1026,172 +1022,73 @@ header.scrolled {
         var(--shimmer-mid) 60%,
         var(--color-transparent) 100%
     );
+    background-size: 200% 100%;
     animation: shimmer 1.5s ease-in-out infinite;
-    z-index: 10 !important;
+    z-index: 2;
     pointer-events: none;
-    display: block !important;
 }
 
-/* Background pulse behind image */
-.lazy-image.loading::after {
-    content: '' !important;
+.thumb-shimmer.loading::after {
+    content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     background: var(--shimmer-bg-pulse);
     animation: pulseBg 1.2s ease-in-out infinite;
-    z-index: 1 !important;
+    z-index: 1;
     pointer-events: none;
-    display: block !important;
 }
 
 @keyframes pulseBg {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.5;
-    }
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.5; }
 }
 
 @keyframes shimmer {
-    0% {
-        transform: translateX(-100%);
-    }
-    100% {
-        transform: translateX(300%);
-    }
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
 
-/* Dim image while loading */
-.lazy-image.loading img,
-.lazy-image.loading video {
-    opacity: 0.15 !important;
-    filter: blur(4px) !important;
+/* Dim the media element while loading */
+.thumb-shimmer.loading .thumb-media {
+    opacity: 0.08;
+    filter: blur(4px);
     transform: scale(1.01);
-    transition: all 0.3s ease;
+    transition: none;
     position: relative;
-    z-index: 0 !important;
+    z-index: 0;
 }
 
-/* Loaded state - remove all shimmer effects */
-.lazy-image.loaded {
-    opacity: 1 !important;
-    background: transparent !important;
-}
-
-.lazy-image.loaded img,
-.lazy-image.loaded video {
-    opacity: 1 !important;
-    filter: blur(0) !important;
-    transform: scale(1);
-}
-
-.lazy-image.loaded::before,
-.lazy-image.loaded::after {
-    display: none !important;
-    animation: none !important;
-    content: none !important;
-}
-
-/* Error state */
-.lazy-image.error {
-    opacity: 0.3;
-    background: var(--color-bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.lazy-image.error::before,
-.lazy-image.error::after {
-    display: none !important;
-    content: none !important;
-}
-
-/* Swiper slide lazy images */
-.swiper-slide .lazy-image {
+/* Media fills the wrapper */
+.thumb-media {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-/* ========================================
-   VIMEO & YOUTUBE THUMBNAIL SHIMMER FIX
-   ======================================== */
-/* Target the container, not the image itself */
-.item-image:has(.vimeo-thumb.loading)::before,
-.item-image:has(img[data-src*="youtube"].loading)::before,
-.item-image:has(img[data-src*="vimeo"].loading)::before {
-    content: '' !important;
-    position: absolute;
-    top: 0;
-    left: -200%;
-    width: 200%;
-    height: 100%;
-    background: linear-gradient(
-        90deg,
-        var(--color-transparent) 0%,
-        var(--shimmer-mid) 40%,
-        var(--shimmer-mid) 60%,
-        var(--color-transparent) 100%
-    );
-    animation: shimmer 1.5s ease-in-out infinite;
-    z-index: 10 !important;
-    pointer-events: none;
-    display: block !important;
+/* Loaded: kill shimmer, reveal media */
+.thumb-shimmer.loaded::before,
+.thumb-shimmer.loaded::after {
+    display: none;
+    content: none;
 }
 
-.item-image:has(.vimeo-thumb.loading)::after,
-.item-image:has(img[data-src*="youtube"].loading)::after,
-.item-image:has(img[data-src*="vimeo"].loading)::after {
-    content: '' !important;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: var(--shimmer-bg-pulse);
-    animation: pulseBg 1.2s ease-in-out infinite;
-    z-index: 1 !important;
-    pointer-events: none;
-    display: block !important;
+.thumb-shimmer.loaded .thumb-media {
+    opacity: 1;
+    filter: none;
+    transform: scale(1);
+    transition: opacity 0.35s ease, filter 0.35s ease, transform 0.35s ease;
 }
 
-/* Dim thumbnail while loading */
-.item-image:has(.vimeo-thumb.loading) img,
-.item-image:has(img[data-src*="youtube"].loading) img,
-.item-image:has(img[data-src*="vimeo"].loading) img {
-    opacity: 0.15 !important;
-    filter: blur(4px) !important;
-    transform: scale(1.01);
-    transition: all 0.3s ease;
+/* Error state */
+.thumb-shimmer.error::before,
+.thumb-shimmer.error::after {
+    display: none;
+    content: none;
 }
 
-/* Remove shimmer when loaded */
-.item-image:has(.vimeo-thumb.loaded)::before,
-.item-image:has(.vimeo-thumb.loaded)::after,
-.item-image:has(img[data-src*="youtube"].loaded)::before,
-.item-image:has(img[data-src*="youtube"].loaded)::after,
-.item-image:has(img[data-src*="vimeo"].loaded)::before,
-.item-image:has(img[data-src*="vimeo"].loaded)::after {
-    display: none !important;
-    animation: none !important;
-    content: none !important;
-}
-
-/* Ensure container has proper positioning */
-.item-image {
-    position: relative;
-    height: 220px;
-    min-height: 220px;
-    max-height: 220px;
-    overflow: hidden;
-    background: var(--color-bg-secondary);
-    border-radius: 20px 20px 0 0;
-    flex-shrink: 0;
+.thumb-shimmer.error .thumb-media {
+    opacity: 0.2;
 }
 
 /* ========================================
@@ -1439,8 +1336,7 @@ header.scrolled {
     align-items: start;
 }
 
-/* Sticky wrapper — this is what sticks and scrolls.
-   The card inside stays full, unclipped, no inner scrollbar. */
+/* Sticky wrapper */
 .admin-form-sticky {
     position: sticky;
     top: 80px;
@@ -1449,7 +1345,6 @@ header.scrolled {
     overflow-x: hidden;
     scrollbar-width: thin;
     scrollbar-color: var(--color-border) transparent;
-    /* Pull the scrollbar flush to the column edge, outside the card */
     padding-right: 4px;
     margin-right: -4px;
 }
@@ -1475,7 +1370,7 @@ header.scrolled {
     background: var(--color-accent);
 }
 
-/* The card itself — no overflow, no scrollbar, fully rounded */
+/* The card */
 .admin-form {
     background: var(--color-card);
     border: 1px solid var(--color-border);
@@ -1490,7 +1385,7 @@ header.scrolled {
 /* Editing state for sort items */
 .sort-item.editing {
     border-color: var(--color-accent) !important;
-    border-width: 2px !important;
+    border-width: 1px !important;
     border-style: solid !important;
     box-shadow: 0 0 0 2px rgba(229, 72, 77, 0.2) !important;
     background: var(--color-bg-secondary) !important;
@@ -1628,7 +1523,7 @@ header.scrolled {
 .custom-checkbox-box {
     width: 16px;
     height: 16px;
-    border: 2px solid var(--color-border);
+    border: 1px solid var(--color-accent);
     border-radius: 6px;
     display: inline-block;
     position: relative;
@@ -1675,6 +1570,13 @@ header.scrolled {
         padding-right: 0;
         margin-right: 0;
     }
+}
+
+.sort-item .selected-star {
+    font-size: 0.5rem;
+    display: inline-block;
+    margin-left: 0.1rem;
+    vertical-align: middle;
 }
 
 /* ========================================
@@ -2078,6 +1980,25 @@ header.scrolled {
 .rich-text-description a {
     color: var(--color-accent);
     text-decoration: underline;
+}
+
+/* ========================================
+   SELECTED WORK FILTER BUTTON
+   ======================================== */
+.filter-btn-selected {
+    border-color: var(--color-accent) !important;
+    color: var(--color-accent) !important;
+    background: var(--color-filter-bg) !important;
+}
+
+.filter-btn-selected.active {
+    background: var(--color-accent) !important;
+    border-color: var(--color-accent) !important;
+    color: var(--color-white) !important;
+}
+
+.filter-btn-selected:hover:not(.active) {
+    background: rgba(229, 72, 77, 0.08) !important;
 }
 
 /* ========================================

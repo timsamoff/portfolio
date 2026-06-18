@@ -5,6 +5,7 @@ fix-links.js
 fix-json-quote.js
 convert-images-to-webp.js
 update-media-to-webp.js
+add-selected-work-to-json.js
 test.html
 
 # Backup files
