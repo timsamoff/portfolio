@@ -41,12 +41,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('media-modal');
     const modalClose = document.querySelector('.modal-close');
     let currentModalSwiper = null;
+    let currentVideoElements = new Map();
     let modalManuallyClosed = false;
 
     function closeModal() {
         if (!modal) return;
         modal.style.display = 'none';
         modalManuallyClosed = true;
+        saveAllVideoProgress();
         if (currentModalSwiper) {
             currentModalSwiper.destroy(true, true);
             currentModalSwiper = null;
@@ -63,6 +65,51 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 closeModal();
+            }
+        });
+    }
+
+    // ========================================
+    // MODAL MEDIA HTML GENERATION
+    // ========================================
+
+    function generateModalMediaHtml(mediaUrl, mediaIndex) {
+        const isVideo = isVideoUrl(mediaUrl);
+        const youtubeEmbed = getYouTubeEmbedUrl(mediaUrl);
+        const vimeoEmbed = getVimeoEmbedUrl(mediaUrl);
+
+        if (isVideo) {
+            if (youtubeEmbed) {
+                return `<iframe src="${youtubeEmbed}?autoplay=0&enablejsapi=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%; height:100%;"></iframe>`;
+            } else if (vimeoEmbed) {
+                return `<iframe src="${vimeoEmbed}?autoplay=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="width:100%; height:100%;"></iframe>`;
+            } else {
+                const savedProgress = getVideoProgress(mediaUrl);
+                return `<video controls data-url="${mediaUrl}" data-media-index="${mediaIndex}" data-saved-time="${savedProgress}" style="width:100%; height:100%;"><source src="${mediaUrl}" type="video/mp4">Your browser does not support video.</video>`;
+            }
+        } else {
+            return `<img src="${mediaUrl}" alt="Portfolio image" style="max-width:100%; max-height:100%; object-fit:contain;">`;
+        }
+    }
+
+    // ========================================
+    // VIDEO PROGRESS TRACKING
+    // ========================================
+    function saveVideoProgress(videoUrl, currentTime) {
+        const key = `video_progress_${btoa(videoUrl)}`;
+        localStorage.setItem(key, currentTime.toString());
+    }
+
+    function getVideoProgress(videoUrl) {
+        const key = `video_progress_${btoa(videoUrl)}`;
+        const saved = localStorage.getItem(key);
+        return saved ? parseFloat(saved) : 0;
+    }
+
+    function saveAllVideoProgress() {
+        currentVideoElements.forEach((video, url) => {
+            if (video && !video.paused && video.currentTime > 0) {
+                saveVideoProgress(url, video.currentTime);
             }
         });
     }
@@ -146,8 +193,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const walker = document.createTreeWalker(tmp, NodeFilter.SHOW_TEXT, {
                 acceptNode(node) {
-                    return node.parentElement.closest('a') 
-                        ? NodeFilter.FILTER_REJECT 
+                    return node.parentElement.closest('a')
+                        ? NodeFilter.FILTER_REJECT
                         : NodeFilter.FILTER_ACCEPT;
                 }
             });
@@ -174,25 +221,56 @@ document.addEventListener('DOMContentLoaded', () => {
                 el.parentNode.replaceChild(badge, el);
             });
 
-            // Handle <live> tags
             tmp.querySelectorAll('live').forEach(el => {
-                const hasUrl = el.hasAttribute('href');
-                const url = el.getAttribute('href') || '';
-                let badge;
+                const badge = document.createElement('span');
+                badge.className = 'live-badge';
                 
-                if (hasUrl && url.trim()) {
-                    badge = document.createElement('a');
-                    badge.className = 'live-badge-link';
-                    badge.href = url;
-                    badge.target = '_blank';
-                    badge.rel = 'noopener noreferrer';
-                    badge.innerHTML = `<span class="live-dot"></span>${el.innerHTML}`;
-                } else {
-                    badge = document.createElement('span');
-                    badge.className = 'live-badge';
-                    badge.innerHTML = `<span class="live-dot"></span>${el.innerHTML}`;
+                // Check if there's an <a> tag inside
+                const innerLink = el.querySelector('a');
+                let url = el.getAttribute('href') || '';
+                let text = el.textContent || 'Live';
+                
+                if (innerLink) {
+                    url = innerLink.getAttribute('href') || '';
+                    text = innerLink.textContent || 'Live';
+                    // Remove the inner <a> from the live element
+                    while (innerLink.firstChild) {
+                        el.insertBefore(innerLink.firstChild, innerLink);
+                    }
+                    el.removeChild(innerLink);
                 }
-                el.parentNode.replaceChild(badge, el);
+                
+                // Clean up any remaining text
+                text = el.textContent.trim() || 'Live';
+                
+                // If there's a valid URL, wrap the badge in an <a>
+                if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    link.className = 'live-badge-link';
+                    
+                    // Build the badge content inside the link
+                    const dot = document.createElement('span');
+                    dot.className = 'live-dot';
+                    const label = document.createTextNode(text);
+                    
+                    link.appendChild(dot);
+                    link.appendChild(label);
+                    
+                    el.parentNode.replaceChild(link, el);
+                } else {
+                    // No URL — just show the badge as a non-interactive element
+                    const dot = document.createElement('span');
+                    dot.className = 'live-dot';
+                    const label = document.createTextNode(text);
+                    
+                    badge.appendChild(dot);
+                    badge.appendChild(label);
+                    
+                    el.parentNode.replaceChild(badge, el);
+                }
             });
 
             return tmp.innerHTML;
@@ -205,6 +283,56 @@ document.addEventListener('DOMContentLoaded', () => {
         );
         escaped = escaped.replace(/\n/g, '<br>');
         return escaped;
+    }
+
+    // ========================================
+    // FLOATING NOTIFICATION
+    // ========================================
+    function showFloatingNotification(message, isSuccess = true) {
+        const existing = document.querySelector('.floating-notification');
+        if (existing) existing.remove();
+
+        const notification = document.createElement('div');
+        notification.className = 'floating-notification';
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: ${isSuccess ? '#10b981' : '#ef4444'};
+            color: white;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            pointer-events: none;
+            animation: slideInRight 0.3s ease;
+        `;
+
+        if (!document.querySelector('#notification-style')) {
+            const style = document.createElement('style');
+            style.id = 'notification-style';
+            style.textContent = `
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateX(100%)';
+            notification.style.transition = 'opacity 0.3s, transform 0.3s';
+            setTimeout(() => {
+                if (notification.parentNode) notification.remove();
+            }, 300);
+        }, 2500);
     }
 
     // ========================================
@@ -237,10 +365,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getObjectPosition(alignSetting) {
         switch (alignSetting) {
-            case 'top': return 'top';
-            case 'bottom': return 'bottom';
-            default: return 'center';
+            case 'top':
+                return 'top';
+            case 'bottom':
+                return 'bottom';
+            default:
+                return 'center';
         }
+    }
+
+    function supportsWebP() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1;
+        canvas.height = 1;
+        return canvas.toDataURL('image/webp').indexOf('image/webp') === 5;
     }
 
     function getPlaceholderSVG() {
@@ -251,130 +389,132 @@ document.addEventListener('DOMContentLoaded', () => {
         const isVideo = isVideoUrl(mediaUrl);
         const objectPosition = getObjectPosition(alignSetting);
 
-        if (!isVideo) {
-            const placeholder = getPlaceholderSVG();
-
-            if (mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be')) {
-                const videoId = getYouTubeVideoId(mediaUrl);
-                if (videoId) {
-                    return `<img 
-                        data-src="https://img.youtube.com/vi/${videoId}/mqdefault.jpg" 
-                        src="${placeholder}"
-                        alt="YouTube thumbnail" 
-                        loading="lazy"
-                        style="object-position: ${objectPosition}; background: var(--bg-secondary);"
-                        class="lazy-image"
-                        width="400"
-                        height="300">`;
-                }
-            }
-
-            if (mediaUrl.includes('vimeo.com')) {
-                const vimeoId = (mediaUrl.match(/vimeo\.com\/(\d+)/) || [])[1];
-                if (vimeoId) {
-                    return '<img src="' + placeholder + '" alt="Vimeo thumbnail" class="vimeo-thumb lazy-image" loading="lazy"'
-                        + ' data-vimeo-id="' + vimeoId + '"'
-                        + ' style="object-position: ' + objectPosition + '; background:#1a1a2e; width:100%; height:100%;">';
-                }
-            }
-
-            return `<img 
-                data-src="${mediaUrl}" 
-                src="${placeholder}"
-                alt="Portfolio media" 
-                loading="lazy"
-                style="object-position: ${objectPosition}; background: var(--bg-secondary);"
-                class="lazy-image"
-                width="400"
-                height="300">`;
-        }
-
-        const youtubeEmbed = getYouTubeEmbedUrl(mediaUrl);
-        if (youtubeEmbed) {
+        // Handle YouTube videos
+        if (mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be')) {
             const videoId = getYouTubeVideoId(mediaUrl);
-            const placeholder = getPlaceholderSVG();
-            return `<img 
-                data-src="https://img.youtube.com/vi/${videoId}/mqdefault.jpg" 
-                src="${placeholder}"
-                alt="YouTube thumbnail" 
-                loading="lazy"
-                style="object-position: ${objectPosition}; background: var(--bg-secondary);"
-                class="lazy-image"
-                width="400"
-                height="300">`;
-        }
-
-        const vimeoId = (mediaUrl.match(/vimeo\.com\/(\d+)/) || [])[1];
-        if (vimeoId) {
-            const placeholder = getPlaceholderSVG();
-            return '<img src="' + placeholder + '" alt="Vimeo thumbnail" class="vimeo-thumb lazy-image" loading="lazy"'
-                + ' data-vimeo-id="' + vimeoId + '"'
-                + ' style="object-position: ' + objectPosition + '; background:#1a1a2e; width:100%; height:100%;">';
-        }
-
-        return `<video muted><source src="${mediaUrl}" type="video/mp4"></video>`;
-    }
-
-    function generateModalMediaHtml(mediaUrl, mediaIndex) {
-        const isVideo = isVideoUrl(mediaUrl);
-        const youtubeEmbed = getYouTubeEmbedUrl(mediaUrl);
-        const vimeoEmbed = getVimeoEmbedUrl(mediaUrl);
-
-        if (isVideo) {
-            if (youtubeEmbed) {
-                return `<iframe src="${youtubeEmbed}?autoplay=0&enablejsapi=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%; height:100%;"></iframe>`;
-            } else if (vimeoEmbed) {
-                return `<iframe src="${vimeoEmbed}?autoplay=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="width:100%; height:100%;"></iframe>`;
-            } else {
-                return `<video controls data-url="${mediaUrl}" data-media-index="${mediaIndex}" style="width:100%; height:100%;"><source src="${mediaUrl}" type="video/mp4">Your browser does not support video.</video>`;
+            if (videoId) {
+                return `<div class="thumb-shimmer">
+                    <img
+                        data-src="https://img.youtube.com/vi/${videoId}/mqdefault.jpg"
+                        alt="YouTube thumbnail"
+                        style="object-position: ${objectPosition};"
+                        class="thumb-media"
+                        width="400"
+                        height="300">
+                </div>`;
             }
-        } else {
-            return `<img src="${mediaUrl}" alt="Portfolio image" style="max-width:100%; max-height:100%; object-fit:contain;">`;
         }
+
+        // Handle Vimeo videos
+        if (mediaUrl.includes('vimeo.com')) {
+            const vimeoId = (mediaUrl.match(/vimeo\.com\/(\d+)/) || [])[1];
+            if (vimeoId) {
+                return `<div class="thumb-shimmer">
+                    <img
+                        data-src="https://vumbnail.com/${vimeoId}.jpg"
+                        data-vimeo-fallback="https://i.vimeocdn.com/video/${vimeoId}_640.jpg"
+                        alt="Vimeo thumbnail"
+                        style="object-position: ${objectPosition};"
+                        class="thumb-media"
+                        width="400"
+                        height="300">
+                </div>`;
+            }
+        }
+
+        // Handle regular images
+        if (!isVideo) {
+            return `<div class="thumb-shimmer">
+                <img
+                    data-src="${mediaUrl}"
+                    alt="Portfolio media"
+                    style="object-position: ${objectPosition};"
+                    class="thumb-media"
+                    width="400"
+                    height="300">
+            </div>`;
+        }
+
+        // Handle direct video files
+        return `<div class="thumb-shimmer">
+            <video class="thumb-media" muted playsinline preload="metadata">
+                <source src="${mediaUrl}#t=0.1" type="video/mp4">
+            </video>
+        </div>`;
     }
 
     // ========================================
-    // LAZY LOADING
+    // LAZY LOADING - SIMPLIFIED
     // ========================================
     function setupLazyLoading() {
+        // Fallback for browsers without IntersectionObserver
         if (!('IntersectionObserver' in window)) {
-            document.querySelectorAll('img.lazy-image').forEach(img => {
-                if (img.dataset.src) {
+            document.querySelectorAll('.thumb-shimmer').forEach(wrapper => {
+                const img = wrapper.querySelector('img.thumb-media[data-src]');
+                if (img) {
                     img.src = img.dataset.src;
+                    img.removeAttribute('data-src');
                 }
-                img.classList.add('loaded');
+                wrapper.classList.add('loaded');
             });
             return;
         }
 
-        const imageObserver = new IntersectionObserver((entries, observer) => {
+        const observer = new IntersectionObserver((entries, obs) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    if (img.classList.contains('loaded')) {
-                        observer.unobserve(img);
-                        return;
-                    }
-                    img.classList.add('loading');
+                if (!entry.isIntersecting) return;
+                const wrapper = entry.target;
+                if (wrapper.classList.contains('loaded')) {
+                    obs.unobserve(wrapper);
+                    return;
+                }
+
+                obs.unobserve(wrapper);
+                wrapper.classList.add('loading');
+
+                const img = wrapper.querySelector('img.thumb-media');
+                const video = wrapper.querySelector('video.thumb-media');
+
+                if (img) {
+                    const onLoad = () => {
+                        wrapper.classList.remove('loading');
+                        wrapper.classList.add('loaded');
+                    };
+                    const onError = () => {
+                        if (img.dataset.vimeoFallback) {
+                            img.src = img.dataset.vimeoFallback;
+                            delete img.dataset.vimeoFallback;
+                        } else {
+                            wrapper.classList.remove('loading');
+                            wrapper.classList.add('error');
+                        }
+                    };
+                    img.addEventListener('load', onLoad, { once: true });
+                    img.addEventListener('error', onError, { once: true });
                     if (img.dataset.src) {
                         img.src = img.dataset.src;
                         img.removeAttribute('data-src');
+                    } else if (img.complete && img.naturalWidth > 0) {
+                        // Already loaded (e.g. cached)
+                        onLoad();
                     }
-                    img.onload = () => {
-                        img.classList.remove('loading');
-                        img.classList.add('loaded');
-                        img.style.opacity = '0';
-                        setTimeout(() => {
-                            img.style.transition = 'opacity 0.3s ease';
-                            img.style.opacity = '1';
-                        }, 50);
+                } else if (video) {
+                    // For video thumbnails: show first frame once metadata loads
+                    const finish = () => {
+                        wrapper.classList.remove('loading');
+                        wrapper.classList.add('loaded');
                     };
-                    img.onerror = () => {
-                        img.classList.remove('loading');
-                        img.classList.add('error');
-                        img.style.background = 'var(--bg-primary)';
-                    };
-                    observer.unobserve(img);
+                    video.addEventListener('loadeddata', finish, { once: true });
+                    video.addEventListener('error', () => {
+                        wrapper.classList.remove('loading');
+                        wrapper.classList.add('error');
+                    }, { once: true });
+                    // Trigger load if not already started
+                    if (video.readyState >= 2) {
+                        finish();
+                    } else {
+                        video.load();
+                    }
                 }
             });
         }, {
@@ -382,174 +522,129 @@ document.addEventListener('DOMContentLoaded', () => {
             threshold: 0.01
         });
 
-        document.querySelectorAll('img.lazy-image:not(.loaded)').forEach(img => {
-            imageObserver.observe(img);
+        document.querySelectorAll('.thumb-shimmer:not(.loaded)').forEach(wrapper => {
+            observer.observe(wrapper);
         });
     }
 
-    function setupLazyLoadingAfterRender() {
-        setTimeout(setupLazyLoading, 100);
+    // ========================================
+    // SHARE URL GENERATION
+    // ========================================
+
+    function generateShareUrl(projectIndex, mediaIndex = 0, mediaArray = []) {
+        const shareData = {
+            p: projectIndex,
+            m: mediaIndex
+        };
+        const data = btoa(JSON.stringify(shareData));
+        // Point to share.html instead of index.html
+        return `${window.location.origin}${window.location.pathname}share.html?share=${data}`;
     }
 
     // ========================================
-    // VIMEO THUMBNAILS
+    // DYNAMIC OPEN GRAPH / SOCIAL SHARING
     // ========================================
-    async function loadVimeoThumbnails() {
-        const placeholders = document.querySelectorAll('img.vimeo-thumb[data-vimeo-id]');
-        const seen = new Set();
-        const fetches = [];
-        placeholders.forEach(function(img) {
-            const id = img.getAttribute('data-vimeo-id');
-            if (seen.has(id)) return;
-            seen.add(id);
-            img.classList.add('loading');
-            const p = fetch('https://vimeo.com/api/oembed.json?url=https://vimeo.com/' + id + '&width=640')
-                .then(function(r) { return r.json(); })
-                .then(function(data) {
-                    if (!data.thumbnail_url) return;
-                    document.querySelectorAll('img.vimeo-thumb[data-vimeo-id="' + id + '"]')
-                        .forEach(function(el) {
-                            el.src = data.thumbnail_url;
-                            el.removeAttribute('data-vimeo-id');
-                            el.classList.remove('vimeo-thumb');
-                            el.classList.remove('loading');
-                            el.classList.add('loaded');
-                            el.style.opacity = '1';
-                        });
-                })
-                .catch(function() {
-                    document.querySelectorAll('img.vimeo-thumb[data-vimeo-id="' + id + '"]')
-                        .forEach(function(el) {
-                            el.style.background = 'linear-gradient(135deg,#1a1a2e,#16213e)';
-                            el.removeAttribute('data-vimeo-id');
-                            el.classList.remove('loading');
-                            el.classList.add('loaded');
-                        });
-                });
-            fetches.push(p);
-        });
-        return Promise.all(fetches);
-    }
 
-// ========================================
-// SHARE URL GENERATION
-// ========================================
-
-function generateShareUrl(projectIndex, mediaIndex = 0, mediaArray = []) {
-    const shareData = {
-        p: projectIndex,
-        m: mediaIndex
-    };
-    const data = btoa(JSON.stringify(shareData));
-    // Point to share.html instead of index.html
-    return `${window.location.origin}${window.location.pathname}share.html?share=${data}`;
-}
-
-
-// ========================================
-// DYNAMIC OPEN GRAPH / SOCIAL SHARING
-// ========================================
-
-function updateSocialMetaTags(project, mediaArray, mediaIndex) {
-    // Get the preview image
-    let previewImage = '';
-    if (mediaArray && mediaArray.length > 0) {
-        const media = mediaArray[mediaIndex || 0];
-        if (media) {
-            try {
-                previewImage = new URL(media, window.location.href).href;
-            } catch (e) {
-                previewImage = media;
+    function updateSocialMetaTags(project, mediaArray, mediaIndex) {
+        // Get the preview image
+        let previewImage = '';
+        if (mediaArray && mediaArray.length > 0) {
+            const media = mediaArray[mediaIndex || 0];
+            if (media) {
+                try {
+                    previewImage = new URL(media, window.location.href).href;
+                } catch (e) {
+                    previewImage = media;
+                }
             }
         }
-    }
-    
-    // Fallback to default social image
-    if (!previewImage) {
-        previewImage = new URL('tsp_social.png', window.location.href).href;
-    }
-    
-    // Strip HTML from description and truncate
-    let description = project.description || '';
-    description = description.replace(/<[^>]*>/g, '');
-    if (description.length > 150) {
-        description = description.substring(0, 147) + '...';
-    }
-    if (!description) {
-        description = 'Interactive Production, Design & Development. A curated collection of games, software, websites, and creative experiments.';
-    }
-    
-    // Remove existing dynamic meta tags
-    document.querySelectorAll('meta[data-dynamic]').forEach(el => el.remove());
-    
-    // Create dynamic meta tags
-    const tags = [
-        { property: 'og:title', content: `Tim Samoff | Portfolio - ${project.title}` },
-        { property: 'og:description', content: description },
-        { property: 'og:image', content: previewImage },
-        { property: 'og:url', content: window.location.href.split('?')[0] },
-        { name: 'twitter:title', content: `Tim Samoff | Portfolio - ${project.title}` },
-        { name: 'twitter:description', content: description },
-        { name: 'twitter:image', content: previewImage }
-    ];
-    
-    tags.forEach(tag => {
-        const meta = document.createElement('meta');
-        meta.setAttribute('data-dynamic', 'true');
-        if (tag.property) {
-            meta.setAttribute('property', tag.property);
+        
+        // Fallback to default social image
+        if (!previewImage) {
+            previewImage = new URL('tsp_social.png', window.location.href).href;
         }
-        if (tag.name) {
-            meta.setAttribute('name', tag.name);
+        
+        // Strip HTML from description and truncate
+        let description = project.description || '';
+        description = description.replace(/<[^>]*>/g, '');
+        if (description.length > 150) {
+            description = description.substring(0, 147) + '...';
         }
-        meta.setAttribute('content', tag.content);
-        document.head.appendChild(meta);
-    });
-    
-    // Update page title
-    document.title = `Tim Samoff | Portfolio - ${project.title}`;
-}
+        if (!description) {
+            description = 'Interactive Production, Design & Development. A curated collection of games, software, websites, and creative experiments.';
+        }
+        
+        // Remove existing dynamic meta tags
+        document.querySelectorAll('meta[data-dynamic]').forEach(el => el.remove());
+        
+        // Create dynamic meta tags
+        const tags = [
+            { property: 'og:title', content: `Tim Samoff | Portfolio - ${project.title}` },
+            { property: 'og:description', content: description },
+            { property: 'og:image', content: previewImage },
+            { property: 'og:url', content: window.location.href.split('?')[0] },
+            { name: 'twitter:title', content: `Tim Samoff | Portfolio - ${project.title}` },
+            { name: 'twitter:description', content: description },
+            { name: 'twitter:image', content: previewImage }
+        ];
+        
+        tags.forEach(tag => {
+            const meta = document.createElement('meta');
+            meta.setAttribute('data-dynamic', 'true');
+            if (tag.property) {
+                meta.setAttribute('property', tag.property);
+            }
+            if (tag.name) {
+                meta.setAttribute('name', tag.name);
+            }
+            meta.setAttribute('content', tag.content);
+            document.head.appendChild(meta);
+        });
+        
+        // Update page title
+        document.title = `Tim Samoff | Portfolio - ${project.title}`;
+    }
 
-
-function parseShareUrl() {
-    // Check query parameter first (for social crawlers)
-    const params = new URLSearchParams(window.location.search);
-    let encoded = params.get('share');
-    let shareData = null;
-    
-    if (encoded) {
-        try {
-            shareData = JSON.parse(atob(encoded));
-        } catch(e) {
-            console.error('Invalid share data in query param', e);
-        }
-    }
-    
-    // If not found, check hash (for backward compatibility)
-    if (!shareData) {
-        const hash = window.location.hash;
-        if (hash && hash.startsWith('#share=')) {
+    function parseShareUrl() {
+        const params = new URLSearchParams(window.location.search);
+        let encoded = params.get('share');
+        let shareData = null;
+        
+        if (encoded) {
             try {
-                const encodedHash = hash.substring(7);
-                shareData = JSON.parse(atob(encodedHash));
+                try {
+                    shareData = JSON.parse(atob(encoded));
+                } catch(e) {
+                    shareData = JSON.parse(atob(decodeURIComponent(encoded)));
+                }
             } catch(e) {
-                console.error('Invalid share URL in hash', e);
+                console.error('Invalid share data:', e);
             }
         }
-    }
-    
-    // Update meta tags if we have data
-    if (shareData && shareData.p !== undefined && window.__projectsData) {
-        const project = window.__projectsData[shareData.p];
-        if (project) {
-            const mediaArray = project.media || [];
-            const mediaIndex = shareData.m || 0;
-            updateSocialMetaTags(project, mediaArray, mediaIndex);
+        
+        if (!shareData) {
+            const hash = window.location.hash;
+            if (hash && hash.startsWith('#share=')) {
+                try {
+                    const encodedHash = hash.substring(7);
+                    shareData = JSON.parse(atob(encodedHash));
+                } catch(e) {
+                    console.error('Invalid share URL in hash:', e);
+                }
+            }
         }
+        
+        if (shareData && shareData.p !== undefined && window.__projectsData) {
+            const project = window.__projectsData[shareData.p];
+            if (project) {
+                const mediaArray = project.media || [];
+                const mediaIndex = shareData.m || 0;
+                updateSocialMetaTags(project, mediaArray, mediaIndex);
+            }
+        }
+        
+        return shareData;
     }
-    
-    return shareData;
-}
 
     function openMediaModal(mediaArray, startIndex = 0, projectId = null) {
         const modalWrapper = document.getElementById('modal-swiper-wrapper');
@@ -588,6 +683,23 @@ function parseShareUrl() {
                 autoplay: false,
             });
 
+            setTimeout(() => {
+                const activeSlide = document.querySelector('.swiper-slide-active');
+                if (activeSlide) {
+                    const video = activeSlide.querySelector('video');
+                    if (video && video.dataset.savedTime) {
+                        video.currentTime = parseFloat(video.dataset.savedTime);
+                        currentVideoElements.set(video.dataset.url, video);
+
+                        video.addEventListener('timeupdate', () => {
+                            if (video.dataset.url) {
+                                saveVideoProgress(video.dataset.url, video.currentTime);
+                            }
+                        });
+                    }
+                }
+            }, 200);
+
             if (currentModalSwiper && projectId !== null) {
                 currentModalSwiper.on('slideChange', () => {
                     if (!modalManuallyClosed) {
@@ -617,7 +729,7 @@ function parseShareUrl() {
     // ========================================
     // FILTERING SYSTEM
     // ========================================
-    let currentFilterValue = 'all';
+    let currentFilterValue = 'selected';
     let allPortfolioItems = [];
 
     function setupFiltering() {
@@ -625,10 +737,16 @@ function parseShareUrl() {
 
         filterButtons.forEach(button => {
             button.removeEventListener('click', filterHandler);
+            button.removeEventListener('touchstart', filterHandler);
             button.addEventListener('click', filterHandler);
+            button.addEventListener('touchstart', filterHandler, { passive: true });
         });
 
         function filterHandler(e) {
+            if (e.type === 'touchstart' && e.target.closest('.filter-btn') !== e.currentTarget) {
+                return;
+            }
+            
             const button = e.currentTarget;
             filterButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
@@ -641,39 +759,83 @@ function parseShareUrl() {
     function applyFilter() {
         const grid = document.getElementById('portfolio-grid');
         const items = allPortfolioItems;
+        
         const visibleItems = [];
-
+        
         items.forEach((item) => {
             const itemCategory = item.getAttribute('data-category');
+            const isSelected = item.getAttribute('data-selected') === 'true';
             let shouldShow = false;
-
+            
             if (currentFilterValue === 'all') {
                 shouldShow = true;
+            } else if (currentFilterValue === 'selected') {
+                shouldShow = isSelected;
             } else if (currentFilterValue === 'uncategorized') {
                 shouldShow = (!itemCategory || itemCategory === 'uncategorized' || itemCategory === '');
             } else {
                 shouldShow = (itemCategory === currentFilterValue);
             }
-
+            
             if (shouldShow) {
                 visibleItems.push(item);
             }
         });
-
+        
         grid.innerHTML = '';
-
+        
         visibleItems.forEach((item, index) => {
             item.style.display = 'flex';
             item.style.visibility = 'visible';
+            item.style.height = '';
+            item.style.minHeight = '';
+            item.style.maxHeight = '';
+            item.style.padding = '';
+            item.style.margin = '';
+            item.style.overflow = '';
+            item.style.border = '';
             item.style.opacity = '';
             item.style.order = index;
+            
             item.classList.remove('hidden-item', 'fly-out', 'fly-in', 'initial-load');
             item.style.setProperty('--item-index', index);
+            
             grid.appendChild(item);
+            
             setTimeout(() => {
                 item.classList.add('fly-in');
             }, 50 + (index * 40));
         });
+        
+        // Re-setup swipers
+        const projects = window.__projectsData || [];
+        projects.forEach((project, idx) => {
+            if (project.published === false) return;
+            const mediaArray = project.media || (project.image ? [project.image] : []);
+            if (mediaArray.length > 1) {
+                const swiperContainer = document.querySelector(`.card-swiper-${idx}`);
+                if (swiperContainer) {
+                    if (swiperContainer.swiper) {
+                        swiperContainer.swiper.destroy(true, true);
+                    }
+                    new Swiper(`.card-swiper-${idx}`, {
+                        loop: true,
+                        navigation: {
+                            nextEl: `.card-swiper-next-${idx}`,
+                            prevEl: `.card-swiper-prev-${idx}`,
+                        },
+                        pagination: {
+                            el: `.card-swiper-pagination-${idx}`,
+                            clickable: true,
+                        },
+                        autoplay: false,
+                    });
+                }
+            }
+        });
+        
+        // Re-initialize lazy loading
+        setTimeout(setupLazyLoading, 100);
     }
 
     // ========================================
@@ -703,20 +865,24 @@ function parseShareUrl() {
                 if (startTime === null) startTime = currentTime;
                 const timeElapsed = currentTime - startTime;
                 const progress = Math.min(timeElapsed / duration, 1);
+
                 const ease = progress < 0.5 ?
                     4 * progress * progress * progress :
                     1 - Math.pow(-2 * progress + 2, 3) / 2;
+
                 window.scrollTo(0, startPosition + distance * ease);
+
                 if (timeElapsed < duration) {
                     requestAnimationFrame(smoothScroll);
                 }
             }
+
             requestAnimationFrame(smoothScroll);
         });
     }
 
     // ========================================
-    // LOAD PROJECTS FROM LOCALSTORAGE
+    // PROJECT LOADING
     // ========================================
     function loadProjects(projects) {
         console.log('Demo projects loaded:', projects.length);
@@ -736,16 +902,23 @@ function parseShareUrl() {
             return;
         }
 
+        const hasSelectedWorks = visibleProjects.some(p => p.selected === true);
+
         visibleProjects.forEach((project, visibleIdx) => {
             const originalIndex = projects.findIndex(p => p === project);
-            let mediaArray = project.media || [];
+            let mediaArray = project.media;
+            if (!mediaArray || mediaArray.length === 0) {
+                mediaArray = project.image ? [project.image] : [];
+            }
 
             const imageAlign = project.imageAlign || 'center';
+            const isSelected = project.selected === true;
 
             const article = document.createElement('article');
             article.className = 'portfolio-item';
             article.setAttribute('data-category', project.category || 'uncategorized');
             article.setAttribute('data-project-id', originalIndex);
+            article.setAttribute('data-selected', isSelected ? 'true' : 'false');
 
             let thumbnailHtml = '';
             if (mediaArray.length === 1) {
@@ -769,7 +942,6 @@ function parseShareUrl() {
                 thumbnailHtml = `<div class="item-image"><div class="no-media">No media</div></div>`;
             }
 
-            const displayHeading = project.cardHeading || project.tag || '';
             const displayCategory = project.category ? formatCategoryForDisplay(project.category) : 'Uncategorized';
 
             article.innerHTML = `
@@ -803,6 +975,7 @@ function parseShareUrl() {
                     if (swiperContainer && swiperContainer.swiper) {
                         startIndex = swiperContainer.swiper.realIndex || 0;
                     }
+                    
                     openMediaModal(mediaArray, startIndex, originalIndex);
                     const shareUrl = generateShareUrl(originalIndex, startIndex, mediaArray);
                     window.history.pushState({}, '', shareUrl);
@@ -816,6 +989,7 @@ function parseShareUrl() {
                     e.preventDefault();
                     const shareUrl = generateShareUrl(originalIndex, 0, mediaArray);
                     const copied = await copyToClipboard(shareUrl);
+
                     if (copied) {
                         showCardNotification(article, '✓ Copied!');
                     } else {
@@ -838,16 +1012,35 @@ function parseShareUrl() {
 
         // Build filter navigation
         const categories = [...new Set(visibleProjects.map(p => p.category).filter(c => c && c !== ''))].sort((a, b) => a.localeCompare(b));
+        const hasSelected = visibleProjects.some(p => p.selected === true);
 
         const filterNav = document.querySelector('.filter-nav');
         if (filterNav) {
             filterNav.innerHTML = '';
 
             const allBtn = document.createElement('button');
-            allBtn.className = 'filter-btn active';
+            allBtn.className = 'filter-btn';
             allBtn.setAttribute('data-filter', 'all');
             allBtn.textContent = 'All Projects';
             filterNav.appendChild(allBtn);
+
+            if (hasSelected) {
+                const divider1 = document.createElement('span');
+                divider1.className = 'filter-divider';
+                filterNav.appendChild(divider1);
+
+                const selectedBtn = document.createElement('button');
+                selectedBtn.className = 'filter-btn filter-btn-selected active';
+                selectedBtn.setAttribute('data-filter', 'selected');
+                selectedBtn.textContent = 'Selected Work';
+                filterNav.appendChild(selectedBtn);
+            }
+
+            if (categories.length > 0) {
+                const divider = document.createElement('span');
+                divider.className = 'filter-divider';
+                filterNav.appendChild(divider);
+            }
 
             const hasUncategorizedProjects = visibleProjects.some(p => !p.category || p.category === '');
             if (hasUncategorizedProjects) {
@@ -856,12 +1049,6 @@ function parseShareUrl() {
                 uncatBtn.setAttribute('data-filter', 'uncategorized');
                 uncatBtn.textContent = 'Uncategorized';
                 filterNav.appendChild(uncatBtn);
-            }
-
-            if (categories.length > 0) {
-                const divider = document.createElement('span');
-                divider.className = 'filter-divider';
-                filterNav.appendChild(divider);
             }
 
             categories.forEach(cat => {
@@ -873,10 +1060,21 @@ function parseShareUrl() {
             });
         }
 
+        currentFilterValue = hasSelected ? 'selected' : 'all';
+        
+        setTimeout(() => {
+            const activeBtn = document.querySelector(`.filter-btn[data-filter="${currentFilterValue}"]`);
+            if (activeBtn) {
+                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                activeBtn.classList.add('active');
+            }
+            applyFilter();
+        }, 100);
+
         // Setup swipers
         projects.forEach((project, idx) => {
             if (project.published === false) return;
-            const mediaArray = project.media || [];
+            const mediaArray = project.media || (project.image ? [project.image] : []);
             if (mediaArray.length > 1) {
                 const swiperContainer = document.querySelector(`.card-swiper-${idx}`);
                 if (swiperContainer) {
@@ -896,9 +1094,10 @@ function parseShareUrl() {
             }
         });
 
-        setupLazyLoadingAfterRender();
-        loadVimeoThumbnails();
+        // Initial lazy loading
+        setTimeout(setupLazyLoading, 200);
 
+        // Category tag click handlers
         document.querySelectorAll('.category-tag').forEach(tag => {
             const newTag = tag.cloneNode(true);
             tag.parentNode.replaceChild(newTag, tag);
@@ -922,7 +1121,6 @@ function parseShareUrl() {
         setupFiltering();
         setupScrollButton();
 
-        // Handle share URL
         const shareData = parseShareUrl();
         if (shareData && shareData.p !== undefined && !modalManuallyClosed) {
             const targetProject = projects[shareData.p];

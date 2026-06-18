@@ -3,7 +3,6 @@
 // DEMO DATA - Fake portfolio projects with Unsplash images
 // ========================================
 
-// Four pseudo-categories for the demo
 const DEMO_CATEGORIES = [
     'creative_experiments',
     'interactive_media',
@@ -17,32 +16,10 @@ function formatDemoCategory(cat) {
     return cat.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 }
 
-// Helper to shuffle an array (Fisher-Yates)
-function shuffleArray(array) {
-    const arr = [...array];
-    for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-}
-
-// Generate a shuffled list of categories for the projects
-function generateShuffledCategories(count) {
-    const categories = [];
-    for (let i = 0; i < count; i++) {
-        categories.push(DEMO_CATEGORIES[i % DEMO_CATEGORIES.length]);
-    }
-    return shuffleArray(categories);
-}
-
-// Get shuffled categories for the number of projects
-const shuffledCategories = generateShuffledCategories(13);
-
 const DEMO_PROJECTS = [
     {
         "title": "Mountain Retreat",
-        "category": shuffledCategories[0],
+        "category": "creative_experiments",
         "cardHeading": "Website",
         "media": [
             "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&h=600&fit=crop",
@@ -51,11 +28,12 @@ const DEMO_PROJECTS = [
         ],
         "description": "A full-featured website for a luxury mountain retreat. Built with modern web technologies and a focus on immersive user experience.\n\n<live href=\"https://example.com\">Live Demo</live>",
         "imageAlign": "center",
+        "selected": true,
         "published": true
     },
     {
         "title": "Urban Garden App",
-        "category": shuffledCategories[1],
+        "category": "interactive_media",
         "cardHeading": "Mobile App",
         "media": [
             "https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?w=800&h=600&fit=crop",
@@ -64,11 +42,12 @@ const DEMO_PROJECTS = [
         ],
         "description": "Urban Garden is a mobile app that helps city dwellers grow their own food. Features include planting guides, watering reminders, and a community forum.\n\n<live>Coming Soon</live>\n\n<award>Best Urban Innovation 2024</award>",
         "imageAlign": "center",
+        "selected": true,
         "published": true
     },
     {
         "title": "Deep Space Explorer",
-        "category": shuffledCategories[2],
+        "category": "digital_craft",
         "cardHeading": "Game",
         "media": [
             "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&h=600&fit=crop",
@@ -77,11 +56,12 @@ const DEMO_PROJECTS = [
         ],
         "description": "A space exploration game where players navigate procedurally generated galaxies. Built with Unity and featuring stunning visual effects.\n\n<live href=\"https://example.com/game\">Play Now</live>",
         "imageAlign": "center",
+        "selected": false,
         "published": true
     },
     {
         "title": "Minimalist Brand Identity",
-        "category": shuffledCategories[3],
+        "category": "visual_stories",
         "cardHeading": "Branding",
         "media": [
             "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&h=600&fit=crop",
@@ -90,11 +70,12 @@ const DEMO_PROJECTS = [
         ],
         "description": "A complete brand identity overhaul for a tech startup. Includes logo design, color palette, typography system, and brand guidelines.\n\n<strong>Services:</strong> Logo Design, Brand Strategy, Visual Identity",
         "imageAlign": "top",
+        "selected": false,
         "published": true
     },
     {
         "title": "Coastal Living Magazine",
-        "category": shuffledCategories[4],
+        "category": "creative_experiments",
         "cardHeading": "Editorial Design",
         "media": [
             "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop",
@@ -103,22 +84,24 @@ const DEMO_PROJECTS = [
         ],
         "description": "Editorial design for Coastal Living Magazine. A blend of modern typography and stunning coastal photography.\n\n<award>Magazine Design Award 2024</award>",
         "imageAlign": "center",
+        "selected": false,
         "published": true
     },
     {
         "title": "Motion Reel 2024",
-        "category": shuffledCategories[5],
+        "category": "interactive_media",
         "cardHeading": "Motion Reel",
         "media": [
             "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&h=600&fit=crop"
         ],
         "description": "A curated collection of motion graphics work from 2024. Featuring kinetic typography, abstract animations, and commercial projects.\n\n<live href=\"https://example.com/reel\">Watch Reel</live>",
         "imageAlign": "center",
+        "selected": false,
         "published": true
     },
     {
         "title": "Eco-Friendly Packaging",
-        "category": shuffledCategories[6],
+        "category": "digital_craft",
         "cardHeading": "Packaging",
         "media": [
             "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&h=600&fit=crop",
@@ -127,11 +110,12 @@ const DEMO_PROJECTS = [
         ],
         "description": "Sustainable packaging design for a consumer goods brand. Focus on minimal materials, recyclability, and beautiful visual design.\n\n<strong>Materials:</strong> Recycled paper, soy-based inks",
         "imageAlign": "center",
+        "selected": false,
         "published": true
     },
     {
         "title": "Portfolio Website Redesign",
-        "category": shuffledCategories[7],
+        "category": "visual_stories",
         "cardHeading": "Web Design",
         "media": [
             "https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=800&h=600&fit=crop",
@@ -140,22 +124,24 @@ const DEMO_PROJECTS = [
         ],
         "description": "A complete redesign of a creative professional's portfolio website. Focus on clean typography, smooth animations, and a responsive layout.\n\n<live href=\"https://example.com\">View Live Site</live>",
         "imageAlign": "center",
+        "selected": false,
         "published": true
     },
     {
         "title": "User Research Platform",
-        "category": shuffledCategories[8],
+        "category": "creative_experiments",
         "cardHeading": "UX Design",
         "media": [
             "https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&h=600&fit=crop"
         ],
         "description": "A user research platform that helps teams gather and analyze feedback. Features include surveys, interviews, and analytics dashboards.\n\n<strong>Role:</strong> Lead UX Designer",
         "imageAlign": "center",
+        "selected": true,
         "published": true
     },
     {
         "title": "Geometric Art Series",
-        "category": shuffledCategories[9],
+        "category": "digital_craft",
         "cardHeading": "Art",
         "media": [
             "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=800&h=600&fit=crop",
@@ -164,22 +150,24 @@ const DEMO_PROJECTS = [
         ],
         "description": "A series of geometric abstract artworks exploring color theory and composition. Created using digital tools and inspired by mid-century modern design.\n\n<award>Featured in Digital Art Monthly</award>",
         "imageAlign": "center",
+        "selected": false,
         "published": true
     },
     {
         "title": "Music Visualizer",
-        "category": shuffledCategories[10],
+        "category": "interactive_media",
         "cardHeading": "Visualizer",
         "media": [
             "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&h=600&fit=crop"
         ],
         "description": "A real-time music visualizer that creates stunning visual experiences from audio input. Built with WebGL and audio processing libraries.\n\n<live href=\"https://example.com/visualizer\">Try Demo</live>",
         "imageAlign": "center",
+        "selected": false,
         "published": true
     },
     {
         "title": "Smart Home Dashboard",
-        "category": shuffledCategories[11],
+        "category": "visual_stories",
         "cardHeading": "Dashboard",
         "media": [
             "https://images.unsplash.com/photo-1558002038-1055907df827?w=800&h=600&fit=crop",
@@ -188,17 +176,19 @@ const DEMO_PROJECTS = [
         ],
         "description": "A comprehensive smart home dashboard that controls lighting, temperature, and security systems. Features real-time updates and voice control integration.",
         "imageAlign": "center",
+        "selected": false,
         "published": true
     },
     {
         "title": "Experimental Typography",
-        "category": shuffledCategories[12],
+        "category": "digital_craft",
         "cardHeading": "Typography",
         "media": [
             "https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=800&h=600&fit=crop"
         ],
         "description": "An experimental typography project exploring the boundaries of letterforms and visual communication. Includes custom typefaces and dynamic layouts.",
         "imageAlign": "center",
+        "selected": false,
         "published": false
     }
 ];
@@ -213,6 +203,7 @@ const DEMO_CATEGORIES_KEY = 'demo_portfolio_categories';
 // Make these globally available
 window.DEMO_STORAGE_KEY = DEMO_STORAGE_KEY;
 window.DEMO_CATEGORIES_KEY = DEMO_CATEGORIES_KEY;
+window.DEMO_PROJECTS = DEMO_PROJECTS;
 
 function loadDemoProjects() {
     const stored = localStorage.getItem(DEMO_STORAGE_KEY);
@@ -259,6 +250,7 @@ function getDemoCategoriesFromProjects(projects) {
             cats.add(p.category);
         }
     });
+    // If no categories found in projects, use defaults
     if (cats.size === 0) {
         DEMO_CATEGORIES.forEach(c => cats.add(c));
     }
@@ -292,6 +284,16 @@ function getDemoData() {
         saveDemoCategories(categories);
     }
     
+    // Ensure 'selected' field exists on all projects
+    projects = projects.map(project => {
+        if (project.selected === undefined) {
+            project.selected = false;
+        }
+        return project;
+    });
+    saveDemoProjects(projects);
+    
+    // Clean up categories - only keep ones that actually exist in projects
     const projectCats = getDemoCategoriesFromProjects(projects);
     categories = categories.filter(c => projectCats.includes(c));
     if (categories.length !== projectCats.length) {
