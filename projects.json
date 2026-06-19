@@ -239,12 +239,17 @@
     "media": [
       "media/digital/girl_dig_01.webp",
       "media/digital/bug_dig_01.webp",
-      "media/digital/pepper_dig_01.webp"
+      "media/digital/pepper_dig_01.webp",
+      "media/digital/design_dig_01.webp",
+      "media/digital/girl_dig_02.jpg",
+      "media/digital/profile_dig_01.webp",
+      "media/digital/girl_dig_03.webp",
+      "media/digital/toes_dig_01.webp"
     ],
     "description": "Random pieces of digital art.",
     "imageAlign": "center",
-    "published": true,
-    "selected": false
+    "selected": false,
+    "published": true
   },
   {
     "title": " Four Seasons",
@@ -544,5 +549,21 @@
     "imageAlign": "top",
     "published": true,
     "selected": false
+  },
+  {
+    "title": "Nokia/Rooftop Cocreation Session",
+    "category": "user_experience",
+    "cardHeading": "",
+    "media": [
+      "media/ux/rooftop_01.webp",
+      "media/ux/rooftop_02.webp",
+      "media/ux/rooftop_03.webp",
+      "media/ux/rooftop_04.webp",
+      "media/ux/rooftop_05.webp"
+    ],
+    "description": "I was honored to be chosen as one of eight <a href=\"https://en.wikipedia.org/wiki/Maemo\"target=\"_blank\" rel=\"noopener noreferrer\">Maemo</a> Community members to take part in a Nokia/Rooftop Cocreation session in Amsterdam, in which we dreamt up four mobile apps. Swipe to the end to see me speaking.",
+    "imageAlign": "center",
+    "selected": false,
+    "published": true
   }
 ]
