@@ -10,10 +10,52 @@ const DEMO_CATEGORIES = [
     'visual_stories'
 ];
 
+// Category shortcuts mapping
+const DEMO_CATEGORY_SHORTCUTS = {
+    'creative_experiments': 'experiments',
+    'interactive_media': 'interactive',
+    'digital_craft': 'digital',
+    'visual_stories': 'visual'
+};
+
 // Function to format category for display
 function formatDemoCategory(cat) {
     if (!cat) return '';
     return cat.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+}
+
+// Function to get category shortcut
+function getDemoCategoryShortcut(cat) {
+    if (!cat) return '';
+    // Check if we have a shortcut in the mapping
+    if (DEMO_CATEGORY_SHORTCUTS[cat]) {
+        return DEMO_CATEGORY_SHORTCUTS[cat];
+    }
+    // Auto-generate from the category name
+    const displayName = formatDemoCategory(cat);
+    const words = displayName.toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w);
+    if (words.length === 0) return '';
+    if (words.length === 1) {
+        return words[0].substring(0, 4);
+    } else {
+        let shortcut = words[0].substring(0, 2);
+        if (words.length > 1) {
+            shortcut += words[1].substring(0, 2);
+        }
+        return shortcut;
+    }
+}
+
+// Function to get all category data with shortcuts
+function getDemoCategoryData() {
+    const data = {};
+    DEMO_CATEGORIES.forEach(cat => {
+        data[cat] = {
+            display: formatDemoCategory(cat),
+            shortcut: getDemoCategoryShortcut(cat)
+        };
+    });
+    return data;
 }
 
 const DEMO_PROJECTS = [
@@ -204,6 +246,10 @@ const DEMO_CATEGORIES_KEY = 'demo_portfolio_categories';
 window.DEMO_STORAGE_KEY = DEMO_STORAGE_KEY;
 window.DEMO_CATEGORIES_KEY = DEMO_CATEGORIES_KEY;
 window.DEMO_PROJECTS = DEMO_PROJECTS;
+window.DEMO_CATEGORY_SHORTCUTS = DEMO_CATEGORY_SHORTCUTS;
+window.formatDemoCategory = formatDemoCategory;
+window.getDemoCategoryShortcut = getDemoCategoryShortcut;
+window.getDemoCategoryData = getDemoCategoryData;
 
 function loadDemoProjects() {
     const stored = localStorage.getItem(DEMO_STORAGE_KEY);
@@ -258,12 +304,41 @@ function getDemoCategoriesFromProjects(projects) {
 }
 
 function resetDemoData() {
+    // Clear all demo-related localStorage items
+    localStorage.removeItem(DEMO_STORAGE_KEY);
+    localStorage.removeItem(DEMO_CATEGORIES_KEY);
+    localStorage.removeItem('demo_categories_backup');
+    
+    // Remove all category shortcuts
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('category_shortcut_')) {
+            keysToRemove.push(key);
+        }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+    
+    // Reset the "seen" modal flag so the info modal shows again
+    localStorage.removeItem('demo_info_seen');
+    
+    // Create fresh projects from defaults
     const freshProjects = DEMO_PROJECTS.map(project => ({
         ...project
     }));
+    
+    // Save fresh projects
     saveDemoProjects(freshProjects);
+    
+    // Get categories from fresh projects
     const categories = getDemoCategoriesFromProjects(freshProjects);
     saveDemoCategories(categories);
+    
+    // Reset shortcuts for all default categories
+    Object.keys(DEMO_CATEGORY_SHORTCUTS).forEach(key => {
+        localStorage.setItem(`category_shortcut_${key}`, DEMO_CATEGORY_SHORTCUTS[key]);
+    });
+    
     return { projects: freshProjects, categories: categories };
 }
 
@@ -311,7 +386,6 @@ window.saveDemoProjects = saveDemoProjects;
 window.saveDemoCategories = saveDemoCategories;
 window.loadDemoProjects = loadDemoProjects;
 window.loadDemoCategories = loadDemoCategories;
-window.formatDemoCategory = formatDemoCategory;
 window.DEMO_CATEGORIES = DEMO_CATEGORIES;
 
 // Initialize immediately
@@ -320,4 +394,13 @@ window.DEMO_CATEGORIES = DEMO_CATEGORIES;
     const data = getDemoData();
     console.log(`Loaded ${data.projects.length} projects and ${data.categories.length} categories`);
     console.log('Categories:', data.categories.map(c => formatDemoCategory(c)).join(', '));
+    
+    // Initialize shortcuts for any categories that don't have them
+    data.categories.forEach(cat => {
+        const shortcut = localStorage.getItem(`category_shortcut_${cat}`);
+        if (!shortcut) {
+            const defaultShortcut = getDemoCategoryShortcut(cat);
+            localStorage.setItem(`category_shortcut_${cat}`, defaultShortcut);
+        }
+    });
 })();

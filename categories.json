@@ -1,0 +1,42 @@
+{
+  "brand_&_identity": {
+    "display": "Brand & Identity",
+    "shortcut": "brand"
+  },
+  "production_&_installation": {
+    "display": "Production & Installation",
+    "shortcut": "production"
+  },
+  "game_design_&_development": {
+    "display": "Game Design & Development",
+    "shortcut": "game"
+  },
+  "web_design_&_development": {
+    "display": "Web Design & Development",
+    "shortcut": "web"
+  },
+  "app_design_&_development": {
+    "display": "App Design & Development",
+    "shortcut": "app"
+  },
+  "digital_art_&_design": {
+    "display": "Digital Art & Design",
+    "shortcut": "art"
+  },
+  "motion_graphics_&_animation": {
+    "display": "Motion Graphics & Animation",
+    "shortcut": "motion"
+  },
+  "user_experience": {
+    "display": "User Experience",
+    "shortcut": "ux"
+  },
+  "game_design": {
+    "display": "Game Design",
+    "shortcut": ""
+  },
+  "web_&_interactive": {
+    "display": "Web & Interactive",
+    "shortcut": ""
+  }
+}

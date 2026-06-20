@@ -72,140 +72,143 @@
     <main class="portfolio-container">
         <div class="admin-workspace">
             <div class="admin-form-sticky">
-                <form id="add-project-form" class="admin-form">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <h3 id="form-action-title" style="margin-bottom: 0;">New Portfolio Project</h3>
-                        <button type="button" id="new-project-btn" class="filter-btn" style="padding: 0.4rem 1rem; display: none;">✨ New Project</button>
-                    </div>
-                    <input type="hidden" id="form-edit-index" value="">
-                    
-                    <div class="form-group">
-                        <label>Project Title</label>
-                        <input type="text" id="form-title" required placeholder="e.g., My Awesome Project">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Category Identifier</label>
-                        <div style="display: flex; gap: 0.5rem; align-items: center;">
-                            <select id="form-category" style="flex: 1;">
-                                <option value="">Uncategorized</option>
-                                <option disabled>──────────</option>
-                                <option value="brand_&_identity">Brand & Identity</option>
-                                <option value="production_&_installation">Production & Installation</option>
-                                <option value="game_design_&_development">Game Design</option>
-                                <option value="web_design_&_development">Web & Interactive</option>
-                                <option value="digital_art_&_design">Digital Art</option>
-                                <option value="motion_graphics_&_animation">Motion Graphics</option>
-                                <option value="app_design_&_development">App Development</option>
-                                <option value="user_experience">User Experience</option>
-                            </select>
-                            <button type="button" id="add-category-btn" class="filter-btn" style="padding: 0 1rem; white-space: nowrap;">+ Add Category</button>
-                            <button type="button" id="manage-categories-btn" class="btn-small" style="white-space: nowrap;">⚙️ Manage</button>
-                        </div>
-                        <div id="add-category-field" style="display: none; margin-top: 0.75rem;">
-                            <div style="display: flex; gap: 0.5rem;">
-                                <input type="text" id="new-category-name" placeholder="New category name" style="flex: 1; padding: 0.5rem; border-radius: 10px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
-                                <button type="button" id="confirm-add-category-btn" class="filter-btn" style="padding: 0.5rem 1rem;">Add</button>
-                                <button type="button" id="cancel-add-category-btn" class="btn-small">Cancel</button>
-                            </div>
-                        </div>
-                        <small id="category-help-text" style="color: var(--text-muted); display: block; margin-top: 0.3rem;">📁 Select a category or click "+ Add Category" to create a new one</small>
-                    </div>
-                    
-                    <div id="category-manager" style="display: none; background: var(--bg-primary); border-radius: 14px; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--border-color);">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                            <strong style="font-size: 0.85rem;">Manage Categories (Delete Only)</strong>
-                            <button type="button" id="close-category-manager" class="btn-small" style="padding: 0.2rem 0.5rem;">✕ Close</button>
-                        </div>
-                        <div id="categories-list" style="display: flex; flex-wrap: wrap; gap: 0.5rem;"></div>
-                        <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">💡 Click ✕ to delete a category. Projects using this category will become Uncategorized.</small>
-                    </div>
-                    
-                    <!-- Card Heading removed (commented out in main) -->
-                    
-                    <div class="form-group selected-work-group">
-                        <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 0.75rem; background: var(--bg-primary); border-radius: 14px; border: 1px solid var(--border-color); transition: all 0.2s;">
-                            <input type="checkbox" id="form-selected" class="custom-checkbox-input">
-                            <span class="custom-checkbox-box"></span>
-                            <span style="font-weight: 500;">⭐ Selected Work (featured on live site)</span>
-                        </label>
-                        <small style="color: var(--text-muted); display: block; margin-top: 0.5rem; margin-left: 0.25rem;">🌟 Check to feature this project as a "Selected Work" on the live site</small>
-                    </div>
-
-                    <div class="form-group publish-group">
-                        <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 0.75rem; background: var(--bg-primary); border-radius: 14px; border: 1px solid var(--border-color); transition: all 0.2s;">
-                            <input type="checkbox" id="form-published" class="custom-checkbox-input">
-                            <span class="custom-checkbox-box"></span>
-                            <span style="font-weight: 500;">📢 Publish Project (visible on live site)</span>
-                        </label>
-                        <small style="color: var(--text-muted); display: block; margin-top: 0.5rem; margin-left: 0.25rem;">🔒 Check to publish. Uncheck to save as draft (only visible in admin panel)</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Image Crop Alignment</label>
-                        <select id="form-image-align">
-                            <option value="center">Center (Default)</option>
-                            <option value="top">Top</option>
-                            <option value="bottom">Bottom</option>
+            <form id="add-project-form" class="admin-form">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 id="form-action-title" style="margin-bottom: 0;">New Portfolio Project</h3>
+                    <button type="button" id="new-project-btn" class="filter-btn" style="padding: 0.4rem 1rem; display: none;">✨ New Project</button>
+                </div>
+                <input type="hidden" id="form-edit-index" value="">
+                
+                <div class="form-group">
+                    <label>Project Title</label>
+                    <input type="text" id="form-title" required placeholder="e.g., Mountain Retreat">
+                </div>
+                
+                <div class="form-group" id="category-form-group">
+                    <label>Category Identifier</label>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <select id="form-category" style="flex: 1;">
+                            <option value="">Uncategorized</option>
+                            <option disabled>──────────</option>
+                            <option value="creative_experiments">Creative Experiments</option>
+                            <option value="interactive_media">Interactive Media</option>
+                            <option value="digital_craft">Digital Craft</option>
+                            <option value="visual_stories">Visual Stories</option>
                         </select>
-                        <small style="color: var(--text-muted); display: block; margin-top: 0.3rem;">🎨 Controls how portrait/landscape images are cropped in the card preview</small>
+                        <button type="button" id="add-category-btn" class="filter-btn" style="padding: 0 1rem; white-space: nowrap;">📁 Manage</button>
+                    </div>
+                    <small id="category-help-text" style="color: var(--text-muted); display: block; margin-top: 0.3rem;">📁 Click "Manage" to add/edit categories and shortcuts</small>
+                </div>
+                
+                <!-- Category Manager - Inline -->
+                <div id="category-manager" class="category-manager" style="display: none;">
+                    <div class="category-manager-header">
+                        <h4 class="category-manager-title">📁 Manage Categories</h4>
+                        <button type="button" id="category-manager-close" class="category-manager-close">✕</button>
                     </div>
                     
-                    <div class="form-group">
-                        <label>Media Resources</label>
-                        
-                        <div class="media-input-row">
-                            <input type="text" id="media-input" placeholder="media/image.jpg, https://youtu.be/..., video.mp4">
-                            <button type="button" id="add-media-btn" class="filter-btn" style="padding: 0 1rem;">+ Add</button>
-                        </div>
-                        
-                        <input type="file" id="multi-file-input" multiple accept="image/*,video/mp4,video/webm,video/quicktime,video/x-msvideo,.mov,.ogg" style="display: none;">
-                        
-                        <div id="media-badges" class="media-badges-container"></div>
-                        
-                        <div class="media-paste-area">
-                            <button type="button" id="toggle-paste-btn" class="btn-small">📋 Paste Multiple URLs</button>
-                            <div id="paste-area" style="display: none; margin-top: 0.5rem;">
-                                <textarea id="paste-urls" class="media-paste-textarea" rows="3" placeholder="Paste URLs here (one per line):&#10;media/image1.jpg&#10;https://youtu.be/abc123&#10;media/video.mp4"></textarea>
-                                <button type="button" id="process-paste-btn" class="btn-small" style="margin-top: 0.3rem;">Add All</button>
+                    <!-- Category List -->
+                    <div id="category-list-container" class="category-list-container">
+                        <!-- Categories will be rendered here -->
+                    </div>
+                    
+                    <!-- Add Category Form -->
+                    <div class="category-add-form">
+                        <div class="category-add-grid">
+                            <div>
+                                <label class="category-add-label">Category Name</label>
+                                <input type="text" id="modal-new-category-name" placeholder="e.g., Illustration &amp; Design" class="category-input-field">
+                            </div>
+                            <div>
+                                <label class="category-add-label">Shortcut (optional)</label>
+                                <input type="text" id="modal-new-category-shortcut" placeholder="Auto-generated" class="category-input-field">
                             </div>
                         </div>
+                        <small class="category-add-hint">💡 Leave shortcut blank to auto-generate from category name</small>
+                        <button type="button" id="modal-add-category-btn" class="filter-btn category-add-btn">+ Add Category</button>
+                    </div>
+                </div>
+                
+                <div class="form-group selected-work-group">
+                    <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 0.75rem; background: var(--bg-primary); border-radius: 14px; border: 1px solid var(--border-color); transition: all 0.2s;">
+                        <input type="checkbox" id="form-selected" class="custom-checkbox-input">
+                        <span class="custom-checkbox-box"></span>
+                        <span style="font-weight: 500;">⭐ Selected Work (featured on live site)</span>
+                    </label>
+                    <small style="color: var(--text-muted); display: block; margin-top: 0.5rem; margin-left: 0.25rem;">🌟 Check to feature this project as a "Selected Work" on the live site</small>
+                </div>
 
-                        <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">
-                            💡 Type a relative path or URL and click Add, or click the Add button to select files from your computer (multi-select supported). 
-                            Drag ⋮⋮ to reorder media items.
-                        </small>
+                <div class="form-group publish-group">
+                    <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 0.75rem; background: var(--bg-primary); border-radius: 14px; border: 1px solid var(--border-color); transition: all 0.2s;">
+                        <input type="checkbox" id="form-published" class="custom-checkbox-input">
+                        <span class="custom-checkbox-box"></span>
+                        <span style="font-weight: 500;">📢 Publish Project (visible on live site)</span>
+                    </label>
+                    <small style="color: var(--text-muted); display: block; margin-top: 0.5rem; margin-left: 0.25rem;">🔒 Check to publish. Uncheck to save as draft (only visible in admin panel)</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>Image Crop Alignment</label>
+                    <select id="form-image-align">
+                        <option value="center">Center (Default)</option>
+                        <option value="top">Top</option>
+                        <option value="bottom">Bottom</option>
+                    </select>
+                    <small style="color: var(--text-muted); display: block; margin-top: 0.3rem;">🎨 Controls how portrait/landscape images are cropped in the card preview</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>Media Resources</label>
+                    
+                    <div class="media-input-row">
+                        <input type="text" id="media-input" placeholder="media/image.jpg, https://youtu.be/..., video.mp4">
+                        <button type="button" id="add-media-btn" class="filter-btn" style="padding: 0 1rem;">+ Add</button>
                     </div>
                     
-                    <div class="form-group">
-                        <label>Project Narrative Summary</label>
-                        <div class="rich-text-container">
-                            <div class="rich-text-toolbar">
-                                <button type="button" id="toolbar-bold"   title="Wrap in &lt;strong&gt;"><strong>B</strong></button>
-                                <button type="button" id="toolbar-italic" title="Wrap in &lt;em&gt;"><em>I</em></button>
-                                <button type="button" id="toolbar-ul"     title="Wrap lines in &lt;ul&gt;&lt;li&gt;">• List</button>
-                                <button type="button" id="toolbar-link"   title="Wrap in &lt;a href&gt;">🔗 Link</button>
-                                <button type="button" id="toolbar-award"  title="Wrap in &lt;award&gt; (displays as award badge)">🏆 Award</button>
-                                <button type="button" id="toolbar-live"   title="Wrap in &lt;live&gt;  (displays as live link badge)">🔴 Live</button>
-                            </div>
-                            <textarea id="form-description" class="rich-text-description tag-editor" rows="7"
-                                placeholder="Type description here. Use toolbar to insert tags, or type them directly.&#10;e.g. &lt;strong&gt;bold&lt;/strong&gt;, &lt;em&gt;italic&lt;/em&gt;, &lt;a href=&quot;https://...&quot; target=&quot;_blank&quot;&gt;link text&lt;/a&gt;"></textarea>
+                    <input type="file" id="multi-file-input" multiple accept="image/*,video/mp4,video/webm,video/quicktime,video/x-msvideo,.mov,.ogg" style="display: none;">
+                    
+                    <div id="media-badges" class="media-badges-container"></div>
+                    
+                    <div class="media-paste-area">
+                        <button type="button" id="toggle-paste-btn" class="btn-small">📋 Paste Multiple URLs</button>
+                        <div id="paste-area" style="display: none; margin-top: 0.5rem;">
+                            <textarea id="paste-urls" class="media-paste-textarea" rows="3" placeholder="Paste URLs here (one per line):&#10;media/image1.jpg&#10;https://youtu.be/abc123&#10;media/video.mp4"></textarea>
+                            <button type="button" id="process-paste-btn" class="btn-small" style="margin-top: 0.3rem;">Add All</button>
                         </div>
-                        <div id="char-counter" style="text-align: right; font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;"></div>
-                        <small style="color: var(--text-muted); display: block; margin-top: 0.3rem;">
-                            📝 Type HTML tags directly or use the toolbar. Select text then click a button to wrap it.
-                        </small>
                     </div>
-                    
-                    <button type="submit" id="submit-btn" class="filter-btn active" style="width: 100%; margin-top: 0.5rem;">+ Add Portfolio Project</button>
-                </form>
+
+                    <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">
+                        💡 Type a relative path or URL and click Add, or click the Add button to select files from your computer (multi-select supported). 
+                        Drag ⋮⋮ to reorder media items.
+                    </small>
+                </div>
+                
+                <div class="form-group">
+                    <label>Project Narrative Summary</label>
+                    <div class="rich-text-container">
+                        <div class="rich-text-toolbar">
+                            <button type="button" id="toolbar-bold"   title="Wrap in &lt;strong&gt;"><strong>B</strong></button>
+                            <button type="button" id="toolbar-italic" title="Wrap in &lt;em&gt;"><em>I</em></button>
+                            <button type="button" id="toolbar-ul"     title="Wrap lines in &lt;ul&gt;&lt;li&gt;">• List</button>
+                            <button type="button" id="toolbar-link"   title="Wrap in &lt;a href&gt;">🔗 Link</button>
+                            <button type="button" id="toolbar-award"  title="Wrap in &lt;award&gt; (displays as award badge)">🏆 Award</button>
+                            <button type="button" id="toolbar-live"   title="Wrap in &lt;live&gt;  (displays as live link badge)">🔴 Live</button>
+                        </div>
+                        <textarea id="form-description" class="rich-text-description tag-editor" rows="7"
+                            placeholder="Type description here. Use toolbar to insert tags, or type them directly.&#10;e.g. &lt;strong&gt;bold&lt;/strong&gt;, &lt;em&gt;italic&lt;/em&gt;, &lt;a href=&quot;https://...&quot; target=&quot;_blank&quot;&gt;link text&lt;/a&gt;"></textarea>
+                    </div>
+                    <div id="char-counter" style="text-align: right; font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;"></div>
+                    <small style="color: var(--text-muted); display: block; margin-top: 0.3rem;">
+                        📝 Type HTML tags directly or use the toolbar. Select text then click a button to wrap it.
+                    </small>
+                </div>
+                
+                <button type="submit" id="submit-btn" class="filter-btn active" style="width: 100%; margin-top: 0.5rem;">+ Add Portfolio Project</button>
+            </form>
             </div><!-- /.admin-form-sticky -->
 
             <div class="sorting-zone">
                 <h3>Arrange Project Priority <span style="font-size:0.75rem; text-transform:none; color:var(--text-muted); font-weight:normal;">(Click a row to edit, drag rows to reorder)</span></h3>
-                
-                <!-- Cleanup Links button removed (commented out in main) -->
-                
                 <div class="admin-search">
                     <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
                         <div style="position:relative; display:flex; align-items:center; flex: 1; min-width: 200px;">

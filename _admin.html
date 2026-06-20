@@ -35,7 +35,7 @@
                     <input type="text" id="form-title" required placeholder="e.g., Marathon Sod Rebrand">
                 </div>
                 
-                <div class="form-group">
+                <div class="form-group" id="category-form-group">
                     <label>Category Identifier</label>
                     <div style="display: flex; gap: 0.5rem; align-items: center;">
                         <select id="form-category" style="flex: 1;">
@@ -46,33 +46,39 @@
                             <option value="game_design">Game Design</option>
                             <option value="web_&_interactive">Web & Interactive</option>
                         </select>
-                        <button type="button" id="add-category-btn" class="filter-btn" style="padding: 0 1rem; white-space: nowrap;">+ Add Category</button>
-                        <button type="button" id="manage-categories-btn" class="btn-small" style="white-space: nowrap;">⚙️ Manage</button>
+                        <button type="button" id="add-category-btn" class="filter-btn" style="padding: 0 1rem; white-space: nowrap;">📁 Manage</button>
                     </div>
-                    <div id="add-category-field" style="display: none; margin-top: 0.75rem;">
-                        <div style="display: flex; gap: 0.5rem;">
-                            <input type="text" id="new-category-name" placeholder="New category name (e.g., Illustration)" style="flex: 1; padding: 0.5rem; border-radius: 10px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
-                            <button type="button" id="confirm-add-category-btn" class="filter-btn" style="padding: 0.5rem 1rem;">Add</button>
-                            <button type="button" id="cancel-add-category-btn" class="btn-small">Cancel</button>
+                    <small id="category-help-text" style="color: var(--text-muted); display: block; margin-top: 0.3rem;">📁 Click "Manage" to add/edit categories and shortcuts</small>
+                </div>
+                
+                <!-- Category Manager - Inline (will be moved here by JavaScript) -->
+                <div id="category-manager" class="category-manager" style="display: none;">
+                    <div class="category-manager-header">
+                        <h4 class="category-manager-title">📁 Manage Categories</h4>
+                        <button type="button" id="category-manager-close" class="category-manager-close">✕</button>
+                    </div>
+                    
+                    <!-- Category List -->
+                    <div id="category-list-container" class="category-list-container">
+                        <!-- Categories will be rendered here -->
+                    </div>
+                    
+                    <!-- Add Category Form -->
+                    <div class="category-add-form">
+                        <div class="category-add-grid">
+                            <div>
+                                <label class="category-add-label">Category Name</label>
+                                <input type="text" id="modal-new-category-name" placeholder="e.g., Illustration &amp; Design" class="category-input-field">
+                            </div>
+                            <div>
+                                <label class="category-add-label">Shortcut (optional)</label>
+                                <input type="text" id="modal-new-category-shortcut" placeholder="Auto-generated" class="category-input-field">
+                            </div>
                         </div>
+                        <small class="category-add-hint">💡 Leave shortcut blank to auto-generate from category name</small>
+                        <button type="button" id="modal-add-category-btn" class="filter-btn category-add-btn">+ Add Category</button>
                     </div>
-                    <small id="category-help-text" style="color: var(--text-muted); display: block; margin-top: 0.3rem;">📁 Select a category or click "+ Add Category" to create a new one</small>
                 </div>
-                
-                <div id="category-manager" style="display: none; background: var(--bg-primary); border-radius: 14px; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--border-color);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                        <strong style="font-size: 0.85rem;">Manage Categories (Delete Only)</strong>
-                        <button type="button" id="close-category-manager" class="btn-small" style="padding: 0.2rem 0.5rem;">✕ Close</button>
-                    </div>
-                    <div id="categories-list" style="display: flex; flex-wrap: wrap; gap: 0.5rem;"></div>
-                    <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">💡 Click ✕ to delete a category. Projects using this category will become Uncategorized.</small>
-                </div>
-                
-                <!-- <div class="form-group">
-                    <label>Card Heading</label>
-                    <input type="text" id="form-tag" required placeholder="e.g., Brand Identity">
-                    <small style="color: var(--text-muted); display: block; margin-top: 0.3rem;">🏷️ This appears as the heading on the portfolio card</small>
-                </div> -->
                 
                 <div class="form-group selected-work-group">
                     <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 0.75rem; background: var(--bg-primary); border-radius: 14px; border: 1px solid var(--border-color); transition: all 0.2s;">
@@ -109,7 +115,6 @@
                         <input type="text" id="media-input" placeholder="media/image.jpg, https://youtu.be/..., video.mp4">
                         <button type="button" id="add-media-btn" class="filter-btn" style="padding: 0 1rem;">+ Add</button>
                     </div>
-                    
                     
                     <input type="file" id="multi-file-input" multiple accept="image/*,video/mp4,video/webm,video/quicktime,video/x-msvideo,.mov,.ogg" style="display: none;">
                     
@@ -155,9 +160,6 @@
 
             <div class="sorting-zone">
                 <h3>Arrange Project Priority <span style="font-size:0.75rem; text-transform:none; color:var(--text-muted); font-weight:normal;">(Click a row to edit, drag rows to reorder)</span></h3>
-                <!-- <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
-                    <button type="button" id="cleanup-links-btn" class="filter-btn" style="padding: 0.4rem 1rem;">🧹 Clean Up Links</button>
-                </div> -->
                 <div class="admin-search">
                     <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
                         <div style="position:relative; display:flex; align-items:center; flex: 1; min-width: 200px;">

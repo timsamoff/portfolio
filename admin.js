@@ -5,6 +5,9 @@ let draggedMediaIndexForReorder = null;
 let currentSearchTerm = '';
 let availableCategories = ['brand_&_identity', 'production_&_installation', 'game_design', 'web_&_interactive'];
 
+// Category data with display names and shortcuts
+let categoryData = {};
+
 // Auto-save tracking
 let autoSaveTimeout = null;
 let isEditingMode = false;
@@ -57,13 +60,12 @@ const categoryHelpText = document.getElementById('category-help-text');
 
 // Category management elements
 const addCategoryBtn = document.getElementById('add-category-btn');
-const addCategoryField = document.getElementById('add-category-field');
-const newCategoryNameInput = document.getElementById('new-category-name');
-const confirmAddCategoryBtn = document.getElementById('confirm-add-category-btn');
-const cancelAddCategoryBtn = document.getElementById('cancel-add-category-btn');
-const manageBtn = document.getElementById('manage-categories-btn');
 const categoryManager = document.getElementById('category-manager');
-const closeCategoryManager = document.getElementById('close-category-manager');
+const categoryManagerClose = document.getElementById('category-manager-close');
+const categoryListContainer = document.getElementById('category-list-container');
+const modalNewCategoryName = document.getElementById('modal-new-category-name');
+const modalNewCategoryShortcut = document.getElementById('modal-new-category-shortcut');
+const modalAddCategoryBtn = document.getElementById('modal-add-category-btn');
 
 // Toolbar buttons
 const toolbarBold = document.getElementById('toolbar-bold');
@@ -85,23 +87,94 @@ if (window.history.scrollRestoration) {
 }
 
 // ========================
+// CATEGORY DATA INITIALIZATION
+// ========================
+
+function initCategoryData() {
+    const defaults = {
+        'brand_&_identity': { display: 'Brand & Identity', shortcut: 'brand' },
+        'production_&_installation': { display: 'Production & Installation', shortcut: 'production' },
+        'game_design': { display: 'Game Design', shortcut: 'game' },
+        'web_&_interactive': { display: 'Web & Interactive', shortcut: 'web' }
+    };
+    
+    Object.keys(defaults).forEach(key => {
+        if (!categoryData[key]) {
+            categoryData[key] = defaults[key];
+        }
+    });
+}
+
+function loadCategoryData() {
+    fetch('categories.json')
+        .then(res => {
+            if (!res.ok) throw new Error('categories.json not found');
+            return res.json();
+        })
+        .then(data => {
+            categoryData = data;
+            availableCategories.forEach(cat => {
+                if (!categoryData[cat]) {
+                    categoryData[cat] = {
+                        display: formatCategoryForDisplay(cat),
+                        shortcut: ''
+                    };
+                }
+            });
+            updateCategoryDropdown();
+        })
+        .catch(() => {
+            initCategoryData();
+            availableCategories.forEach(cat => {
+                if (!categoryData[cat]) {
+                    categoryData[cat] = {
+                        display: formatCategoryForDisplay(cat),
+                        shortcut: ''
+                    };
+                }
+            });
+            updateCategoryDropdown();
+        });
+}
+
+function saveCategoryData() {
+    const dataToSave = {};
+    Object.keys(categoryData).forEach(key => {
+        dataToSave[key] = {
+            display: categoryData[key].display,
+            shortcut: categoryData[key].shortcut || ''
+        };
+    });
+    
+    fetch('http://localhost:3001/api/save-categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataToSave)
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (!res.success) {
+            console.warn('Could not save categories:', res.error);
+        }
+    })
+    .catch(() => console.warn('Could not save categories'));
+}
+
+// ========================
 // SMART QUOTES - FIXED TO PRESERVE HTML
 // ========================
 function convertToSmartQuotes(text) {
     if (!text) return '';
     
-    // If no HTML tags, do simple conversion with proper opening/closing detection
     if (!/<[a-z][\s\S]*>/i.test(text)) {
         return convertPlainTextToSmartQuotes(text);
     }
     
-    // Parse character by character, tracking HTML context
     let result = '';
     let inTag = false;
     let inAttribute = false;
     let attributeQuoteChar = '';
     
-    // Build an array of characters with their positions for context analysis
     const chars = text.split('');
     
     for (let i = 0; i < chars.length; i++) {
@@ -109,7 +182,6 @@ function convertToSmartQuotes(text) {
         const nextChar = chars[i + 1] || '';
         const prevChar = chars[i - 1] || '';
         
-        // HTML tag detection
         if (char === '<' && !inTag) {
             inTag = true;
             inAttribute = false;
@@ -123,7 +195,6 @@ function convertToSmartQuotes(text) {
             continue;
         }
         
-        // Inside HTML tags, preserve everything as-is
         if (inTag) {
             if (char === '"' || char === "'") {
                 if (!inAttribute) {
@@ -132,21 +203,17 @@ function convertToSmartQuotes(text) {
                 } else if (char === attributeQuoteChar) {
                     inAttribute = false;
                 }
-                result += char; // Preserve quote
+                result += char;
                 continue;
             }
             result += char;
             continue;
         }
         
-        // If inside an attribute value (after the quote), preserve
         if (inAttribute) {
             result += char;
             continue;
         }
-        
-        // === NOT IN HTML TAGS ===
-        // Convert quotes with proper context awareness
         
         if (char === '"') {
             const isOpening = isOpeningQuote(text, i, result);
@@ -161,24 +228,19 @@ function convertToSmartQuotes(text) {
     return result;
 }
 
-// Determine if a double quote is an opening quote
 function isOpeningQuote(text, position, processedResult) {
     const prevChar = text[position - 1] || '';
     const nextChar = text[position + 1] || '';
     
     const isStartOrAfterWhitespace = position === 0 || /[\s(\[{]/.test(prevChar);
-    
     const nextIsWord = /\w/.test(nextChar);
-    
-    // Check if this might be a measurement or number (e.g., 5" or "5)
     const prevIsNumber = /\d/.test(prevChar);
     const nextIsNumber = /\d/.test(nextChar);
     
-    // Don't convert if it's part of a measurement (like 5" or "5")
     if (prevIsNumber || nextIsNumber) {
         const beforePrev = text[position - 2] || '';
         if (/\d/.test(prevChar) || (prevIsNumber && beforePrev !== '"')) {
-            return false; // Keep as straight quote for measurements
+            return false;
         }
     }
     
@@ -196,7 +258,6 @@ function isOpeningQuote(text, position, processedResult) {
     return false;
 }
 
-// Determine the correct apostrophe type
 function convertApostrophe(text, position, processedResult) {
     const prevChar = text[position - 1] || '';
     const nextChar = text[position + 1] || '';
@@ -204,40 +265,33 @@ function convertApostrophe(text, position, processedResult) {
     const prevPrevChar = text[position - 2] || '';
     
     if (/\w/.test(prevChar) && /\w/.test(nextChar)) {
-        return '’'; // Smart apostrophe for contractions
+        return '’';
     }
     
-    // === POSSESSIVES WITH NO FOLLOWING WORD ===
     if (/\w/.test(prevChar) && /\s/.test(nextChar)) {
-        return '’'; // Smart apostrophe for possessives
+        return '’';
     }
     
-    // === POSSESSIVE PLURAL ===
-    // Pattern: word + s' + space (e.g., girls' room)
     if (prevChar === 's' && /\w/.test(prevPrevChar) && /\s/.test(nextChar)) {
-        return '’'; // Smart apostrophe for plural possessives
+        return '’';
     }
     
-    // === MEASUREMENTS / NUMBERS ===
     if (/\d/.test(prevChar) || /\d/.test(nextChar)) {
-        return "'"; // Keep straight for measurements
+        return "'";
     }
     
-    // === OPENING QUOTE (e.g., 'Twas, 'Tis) ===
     const isStartOrAfterWhitespace = position === 0 || /[\s(\[{]/.test(prevChar);
     if (isStartOrAfterWhitespace && /\w/.test(nextChar)) {
-        return '‘'; // Opening smart quote
+        return '‘';
     }
     
-    // === CLOSING QUOTE ===
     if (/\w/.test(prevChar) && /[.,!?;:)\]}]\s*/.test(nextChar)) {
-        return '’'; // Closing smart quote
+        return '’';
     }
     
     return "'";
 }
 
-// Convert plain text (no HTML)
 function convertPlainTextToSmartQuotes(text) {
     let result = '';
     
@@ -268,14 +322,11 @@ function cleanupMalformedLinks(html) {
     cleaned = cleaned.replace(/href=["'”‘’]\s*["'”‘’]?(https?:\/\/[^"'\s>]+)["'”‘’]\s*["'”‘’]?/g, 'href="$1"');
     cleaned = cleaned.replace(/href=”(https?:\/\/[^”\s>]+)”/g, 'href="$1"');
     cleaned = cleaned.replace(/href=‘([^’\s>]+)’/g, 'href="$1"');
-    
     cleaned = cleaned.replace(/href="https?:\/\/[^"]*?(https?:\/\/[^"]+)/g, function(match, captured) {
         return 'href="' + captured;
     });
-    
     cleaned = cleaned.replace(/%E2%80%9C/g, '').replace(/%E2%80%9D/g, '');
     cleaned = cleaned.replace(/%E2%80%98/g, '').replace(/%E2%80%99/g, '');
-    
     cleaned = cleaned.replace(/target=”(_blank|_self|_parent|_top)”/g, 'target="$1"');
     cleaned = cleaned.replace(/target=‘(_blank|_self|_parent|_top)’/g, 'target="$1"');
     cleaned = cleaned.replace(/rel=”(noopener noreferrer|nofollow|noopener)”/g, 'rel="$1"');
@@ -598,22 +649,338 @@ function showAutoSaveNotification() {
 }
 
 // ========================
-// CONFIRMATION MODAL
+// CATEGORY MANAGEMENT
 // ========================
-function showConfirmModal(message, onConfirm, onCancel) {
-    if (activeModal) {
-        activeModal.remove();
+function normalizeCategoryName(name) {
+    if (!name || !name.trim()) return '';
+    
+    let normalized = name.trim().toLowerCase();
+    normalized = normalized.replace(/&/g, '_&_');
+    normalized = normalized.replace(/\s+/g, ' ');
+    normalized = normalized.replace(/ /g, '_');
+    normalized = normalized.replace(/_+/g, '_');
+    normalized = normalized.replace(/^_|_$/g, '');
+    
+    return normalized;
+}
+
+function formatCategoryForDisplay(cat) {
+    if (!cat) return '';
+    return cat.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ').replace(/&/g, '&');
+}
+
+function generateShortcutFromName(name) {
+    if (!name) return '';
+    
+    const words = name.toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w);
+    
+    if (words.length === 0) return '';
+    
+    if (words.length === 1) {
+        return words[0].substring(0, 4);
+    } else {
+        let shortcut = words[0].substring(0, 2);
+        if (words.length > 1) {
+            shortcut += words[1].substring(0, 2);
+        }
+        return shortcut;
+    }
+}
+
+function updateCategoryDropdown() {
+    if (!formCategory) return;
+    const currentValue = formCategory.value;
+    formCategory.innerHTML = '';
+    
+    const uncategorizedOption = document.createElement('option');
+    uncategorizedOption.value = '';
+    uncategorizedOption.textContent = 'Uncategorized';
+    formCategory.appendChild(uncategorizedOption);
+    
+    const separator = document.createElement('option');
+    separator.disabled = true;
+    separator.textContent = '──────────';
+    formCategory.appendChild(separator);
+    
+    const sortedCategories = [...availableCategories].sort((a, b) => {
+        const displayA = categoryData[a]?.display || formatCategoryForDisplay(a);
+        const displayB = categoryData[b]?.display || formatCategoryForDisplay(b);
+        return displayA.localeCompare(displayB);
+    });
+    
+    sortedCategories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat;
+        const displayName = categoryData[cat]?.display || formatCategoryForDisplay(cat);
+        const shortcut = categoryData[cat]?.shortcut || '';
+        option.textContent = shortcut ? `${displayName} (${shortcut})` : displayName;
+        formCategory.appendChild(option);
+    });
+    
+    if (currentValue === '' || currentValue === 'uncategorized') {
+        formCategory.value = '';
+    } else if (availableCategories.includes(currentValue)) {
+        formCategory.value = currentValue;
+    } else {
+        formCategory.value = '';
+    }
+}
+
+// ========================
+// CATEGORY MANAGER - INLINE
+// ========================
+
+function toggleCategoryManager() {
+    if (!categoryManager) return;
+    
+    if (categoryManager.style.display === 'none' || categoryManager.style.display === '') {
+        categoryManager.style.display = 'block';
+        renderCategoryList();
+        if (addCategoryBtn) {
+            addCategoryBtn.textContent = '📁 Close';
+        }
+    } else {
+        categoryManager.style.display = 'none';
+        if (addCategoryBtn) {
+            addCategoryBtn.textContent = '📁 Manage';
+        }
+    }
+}
+
+function renderCategoryList() {
+    if (!categoryListContainer) return;
+    
+    categoryListContainer.innerHTML = '';
+    
+    const sortedCategories = [...availableCategories].sort((a, b) => {
+        const displayA = categoryData[a]?.display || formatCategoryForDisplay(a);
+        const displayB = categoryData[b]?.display || formatCategoryForDisplay(b);
+        return displayA.localeCompare(displayB);
+    });
+    
+    if (sortedCategories.length === 0) {
+        categoryListContainer.innerHTML = '<div style="color: var(--text-muted); padding: 1rem; text-align: center;">No categories yet. Add one below.</div>';
+        return;
+    }
+    
+    sortedCategories.forEach(cat => {
+        const displayName = categoryData[cat]?.display || formatCategoryForDisplay(cat);
+        const shortcut = categoryData[cat]?.shortcut || '';
+        
+        const row = document.createElement('div');
+        row.style.cssText = `
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 0.75rem;
+            align-items: center;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        `;
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = displayName;
+        nameSpan.style.color = 'var(--color-text)';
+        
+        const shortcutInput = document.createElement('input');
+        shortcutInput.type = 'text';
+        shortcutInput.value = shortcut;
+        shortcutInput.placeholder = 'No shortcut';
+        shortcutInput.style.cssText = `
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+            font-size: 0.85rem;
+            width: 100%;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        `;
+        shortcutInput.dataset.category = cat;
+        
+        let saveTimeout = null;
+        shortcutInput.addEventListener('input', () => {
+            if (saveTimeout) clearTimeout(saveTimeout);
+            
+            saveTimeout = setTimeout(() => {
+                const newShortcut = shortcutInput.value.trim();
+                const category = shortcutInput.dataset.category;
+                
+                if (category && categoryData[category]) {
+                    const existingShortcuts = Object.keys(categoryData)
+                        .filter(key => key !== category)
+                        .map(key => categoryData[key].shortcut)
+                        .filter(s => s);
+                    
+                    if (newShortcut && existingShortcuts.includes(newShortcut)) {
+                        showFloatingNotification(`⚠️ Shortcut "${newShortcut}" is already in use`, false);
+                        shortcutInput.style.borderColor = 'var(--color-accent)';
+                        return;
+                    }
+                    
+                    categoryData[category].shortcut = newShortcut || '';
+                    shortcutInput.style.borderColor = '';
+                    
+                    updateCategoryDropdown();
+                    updateCategoryFilterOptions();
+                    saveCategoryData();
+                    showFloatingNotification(`✓ Shortcut updated for "${displayName}"`);
+                }
+            }, 500);
+        });
+        
+        shortcutInput.addEventListener('blur', () => {
+            if (saveTimeout) clearTimeout(saveTimeout);
+            
+            const newShortcut = shortcutInput.value.trim();
+            const category = shortcutInput.dataset.category;
+            
+            if (category && categoryData[category]) {
+                const existingShortcuts = Object.keys(categoryData)
+                    .filter(key => key !== category)
+                    .map(key => categoryData[key].shortcut)
+                    .filter(s => s);
+                
+                if (newShortcut && existingShortcuts.includes(newShortcut)) {
+                    showFloatingNotification(`⚠️ Shortcut "${newShortcut}" is already in use`, false);
+                    shortcutInput.style.borderColor = 'var(--color-accent)';
+                    return;
+                }
+                
+                categoryData[category].shortcut = newShortcut || '';
+                shortcutInput.style.borderColor = '';
+                updateCategoryDropdown();
+                updateCategoryFilterOptions();
+                saveCategoryData();
+            }
+        });
+        
+        // Hover effect for better visibility
+        shortcutInput.addEventListener('mouseenter', () => {
+            if (!shortcutInput.style.borderColor || shortcutInput.style.borderColor === '') {
+                shortcutInput.style.borderColor = 'var(--color-text-muted)';
+            }
+        });
+        shortcutInput.addEventListener('mouseleave', () => {
+            if (shortcutInput.style.borderColor === 'var(--color-text-muted)') {
+                shortcutInput.style.borderColor = '';
+            }
+        });
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = '✕';
+        deleteBtn.style.cssText = `
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.2rem 0.5rem;
+            font-size: 1rem;
+            transition: color 0.2s;
+        `;
+        deleteBtn.title = `Delete "${displayName}" category`;
+        deleteBtn.addEventListener('mouseenter', () => {
+            deleteBtn.style.color = 'var(--color-accent)';
+        });
+        deleteBtn.addEventListener('mouseleave', () => {
+            deleteBtn.style.color = 'var(--text-muted)';
+        });
+        deleteBtn.addEventListener('click', () => {
+            deleteCategory(cat);
+        });
+        
+        row.appendChild(nameSpan);
+        row.appendChild(shortcutInput);
+        row.appendChild(deleteBtn);
+        categoryListContainer.appendChild(row);
+    });
+}
+
+function addCategory() {
+    if (!modalNewCategoryName) return;
+    const name = modalNewCategoryName.value.trim();
+    
+    if (!name) {
+        showFloatingNotification('⚠️ Category name is required', false);
+        return;
+    }
+    
+    const normalized = normalizeCategoryName(name);
+    
+    if (normalized === 'uncategorized') {
+        showFloatingNotification('⚠️ "Uncategorized" is reserved', false);
+        return;
+    }
+    
+    if (availableCategories.includes(normalized)) {
+        showFloatingNotification(`⚠️ Category "${name}" already exists`, false);
+        return;
+    }
+    
+    let shortcut = modalNewCategoryShortcut ? modalNewCategoryShortcut.value.trim() : '';
+    if (!shortcut) {
+        shortcut = generateShortcutFromName(name);
+    }
+    
+    const existingShortcuts = Object.values(categoryData).map(c => c.shortcut).filter(s => s);
+    if (shortcut && existingShortcuts.includes(shortcut)) {
+        showFloatingNotification(`⚠️ Shortcut "${shortcut}" is already in use`, false);
+        return;
+    }
+    
+    availableCategories.push(normalized);
+    categoryData[normalized] = {
+        display: name,
+        shortcut: shortcut || ''
+    };
+    
+    if (modalNewCategoryName) modalNewCategoryName.value = '';
+    if (modalNewCategoryShortcut) modalNewCategoryShortcut.value = '';
+    
+    updateCategoryDropdown();
+    updateCategoryFilterOptions();
+    renderCategoryList();
+    saveCategoryData();
+    
+    let successMsg = `✅ Added category "${name}"`;
+    if (shortcut) {
+        successMsg += ` (shortcut: ${shortcut})`;
+    }
+    showFloatingNotification(successMsg);
+}
+
+function deleteCategory(categoryToDelete) {
+    showCategoryDeleteModal(categoryToDelete);
+}
+
+// ========================
+// CATEGORY DELETE MODAL
+// ========================
+function showCategoryDeleteModal(categoryToDelete) {
+    const displayName = categoryData[categoryToDelete]?.display || formatCategoryForDisplay(categoryToDelete);
+    const projectsUsing = localProjectCache.filter(p => p.category === categoryToDelete).length;
+    
+    let message = `Delete category "${displayName}"?`;
+    let details = '';
+    if (projectsUsing > 0) {
+        details = `${projectsUsing} project(s) will become Uncategorized.`;
+    }
+    
+    const existing = document.querySelector('.category-delete-modal');
+    if (existing) {
+        existing.remove();
     }
     
     const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'category-delete-modal';
     modalOverlay.style.cssText = `
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.8);
+        background: rgba(0, 0, 0, 0.85);
         backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
         z-index: 20000;
         display: flex;
         align-items: center;
@@ -626,43 +993,804 @@ function showConfirmModal(message, onConfirm, onCancel) {
         border: 1px solid var(--color-border);
         border-radius: 24px;
         padding: 1.5rem;
-        max-width: 400px;
+        max-width: 420px;
         width: 90%;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
     `;
     
     modalContent.innerHTML = `
-        <p style="margin-bottom: 1.5rem; line-height: 1.5; color: var(--color-text); white-space: pre-wrap;">${escapeHtml(message)}</p>
-        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
-            <button id="modal-cancel-btn" class="btn-small" style="padding: 0.5rem 1rem;">Cancel</button>
-            <button id="modal-confirm-btn" class="filter-btn" style="padding: 0.5rem 1rem; background: var(--color-accent); color: var(--color-white);">Confirm</button>
+        <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem; color: var(--color-text);">🗑️ Delete Category</h3>
+        <p style="color: var(--color-text-secondary); margin-bottom: 0.5rem; line-height: 1.6;">${escapeHtml(message)}</p>
+        ${details ? `<p style="color: var(--color-accent); margin-bottom: 1rem; font-size: 0.9rem; line-height: 1.5;">⚠️ ${escapeHtml(details)}</p>` : ''}
+        <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1rem;">
+            <button id="category-delete-cancel" style="
+                font-size: 0.75rem;
+                padding: 0.5rem 1rem;
+                background: var(--color-filter-bg);
+                border: 1px solid var(--color-border);
+                border-radius: 8px;
+                cursor: pointer;
+                color: var(--color-text-secondary);
+                transition: all 0.2s;
+            ">Cancel</button>
+            <button id="category-delete-confirm" style="
+                background: var(--color-accent);
+                border: none;
+                padding: 0.5rem 1.2rem;
+                border-radius: 100px;
+                font-size: 0.85rem;
+                font-weight: 500;
+                cursor: pointer;
+                color: var(--color-white);
+                transition: all 0.2s;
+            ">Delete</button>
         </div>
     `;
     
     modalOverlay.appendChild(modalContent);
     document.body.appendChild(modalOverlay);
-    activeModal = modalOverlay;
     
-    const confirmBtn = modalContent.querySelector('#modal-confirm-btn');
-    confirmBtn.addEventListener('click', () => {
-        modalOverlay.remove();
-        activeModal = null;
-        if (onConfirm) onConfirm();
+    const cancelBtn = modalContent.querySelector('#category-delete-cancel');
+    const confirmBtn = modalContent.querySelector('#category-delete-confirm');
+    
+    cancelBtn.addEventListener('mouseenter', () => {
+        cancelBtn.style.background = 'var(--color-border)';
+        cancelBtn.style.color = 'var(--color-text)';
+    });
+    cancelBtn.addEventListener('mouseleave', () => {
+        cancelBtn.style.background = 'var(--color-filter-bg)';
+        cancelBtn.style.color = 'var(--color-text-secondary)';
     });
     
-    const cancelBtn = modalContent.querySelector('#modal-cancel-btn');
-    cancelBtn.addEventListener('click', () => {
-        modalOverlay.remove();
-        activeModal = null;
-        if (onCancel) onCancel();
+    confirmBtn.addEventListener('mouseenter', () => {
+        confirmBtn.style.background = 'var(--color-accent-hover)';
     });
+    confirmBtn.addEventListener('mouseleave', () => {
+        confirmBtn.style.background = 'var(--color-accent)';
+    });
+    
+    function cleanup() {
+        if (modalOverlay && modalOverlay.parentNode) {
+            modalOverlay.remove();
+        }
+        document.removeEventListener('keydown', escHandler);
+    }
+    
+    function handleConfirm() {
+        cleanup();
+        availableCategories = availableCategories.filter(c => c !== categoryToDelete);
+        delete categoryData[categoryToDelete];
+        
+        let updatedCount = 0;
+        localProjectCache.forEach(project => {
+            if (project.category === categoryToDelete) {
+                project.category = '';
+                updatedCount++;
+            }
+        });
+        
+        updateCategoryDropdown();
+        updateCategoryFilterOptions();
+        renderCategoryList();
+        renderAdminView();
+        saveToServer();
+        saveCategoryData();
+        
+        let successMsg = `✅ Deleted category "${displayName}"`;
+        if (updatedCount > 0) {
+            successMsg += ` (${updatedCount} project(s) moved to Uncategorized)`;
+        }
+        showFloatingNotification(successMsg);
+    }
+    
+    function handleCancel() {
+        cleanup();
+    }
+    
+    cancelBtn.addEventListener('click', handleCancel);
+    confirmBtn.addEventListener('click', handleConfirm);
     
     modalOverlay.addEventListener('click', (e) => {
         if (e.target === modalOverlay) {
-            modalOverlay.remove();
-            activeModal = null;
-            if (onCancel) onCancel();
+            handleCancel();
         }
+    });
+    
+    const escHandler = (e) => {
+        if (e.key === 'Escape') {
+            handleCancel();
+        }
+    };
+    document.addEventListener('keydown', escHandler);
+    
+    setTimeout(() => {
+        confirmBtn.focus();
+    }, 100);
+}
+
+// ========================
+// PROJECT CRUD
+// ========================
+if (addForm) {
+    addForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const mediaToSave = [...currentMediaArray].filter(m => m && m.trim());
+        
+        const projectData = {
+            title: formTitle.value,
+            category: formCategory.value,
+            media: mediaToSave,
+            description: getEditorContent(),
+            imageAlign: formImageAlign.value,
+            selected: formSelected.checked,
+            published: formPublished.checked
+        };
+        
+        localProjectCache.push(projectData);
+        renderAdminView();
+        saveToServer();
+        startNewProject();
+        showFloatingNotification("✓ Project added with " + mediaToSave.length + " media resources(s)!");
+        
+        return false;
+    });
+}
+
+function saveToServer() {
+    if (localProjectCache.length === 0) {
+        console.warn('⚠️ Attempting to save empty project cache!');
+        showFloatingNotification('Warning: No projects to save!', false);
+        return;
+    }
+    
+    const projectsToSave = localProjectCache.map(project => {
+        if (project.description) {
+            project.description = cleanupMalformedLinks(project.description);
+        }
+        return project;
+    });
+    
+    fetch('http://localhost:3001/api/save-projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(projectsToSave)
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (!res.success) {
+            showFloatingNotification("Save error: " + res.error, false);
+        }
+    })
+    .catch(() => showFloatingNotification("Server not running. Run: node save-server.js", false));
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function getMediaIcon(url) {
+    if (!url) return '📄';
+    const lowerUrl = url.toLowerCase();
+    if (lowerUrl.match(/\.(jpg|jpeg|png|gif|webp|svg)$/)) return '🖼️';
+    if (lowerUrl.match(/\.(mp4|webm|mov|ogg)$/)) return '🎥';
+    if (lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be')) return '📺';
+    if (lowerUrl.includes('vimeo.com')) return '🎬';
+    return '🔗';
+}
+
+function getMediaPreview(mediaArray) {
+    if (!mediaArray || mediaArray.length === 0) return "No media";
+    const icons = mediaArray.map(m => getMediaIcon(m)).join(' ');
+    return `${icons} ${mediaArray.length} media item(s)`;
+}
+
+function loadData() {
+    loadCategoryData();
+    
+    fetch('projects.json')
+        .then(res => res.json())
+        .then(data => {
+            data = data.map(project => {
+                if (project.description) {
+                    project.description = cleanupMalformedLinks(project.description);
+                }
+                if (project.selected === undefined) {
+                    project.selected = false;
+                }
+                return project;
+            });
+            
+            localProjectCache = data;
+            
+            const cats = [...new Set(localProjectCache.map(p => p.category).filter(c => c && c !== ''))];
+            if (cats.length > 0) {
+                availableCategories = cats;
+                cats.forEach(cat => {
+                    if (!categoryData[cat]) {
+                        categoryData[cat] = {
+                            display: formatCategoryForDisplay(cat),
+                            shortcut: ''
+                        };
+                    }
+                });
+                updateCategoryDropdown();
+            }
+            
+            updateCategoryFilterOptions();
+            
+            renderAdminView();
+            showFloatingNotification(`✓ Loaded ${localProjectCache.length} projects`);
+        })
+        .catch(() => {
+            localProjectCache = [];
+            renderAdminView();
+            showFloatingNotification("✨ No projects found. Add your first one!");
+        });
+}
+
+// ========================
+// FILTER FUNCTIONS - NONDESTRUCTIVE
+// ========================
+
+function filterProjects(project) {
+    const searchTerm = currentSearchTerm.toLowerCase();
+    const filterValue = adminFilterSelect ? adminFilterSelect.value : 'all';
+    
+    const titleMatch = project.title.toLowerCase().includes(searchTerm);
+    if (!titleMatch) return false;
+    
+    if (filterValue === 'all') {
+        return true;
+    } else if (filterValue === 'published') {
+        return project.published !== false;
+    } else if (filterValue === 'unpublished') {
+        return project.published === false;
+    } else if (filterValue === 'selected') {
+        return project.selected === true;
+    } else if (filterValue === 'uncategorized') {
+        return !project.category || project.category === '';
+    } else if (filterValue.startsWith('cat_')) {
+        const category = filterValue.replace('cat_', '');
+        return project.category === category;
+    }
+    
+    return true;
+}
+
+function updateCategoryFilterOptions() {
+    if (!adminFilterSelect) return;
+    
+    const categories = [...new Set(localProjectCache.map(p => p.category).filter(c => c && c !== ''))];
+    
+    const separatorIndex = Array.from(adminFilterSelect.options).findIndex(opt => opt.value === 'category_separator');
+    if (separatorIndex !== -1) {
+        while (adminFilterSelect.options.length > separatorIndex + 1) {
+            adminFilterSelect.remove(separatorIndex + 1);
+        }
+    }
+    
+    categories.sort((a, b) => a.localeCompare(b));
+    categories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = `cat_${cat}`;
+        const displayName = categoryData[cat]?.display || formatCategoryForDisplay(cat);
+        const shortcut = categoryData[cat]?.shortcut || '';
+        option.textContent = shortcut ? `📂 ${displayName} (${shortcut})` : `📂 ${displayName}`;
+        adminFilterSelect.appendChild(option);
+    });
+}
+
+// ========================
+// REAPPLY SELECTION HIGHLIGHT
+// ========================
+function reapplySelectionHighlight() {
+    if (currentlySelectedIndex === null) return;
+    
+    const selectedRow = document.querySelector(`.sort-item[data-index="${currentlySelectedIndex}"]`);
+    if (selectedRow) {
+        document.querySelectorAll('.sort-item').forEach(el => {
+            el.classList.remove('editing');
+            el.style.borderColor = '';
+            el.style.borderWidth = '';
+            el.style.borderStyle = '';
+            el.style.boxShadow = '';
+            el.style.backgroundColor = '';
+        });
+        
+        selectedRow.classList.add('editing');
+        selectedRow.style.borderColor = 'var(--color-accent)';
+        selectedRow.style.borderWidth = '2px';
+        selectedRow.style.borderStyle = 'solid';
+        selectedRow.style.boxShadow = '0 0 0 2px rgba(229, 72, 77, 0.3)';
+        selectedRow.style.backgroundColor = 'var(--color-bg-secondary)';
+        
+        setTimeout(() => {
+            selectedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+    } else {
+        currentlySelectedIndex = null;
+        document.querySelectorAll('.sort-item').forEach(el => {
+            el.classList.remove('editing');
+            el.style.borderColor = '';
+            el.style.borderWidth = '';
+            el.style.borderStyle = '';
+            el.style.boxShadow = '';
+            el.style.backgroundColor = '';
+        });
+    }
+}
+
+// ========================
+// RENDER ADMIN VIEW - WITH WORKING DRAG & DROP
+// ========================
+function renderAdminView() {
+    if (!sortableListElement) return;
+    sortableListElement.innerHTML = '';
+    
+    if (localProjectCache.length === 0) {
+        sortableListElement.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--color-text-muted);">No projects yet. Fill out the form and click "Add Portfolio Project".</div>';
+        return;
+    }
+    
+    const filteredProjects = localProjectCache.filter(project => filterProjects(project));
+    
+    if (filteredProjects.length === 0) {
+        sortableListElement.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--color-text-muted);">No projects match the current filters.</div>';
+        return;
+    }
+    
+    filteredProjects.forEach((project) => {
+        const originalIndex = localProjectCache.findIndex(p => p === project);
+        const li = document.createElement('li');
+        li.className = 'sort-item';
+        li.draggable = true;
+        li.setAttribute('data-index', originalIndex);
+        li.setAttribute('data-filtered-index', filteredProjects.indexOf(project));
+        
+        const mediaArray = project.media || [];
+        const mediaPreview = getMediaPreview(mediaArray);
+        const draftBadge = project.published === false ? ' [DRAFT]' : '';
+        const selectedBadge = project.selected === true ? ' <span class="selected-star">⭐</span>' : '';
+        const category = project.category ? formatCategoryForDisplay(project.category) : 'Uncategorized';
+        
+        if (project.published === false) li.style.opacity = '0.5';
+        li.innerHTML = `
+            <div class="sort-content" style="flex-grow:1; cursor:pointer; min-width:0; overflow:hidden;">
+                <strong>${escapeHtml(project.title)}${draftBadge}${selectedBadge}</strong>
+                <small style="color:var(--color-text-muted); margin-left:0.5rem;">(${escapeHtml(category)})</small>
+                <div style="font-size:0.7rem; color:var(--color-accent); margin-top:0.2rem;">${mediaPreview}</div>
+            </div>
+            <div style="display:flex; gap:0.25rem; align-items:center; flex-shrink:0; margin-left:0.5rem;">
+                <span class="row-btn move-top-btn"    title="Move to top">⇈</span>
+                <span class="row-btn move-up-btn"     title="Move up">↑</span>
+                <span class="row-btn move-down-btn"   title="Move down">↓</span>
+                <span class="row-btn move-bottom-btn" title="Move to bottom">⇊</span>
+                <span class="row-btn delete-item-btn" data-index="${originalIndex}" title="Delete">✕</span>
+                <span class="sort-handle row-btn" style="cursor:grab;" title="Drag to reorder">☰</span>
+            </div>
+        `;
+        
+        li.querySelector('.sort-content').addEventListener('click', () => loadProjectIntoForm(originalIndex));
+
+        const moveProject = (fromIdx, toIdx) => {
+            toIdx = Math.max(0, Math.min(localProjectCache.length - 1, toIdx));
+            if (fromIdx === toIdx) return;
+            const [item] = localProjectCache.splice(fromIdx, 1);
+            localProjectCache.splice(toIdx, 0, item);
+            renderAdminView();
+            saveToServer();
+        };
+        li.querySelector('.move-top-btn').addEventListener('click',    e => { e.stopPropagation(); moveProject(originalIndex, 0); });
+        li.querySelector('.move-up-btn').addEventListener('click',     e => { e.stopPropagation(); moveProject(originalIndex, originalIndex - 1); });
+        li.querySelector('.move-down-btn').addEventListener('click',   e => { e.stopPropagation(); moveProject(originalIndex, originalIndex + 1); });
+        li.querySelector('.move-bottom-btn').addEventListener('click', e => { e.stopPropagation(); moveProject(originalIndex, localProjectCache.length - 1); });
+
+        li.querySelector('.delete-item-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (confirm(`Delete "${project.title}" permanently?`)) {
+                localProjectCache.splice(originalIndex, 1);
+                renderAdminView();
+                saveToServer();
+                if (isEditingMode && currentEditIndex === originalIndex) startNewProject();
+                showFloatingNotification(`✅ Deleted project "${project.title}"`);
+            }
+        });
+
+        li.addEventListener('dragstart', (e) => {
+            li.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', originalIndex);
+            draggedMediaIndexForReorder = originalIndex;
+        });
+        
+        li.addEventListener('dragend', () => {
+            li.classList.remove('dragging');
+            reorderFullCacheFromFilteredView();
+        });
+        
+        sortableListElement.appendChild(li);
+    });
+    
+    setTimeout(reapplySelectionHighlight, 50);
+}
+
+// ========================
+// DRAG & DROP REORDERING - WORKS WITH FILTERS
+// ========================
+
+function reorderFullCacheFromFilteredView() {
+    const currentRows = [...sortableListElement.querySelectorAll('.sort-item')];
+    const filteredIndicesInOrder = currentRows.map(row => parseInt(row.getAttribute('data-index')));
+    const visibleProjects = currentRows.map(row => {
+        const idx = parseInt(row.getAttribute('data-index'));
+        return localProjectCache[idx];
+    });
+    const visibleIndices = new Set(filteredIndicesInOrder);
+    const hiddenProjects = localProjectCache.filter((_, idx) => !visibleIndices.has(idx));
+    const newCache = [...visibleProjects, ...hiddenProjects];
+    
+    let changed = false;
+    for (let i = 0; i < newCache.length; i++) {
+        if (newCache[i] !== localProjectCache[i]) {
+            changed = true;
+            break;
+        }
+    }
+    
+    if (changed) {
+        localProjectCache = newCache;
+        currentRows.forEach((row, i) => {
+            const project = visibleProjects[i];
+            const newIndex = localProjectCache.indexOf(project);
+            row.setAttribute('data-index', newIndex);
+        });
+        saveToServer();
+        showFloatingNotification('✓ Reordered projects');
+    }
+    
+    renderAdminView();
+}
+
+if (sortableListElement) {
+    sortableListElement.addEventListener('dragover', e => {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(sortableListElement, e.clientY);
+        const draggingItem = document.querySelector('.dragging');
+        if (afterElement == null) {
+            sortableListElement.appendChild(draggingItem);
+        } else {
+            sortableListElement.insertBefore(draggingItem, afterElement);
+        }
+    });
+}
+
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.sort-item:not(.dragging)')];
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        }
+        return closest;
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+function recalculateCacheOrder() {
+    const currentRows = [...sortableListElement.querySelectorAll('.sort-item')];
+    localProjectCache = currentRows.map(row => localProjectCache[row.getAttribute('data-index')]);
+    currentRows.forEach((row, i) => row.setAttribute('data-index', i));
+    saveToServer();
+}
+
+function getCurrentFormData() {
+    return {
+        title: formTitle.value,
+        category: formCategory.value,
+        cardHeading: formTag ? formTag.value : '',
+        media: [...currentMediaArray].filter(m => m && m.trim()),
+        description: getEditorContent(),
+        imageAlign: formImageAlign.value,
+        selected: formSelected.checked,
+        published: formPublished.checked
+    };
+}
+
+function hasFormDataChanged() {
+    if (!lastSavedFormData) return true;
+    const currentData = getCurrentFormData();
+    return JSON.stringify(currentData) !== JSON.stringify(lastSavedFormData);
+}
+
+function autoSaveEditingProject() {
+    if (!isEditingMode || currentEditIndex === null) return;
+    if (!hasFormDataChanged()) return;
+    
+    const projectData = getCurrentFormData();
+    projectData.media = projectData.media.filter(m => m && m.trim());
+    
+    localProjectCache[currentEditIndex] = projectData;
+    renderAdminView();
+    saveToServer();
+    
+    lastSavedFormData = JSON.parse(JSON.stringify(projectData));
+    showAutoSaveNotification();
+}
+
+function debouncedAutoSave() {
+    if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
+    autoSaveTimeout = setTimeout(autoSaveEditingProject, 1000);
+}
+
+let autoSaveListenersActive = false;
+
+function setupAutoSaveListeners(enable) {
+    const inputs = [formTitle, formCategory, formImageAlign];
+    if (formTag) inputs.push(formTag);
+    
+    const checkboxes = [formPublished, formSelected];
+    const editor = descTextarea;
+    
+    inputs.forEach(input => {
+        if (input) {
+            if (enable) {
+                input.addEventListener('input', debouncedAutoSave);
+            } else {
+                input.removeEventListener('input', debouncedAutoSave);
+            }
+        }
+    });
+    
+    checkboxes.forEach(checkbox => {
+        if (checkbox) {
+            if (enable) {
+                checkbox.addEventListener('change', debouncedAutoSave);
+            } else {
+                checkbox.removeEventListener('change', debouncedAutoSave);
+            }
+        }
+    });
+    
+    if (editor) {
+        if (enable) {
+            editor.addEventListener('input', debouncedAutoSave);
+            editor.addEventListener('blur', () => {
+                syncDescriptionToHidden();
+                if (isEditingMode) debouncedAutoSave();
+            });
+        } else {
+            editor.removeEventListener('input', debouncedAutoSave);
+            editor.removeEventListener('blur', debouncedAutoSave);
+        }
+    }
+    
+    autoSaveListenersActive = enable;
+}
+
+function startNewProject() {
+    if (autoSaveListenersActive) {
+        setupAutoSaveListeners(false);
+    }
+    
+    isEditingMode = false;
+    currentEditIndex = null;
+    currentlySelectedIndex = null;
+    lastSavedFormData = null;
+    
+    formActionTitle.textContent = "New Portfolio Project";
+    formEditIndex.value = "";
+    
+    formTitle.value = "";
+    formCategory.value = "";
+    if (formTag) formTag.value = "";
+    formSelected.checked = false;
+    formPublished.checked = false;
+    formImageAlign.value = "center";
+    currentMediaArray = [];
+    renderMediaBadges();
+    setEditorContent("");
+    
+    document.querySelectorAll('.sort-item').forEach(el => {
+        el.classList.remove('editing');
+        el.style.borderColor = '';
+        el.style.borderWidth = '';
+        el.style.borderStyle = '';
+        el.style.boxShadow = '';
+        el.style.backgroundColor = '';
+    });
+    
+    if (newProjectBtn) newProjectBtn.style.display = 'none';
+    if (submitBtn) submitBtn.style.display = 'block';
+}
+
+function loadProjectIntoForm(index) {
+    const target = localProjectCache[index];
+    if (!target) return;
+    
+    if (autoSaveListenersActive) {
+        setupAutoSaveListeners(false);
+    }
+    
+    isEditingMode = true;
+    currentEditIndex = index;
+    currentlySelectedIndex = index;
+    
+    formActionTitle.textContent = `Editing: ${target.title}`;
+    formEditIndex.value = index;
+    
+    formTitle.value = target.title;
+    formCategory.value = target.category || "";
+    if (formTag) formTag.value = target.cardHeading || target.tag || "";
+    formSelected.checked = target.selected === true;
+    formPublished.checked = target.published !== false;
+    formImageAlign.value = target.imageAlign || 'center';
+    
+    currentMediaArray = target.media ? [...target.media] : [];
+    renderMediaBadges();
+    
+    setEditorContent(target.description || "");
+    
+    lastSavedFormData = getCurrentFormData();
+    setupAutoSaveListeners(true);
+    
+    document.querySelectorAll('.sort-item').forEach(el => {
+        el.classList.remove('editing');
+        el.style.borderColor = '';
+        el.style.borderWidth = '';
+        el.style.borderStyle = '';
+        el.style.boxShadow = '';
+        el.style.backgroundColor = '';
+    });
+    
+    const selectedRow = document.querySelector(`.sort-item[data-index="${index}"]`);
+    if (selectedRow) {
+        selectedRow.classList.add('editing');
+        selectedRow.style.borderColor = 'var(--color-accent)';
+        selectedRow.style.borderWidth = '2px';
+        selectedRow.style.borderStyle = 'solid';
+        selectedRow.style.boxShadow = '0 0 0 2px rgba(229, 72, 77, 0.3)';
+        selectedRow.style.backgroundColor = 'var(--color-bg-secondary)';
+        
+        setTimeout(() => {
+            selectedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+    }
+    
+    if (newProjectBtn) newProjectBtn.style.display = 'inline-block';
+    if (submitBtn) submitBtn.style.display = 'none';
+}
+
+if (newProjectBtn) {
+    newProjectBtn.addEventListener('click', () => {
+        startNewProject();
+    });
+}
+
+// Category button handlers
+if (addCategoryBtn) {
+    addCategoryBtn.addEventListener('click', toggleCategoryManager);
+}
+
+if (categoryManagerClose) {
+    categoryManagerClose.addEventListener('click', toggleCategoryManager);
+}
+
+if (modalAddCategoryBtn) {
+    modalAddCategoryBtn.addEventListener('click', addCategory);
+}
+
+// Enter key support for adding category - FIXED to prevent form submission
+if (modalNewCategoryName) {
+    modalNewCategoryName.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            e.stopPropagation();
+            addCategory();
+        }
+    });
+}
+if (modalNewCategoryShortcut) {
+    modalNewCategoryShortcut.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            e.stopPropagation();
+            addCategory();
+        }
+    });
+}
+
+// Auto-generate shortcut when category name is typed
+if (modalNewCategoryName) {
+    modalNewCategoryName.addEventListener('input', () => {
+        const name = modalNewCategoryName.value.trim();
+        if (modalNewCategoryShortcut) {
+            if (name) {
+                modalNewCategoryShortcut.value = generateShortcutFromName(name);
+            } else {
+                modalNewCategoryShortcut.value = '';
+            }
+        }
+    });
+}
+
+// ========================
+// MEDIA FUNCTIONS
+// ========================
+function renderMediaBadges() {
+    if (!mediaBadgesContainer) return;
+    mediaBadgesContainer.innerHTML = '';
+    if (currentMediaArray.length === 0) {
+        mediaBadgesContainer.innerHTML = '<div style="color: var(--color-text-muted); text-align: center; padding: 0.5rem; font-size: 0.75rem;">No media added yet.</div>';
+        return;
+    }
+    
+    currentMediaArray.forEach((media, index) => {
+        const badge = document.createElement('div');
+        badge.className = 'media-badge';
+        badge.setAttribute('data-index', index);
+        badge.innerHTML = `
+            <span class="drag-handle" style="cursor: grab; opacity: 0.5; margin-right: 4px;">⋮⋮</span>
+            <span class="media-badge-icon">${getMediaIcon(media)}</span>
+            <span class="media-badge-text" title="${escapeHtml(media)}">${media.length > 45 ? media.substring(0, 42) + '...' : media}</span>
+            <span class="media-badge-edit" data-index="${index}" title="Edit">✏️</span>
+            <span class="media-badge-delete" data-index="${index}" title="Delete">✕</span>
+        `;
+        
+        badge.querySelector('.media-badge-edit').addEventListener('click', (e) => {
+            e.stopPropagation();
+            showEditMediaModal(media, index);
+        });
+        
+        badge.querySelector('.media-badge-delete').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (confirm(`Remove this media item?\n\n${media.substring(0, 80)}${media.length > 80 ? '...' : ''}`)) {
+                currentMediaArray.splice(index, 1);
+                renderMediaBadges();
+                if (isEditingMode) debouncedAutoSave();
+            }
+        });
+        
+        mediaBadgesContainer.appendChild(badge);
+    });
+    
+    makeMediaBadgesDraggable();
+}
+
+function makeMediaBadgesDraggable() {
+    const badges = document.querySelectorAll('.media-badge');
+    let draggedIndex = null;
+    
+    badges.forEach((badge) => {
+        badge.setAttribute('draggable', 'true');
+        
+        badge.addEventListener('dragstart', (e) => {
+            draggedIndex = parseInt(badge.getAttribute('data-index'));
+            badge.style.opacity = '0.4';
+        });
+        
+        badge.addEventListener('dragend', (e) => {
+            badge.style.opacity = '1';
+            draggedIndex = null;
+        });
+        
+        badge.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        });
+        
+        badge.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const targetIndex = parseInt(badge.getAttribute('data-index'));
+            if (draggedIndex !== null && draggedIndex !== targetIndex) {
+                const draggedItem = currentMediaArray[draggedIndex];
+                currentMediaArray.splice(draggedIndex, 1);
+                currentMediaArray.splice(targetIndex, 0, draggedItem);
+                renderMediaBadges();
+                if (isEditingMode) debouncedAutoSave();
+            }
+        });
     });
 }
 
@@ -804,894 +1932,6 @@ function showEditMediaModal(currentUrl, index) {
             e.preventDefault();
             saveMedia();
         }
-    });
-}
-
-function showInlineError(inputElement, message) {
-    const existingError = inputElement.parentElement?.querySelector('.inline-error');
-    if (existingError) existingError.remove();
-    
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'inline-error';
-    errorDiv.style.cssText = `
-        color: var(--color-accent);
-        font-size: 0.7rem;
-        margin-top: 0.4rem;
-        padding-left: 0.25rem;
-        display: flex;
-        align-items: center;
-        gap: 0.3rem;
-    `;
-    errorDiv.innerHTML = `⚠️ ${escapeHtml(message)}`;
-    
-    inputElement.insertAdjacentElement('afterend', errorDiv);
-    
-    if (inlineErrorTimeout) clearTimeout(inlineErrorTimeout);
-    inlineErrorTimeout = setTimeout(() => {
-        const error = inputElement.parentElement?.querySelector('.inline-error');
-        if (error) error.remove();
-        inlineErrorTimeout = null;
-    }, 3000);
-}
-
-// ========================
-// CATEGORY MANAGEMENT
-// ========================
-function normalizeCategoryName(name) {
-    if (!name || !name.trim()) return '';
-    
-    let normalized = name.trim().toLowerCase();
-    normalized = normalized.replace(/&/g, '_&_');
-    normalized = normalized.replace(/\s+/g, ' ');
-    normalized = normalized.replace(/ /g, '_');
-    normalized = normalized.replace(/_+/g, '_');
-    normalized = normalized.replace(/^_|_$/g, '');
-    
-    return normalized;
-}
-
-function formatCategoryForDisplay(cat) {
-    if (!cat) return '';
-    return cat.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ').replace(/&/g, '&');
-}
-
-function updateCategoryDropdown() {
-    if (!formCategory) return;
-    const currentValue = formCategory.value;
-    formCategory.innerHTML = '';
-    
-    const uncategorizedOption = document.createElement('option');
-    uncategorizedOption.value = '';
-    uncategorizedOption.textContent = 'Uncategorized';
-    formCategory.appendChild(uncategorizedOption);
-    
-    const separator = document.createElement('option');
-    separator.disabled = true;
-    separator.textContent = '──────────';
-    formCategory.appendChild(separator);
-    
-    const sortedCategories = [...availableCategories].sort((a, b) => {
-        return formatCategoryForDisplay(a).localeCompare(formatCategoryForDisplay(b));
-    });
-    
-    sortedCategories.forEach(cat => {
-        const option = document.createElement('option');
-        option.value = cat;
-        option.textContent = formatCategoryForDisplay(cat);
-        formCategory.appendChild(option);
-    });
-    
-    if (currentValue === '' || currentValue === 'uncategorized') {
-        formCategory.value = '';
-    } else if (availableCategories.includes(currentValue)) {
-        formCategory.value = currentValue;
-    } else {
-        formCategory.value = '';
-    }
-}
-
-function addNewCategory(rawName, applyToCurrentProject = true) {
-    if (!rawName || !rawName.trim()) {
-        showInlineError(newCategoryNameInput, 'Category name cannot be blank');
-        return false;
-    }
-    
-    const normalized = normalizeCategoryName(rawName);
-    
-    if (normalized === 'uncategorized') {
-        showInlineError(newCategoryNameInput, '"Uncategorized" is a reserved category name');
-        return false;
-    }
-    
-    if (!normalized) {
-        showInlineError(newCategoryNameInput, 'Category name cannot be blank');
-        return false;
-    }
-    
-    if (availableCategories.includes(normalized)) {
-        showInlineError(newCategoryNameInput, `Category "${formatCategoryForDisplay(normalized)}" already exists`);
-        return false;
-    }
-    
-    availableCategories.push(normalized);
-    updateCategoryDropdown();
-    
-    if (applyToCurrentProject) {
-        formCategory.value = normalized;
-        if (isEditingMode) {
-            debouncedAutoSave();
-        }
-    }
-    
-    showFloatingNotification(`✓ Added category "${formatCategoryForDisplay(normalized)}"`);
-    return true;
-}
-
-function showAddCategoryField() {
-    addCategoryField.style.display = 'block';
-    if (categoryHelpText) categoryHelpText.style.display = 'none';
-    newCategoryNameInput.value = '';
-    newCategoryNameInput.focus();
-}
-
-function hideAddCategoryField() {
-    addCategoryField.style.display = 'none';
-    if (categoryHelpText) categoryHelpText.style.display = 'block';
-    newCategoryNameInput.value = '';
-}
-
-function deleteCategory(categoryToDelete) {
-    const displayName = formatCategoryForDisplay(categoryToDelete);
-    const projectsUsing = localProjectCache.filter(p => p.category === categoryToDelete).length;
-    let warning = `Delete category "${displayName}"?`;
-    if (projectsUsing > 0) {
-        warning += `\n\n⚠️ ${projectsUsing} project(s) currently use this category. They will become Uncategorized.`;
-    }
-    
-    showConfirmModal(warning, () => {
-        availableCategories = availableCategories.filter(c => c !== categoryToDelete);
-        
-        localProjectCache.forEach(project => {
-            if (project.category === categoryToDelete) {
-                project.category = '';
-            }
-        });
-        
-        updateCategoryDropdown();
-        renderAdminView();
-        saveToServer();
-        if (categoryManager) categoryManager.style.display = 'none';
-        showFloatingNotification(`✓ Deleted category "${displayName}"`);
-    }, () => {});
-}
-
-function renderCategoriesList() {
-    const container = document.getElementById('categories-list');
-    if (!container) return;
-    container.innerHTML = '';
-    
-    const sortedCategories = [...availableCategories].sort((a, b) => {
-        return formatCategoryForDisplay(a).localeCompare(formatCategoryForDisplay(b));
-    });
-    
-    sortedCategories.forEach(cat => {
-        const badge = document.createElement('div');
-        badge.className = 'media-badge';
-        badge.style.cursor = 'pointer';
-        badge.style.display = 'inline-flex';
-        badge.style.alignItems = 'center';
-        badge.style.gap = '0.5rem';
-        badge.innerHTML = `
-            <span>${escapeHtml(formatCategoryForDisplay(cat))}</span>
-            <span class="media-badge-delete" data-category="${escapeHtml(cat)}" style="margin-left: 0.5rem; cursor: pointer;">✕</span>
-        `;
-        badge.querySelector('.media-badge-delete').addEventListener('click', (e) => {
-            e.stopPropagation();
-            deleteCategory(cat);
-        });
-        container.appendChild(badge);
-    });
-    
-    if (availableCategories.length === 0) {
-        container.innerHTML = '<div style="color: var(--color-text-muted); font-size: 0.75rem; padding: 0.5rem;">No categories yet. Add one using the "+ Add Category" button above.</div>';
-    }
-}
-
-// ========================
-// PROJECT CRUD
-// ========================
-if (addForm) {
-    addForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const mediaToSave = [...currentMediaArray].filter(m => m && m.trim());
-        
-        const projectData = {
-            title: formTitle.value,
-            category: formCategory.value,
-            media: mediaToSave,
-            description: getEditorContent(),
-            imageAlign: formImageAlign.value,
-            selected: formSelected.checked,
-            published: formPublished.checked
-        };
-        
-        localProjectCache.push(projectData);
-        renderAdminView();
-        saveToServer();
-        startNewProject();
-        showFloatingNotification("✓ Project added with " + mediaToSave.length + " media resources(s)!");
-        
-        return false;
-    });
-}
-
-function saveToServer() {
-    if (localProjectCache.length === 0) {
-        console.warn('⚠️ Attempting to save empty project cache!');
-        showFloatingNotification('Warning: No projects to save!', false);
-        return;
-    }
-    
-    const projectsToSave = localProjectCache.map(project => {
-        if (project.description) {
-            project.description = cleanupMalformedLinks(project.description);
-        }
-        return project;
-    });
-    
-    fetch('http://localhost:3001/api/save-projects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(projectsToSave)
-    })
-    .then(res => res.json())
-    .then(res => {
-        if (!res.success) {
-            showFloatingNotification("Save error: " + res.error, false);
-        }
-    })
-    .catch(() => showFloatingNotification("Server not running. Run: node save-server.js", false));
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function getMediaIcon(url) {
-    if (!url) return '📄';
-    const lowerUrl = url.toLowerCase();
-    if (lowerUrl.match(/\.(jpg|jpeg|png|gif|webp|svg)$/)) return '🖼️';
-    if (lowerUrl.match(/\.(mp4|webm|mov|ogg)$/)) return '🎥';
-    if (lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be')) return '📺';
-    if (lowerUrl.includes('vimeo.com')) return '🎬';
-    return '🔗';
-}
-
-function getMediaPreview(mediaArray) {
-    if (!mediaArray || mediaArray.length === 0) return "No media";
-    const icons = mediaArray.map(m => getMediaIcon(m)).join(' ');
-    return `${icons} ${mediaArray.length} media item(s)`;
-}
-
-function loadData() {
-    fetch('projects.json')
-        .then(res => res.json())
-        .then(data => {
-            data = data.map(project => {
-                if (project.description) {
-                    project.description = cleanupMalformedLinks(project.description);
-                }
-                if (project.selected === undefined) {
-                    project.selected = false;
-                }
-                return project;
-            });
-            
-            localProjectCache = data;
-            
-            const cats = [...new Set(localProjectCache.map(p => p.category).filter(c => c && c !== ''))];
-            if (cats.length > 0) {
-                availableCategories = cats;
-                updateCategoryDropdown();
-            }
-            
-            updateCategoryFilterOptions();
-            
-            renderAdminView();
-            showFloatingNotification(`✓ Loaded ${localProjectCache.length} projects`);
-        })
-        .catch(() => {
-            localProjectCache = [];
-            renderAdminView();
-            showFloatingNotification("✨ No projects found. Add your first one!");
-        });
-}
-
-// ========================
-// FILTER FUNCTIONS - NONDESTRUCTIVE
-// ========================
-
-function filterProjects(project) {
-    const searchTerm = currentSearchTerm.toLowerCase();
-    const filterValue = adminFilterSelect ? adminFilterSelect.value : 'all';
-    
-    const titleMatch = project.title.toLowerCase().includes(searchTerm);
-    if (!titleMatch) return false;
-    
-    if (filterValue === 'all') {
-        return true;
-    } else if (filterValue === 'published') {
-        return project.published !== false;
-    } else if (filterValue === 'unpublished') {
-        return project.published === false;
-    } else if (filterValue === 'selected') {
-        return project.selected === true;
-    } else if (filterValue === 'uncategorized') {
-        return !project.category || project.category === '';
-    } else if (filterValue.startsWith('cat_')) {
-        const category = filterValue.replace('cat_', '');
-        return project.category === category;
-    }
-    
-    return true;
-}
-
-function updateCategoryFilterOptions() {
-    if (!adminFilterSelect) return;
-    
-    const categories = [...new Set(localProjectCache.map(p => p.category).filter(c => c && c !== ''))];
-    
-    const separatorIndex = Array.from(adminFilterSelect.options).findIndex(opt => opt.value === 'category_separator');
-    if (separatorIndex !== -1) {
-        while (adminFilterSelect.options.length > separatorIndex + 1) {
-            adminFilterSelect.remove(separatorIndex + 1);
-        }
-    }
-    
-    categories.sort((a, b) => a.localeCompare(b));
-    categories.forEach(cat => {
-        const option = document.createElement('option');
-        option.value = `cat_${cat}`;
-        option.textContent = `📂 ${formatCategoryForDisplay(cat)}`;
-        adminFilterSelect.appendChild(option);
-    });
-}
-
-// ========================
-// REAPPLY SELECTION HIGHLIGHT
-// ========================
-function reapplySelectionHighlight() {
-    if (currentlySelectedIndex === null) return;
-    
-    // Find the row with the matching index
-    const selectedRow = document.querySelector(`.sort-item[data-index="${currentlySelectedIndex}"]`);
-    if (selectedRow) {
-        // Remove highlight from all rows first
-        document.querySelectorAll('.sort-item').forEach(el => {
-            el.classList.remove('editing');
-            el.style.borderColor = '';
-            el.style.borderWidth = '';
-            el.style.borderStyle = '';
-            el.style.boxShadow = '';
-            el.style.backgroundColor = '';
-        });
-        
-        // Add highlight to the selected row
-        selectedRow.classList.add('editing');
-        selectedRow.style.borderColor = 'var(--color-accent)';
-        selectedRow.style.borderWidth = '2px';
-        selectedRow.style.borderStyle = 'solid';
-        selectedRow.style.boxShadow = '0 0 0 2px rgba(229, 72, 77, 0.3)';
-        selectedRow.style.backgroundColor = 'var(--color-bg-secondary)';
-        
-        // Scroll it into view
-        setTimeout(() => {
-            selectedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 100);
-    } else {
-        // The selected project might not be in the filtered view, clear the highlight
-        currentlySelectedIndex = null;
-        document.querySelectorAll('.sort-item').forEach(el => {
-            el.classList.remove('editing');
-            el.style.borderColor = '';
-            el.style.borderWidth = '';
-            el.style.borderStyle = '';
-            el.style.boxShadow = '';
-            el.style.backgroundColor = '';
-        });
-    }
-}
-
-// ========================
-// RENDER ADMIN VIEW - WITH WORKING DRAG & DROP
-// ========================
-function renderAdminView() {
-    if (!sortableListElement) return;
-    sortableListElement.innerHTML = '';
-    
-    if (localProjectCache.length === 0) {
-        sortableListElement.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--color-text-muted);">No projects yet. Fill out the form and click "Add Portfolio Project".</div>';
-        return;
-    }
-    
-    // Filter for display only - localProjectCache remains unchanged
-    const filteredProjects = localProjectCache.filter(project => filterProjects(project));
-    
-    if (filteredProjects.length === 0) {
-        sortableListElement.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--color-text-muted);">No projects match the current filters.</div>';
-        return;
-    }
-    
-    filteredProjects.forEach((project) => {
-        const originalIndex = localProjectCache.findIndex(p => p === project);
-        const li = document.createElement('li');
-        li.className = 'sort-item';
-        li.draggable = true;
-        li.setAttribute('data-index', originalIndex);
-        li.setAttribute('data-filtered-index', filteredProjects.indexOf(project));
-        
-        const mediaArray = project.media || [];
-        const mediaPreview = getMediaPreview(mediaArray);
-        const draftBadge = project.published === false ? ' [DRAFT]' : '';
-        const selectedBadge = project.selected === true ? ' <span class="selected-star">⭐</span>' : '';
-        const category = project.category ? formatCategoryForDisplay(project.category) : 'Uncategorized';
-        
-        if (project.published === false) li.style.opacity = '0.5';
-        li.innerHTML = `
-            <div class="sort-content" style="flex-grow:1; cursor:pointer; min-width:0; overflow:hidden;">
-                <strong>${escapeHtml(project.title)}${draftBadge}${selectedBadge}</strong>
-                <small style="color:var(--color-text-muted); margin-left:0.5rem;">(${escapeHtml(category)})</small>
-                <div style="font-size:0.7rem; color:var(--color-accent); margin-top:0.2rem;">${mediaPreview}</div>
-            </div>
-            <div style="display:flex; gap:0.25rem; align-items:center; flex-shrink:0; margin-left:0.5rem;">
-                <span class="row-btn move-top-btn"    title="Move to top">⇈</span>
-                <span class="row-btn move-up-btn"     title="Move up">↑</span>
-                <span class="row-btn move-down-btn"   title="Move down">↓</span>
-                <span class="row-btn move-bottom-btn" title="Move to bottom">⇊</span>
-                <span class="row-btn delete-item-btn" data-index="${originalIndex}" title="Delete">✕</span>
-                <span class="sort-handle row-btn" style="cursor:grab;" title="Drag to reorder">☰</span>
-            </div>
-        `;
-        
-        li.querySelector('.sort-content').addEventListener('click', () => loadProjectIntoForm(originalIndex));
-
-        // Move functions use originalIndex directly from the full cache
-        const moveProject = (fromIdx, toIdx) => {
-            toIdx = Math.max(0, Math.min(localProjectCache.length - 1, toIdx));
-            if (fromIdx === toIdx) return;
-            const [item] = localProjectCache.splice(fromIdx, 1);
-            localProjectCache.splice(toIdx, 0, item);
-            renderAdminView();
-            saveToServer();
-        };
-        li.querySelector('.move-top-btn').addEventListener('click',    e => { e.stopPropagation(); moveProject(originalIndex, 0); });
-        li.querySelector('.move-up-btn').addEventListener('click',     e => { e.stopPropagation(); moveProject(originalIndex, originalIndex - 1); });
-        li.querySelector('.move-down-btn').addEventListener('click',   e => { e.stopPropagation(); moveProject(originalIndex, originalIndex + 1); });
-        li.querySelector('.move-bottom-btn').addEventListener('click', e => { e.stopPropagation(); moveProject(originalIndex, localProjectCache.length - 1); });
-
-        li.querySelector('.delete-item-btn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            showConfirmModal(`Remove "${project.title}" permanently? This cannot be undone.`, () => {
-                localProjectCache.splice(originalIndex, 1);
-                renderAdminView();
-                saveToServer();
-                if (isEditingMode && currentEditIndex === originalIndex) startNewProject();
-            }, () => {});
-        });
-
-        li.addEventListener('dragstart', (e) => {
-            li.classList.add('dragging');
-            // Store both the original index and the filtered position
-            e.dataTransfer.setData('text/plain', originalIndex);
-            draggedMediaIndexForReorder = originalIndex;
-        });
-        
-        li.addEventListener('dragend', () => {
-            li.classList.remove('dragging');
-            // After drag ends, reorder the full cache based on the new visual order
-            reorderFullCacheFromFilteredView();
-        });
-        
-        sortableListElement.appendChild(li);
-    });
-    
-    // After rendering, reapply the selection highlight if there is one
-    setTimeout(reapplySelectionHighlight, 50);
-}
-
-// ========================
-// DRAG & DROP REORDERING - WORKS WITH FILTERS
-// ========================
-
-// This function reorders the FULL cache based on the visual order of the filtered view
-function reorderFullCacheFromFilteredView() {
-    const currentRows = [...sortableListElement.querySelectorAll('.sort-item')];
-    
-    // Get the current filtered order (list of original indices in visual order)
-    const filteredIndicesInOrder = currentRows.map(row => parseInt(row.getAttribute('data-index')));
-    
-    // Get all projects that are currently visible (filtered)
-    const visibleProjects = currentRows.map(row => {
-        const idx = parseInt(row.getAttribute('data-index'));
-        return localProjectCache[idx];
-    });
-    
-    // Get all projects that are NOT visible (filtered out)
-    const visibleIndices = new Set(filteredIndicesInOrder);
-    const hiddenProjects = localProjectCache.filter((_, idx) => !visibleIndices.has(idx));
-    
-    // Rebuild the cache: visible projects in their new order, then hidden projects
-    const newCache = [...visibleProjects, ...hiddenProjects];
-    
-    // Check if the order actually changed
-    let changed = false;
-    for (let i = 0; i < newCache.length; i++) {
-        if (newCache[i] !== localProjectCache[i]) {
-            changed = true;
-            break;
-        }
-    }
-    
-    if (changed) {
-        localProjectCache = newCache;
-        // Update the data-index attributes to match the new cache positions
-        currentRows.forEach((row, i) => {
-            const project = visibleProjects[i];
-            const newIndex = localProjectCache.indexOf(project);
-            row.setAttribute('data-index', newIndex);
-        });
-        saveToServer();
-        showFloatingNotification('✓ Reordered projects');
-    }
-    
-    // Re-render to update the view
-    renderAdminView();
-}
-
-if (sortableListElement) {
-    sortableListElement.addEventListener('dragover', e => {
-        e.preventDefault();
-        const afterElement = getDragAfterElement(sortableListElement, e.clientY);
-        const draggingItem = document.querySelector('.dragging');
-        if (afterElement == null) {
-            sortableListElement.appendChild(draggingItem);
-        } else {
-            sortableListElement.insertBefore(draggingItem, afterElement);
-        }
-    });
-}
-
-function getDragAfterElement(container, y) {
-    const draggableElements = [...container.querySelectorAll('.sort-item:not(.dragging)')];
-    return draggableElements.reduce((closest, child) => {
-        const box = child.getBoundingClientRect();
-        const offset = y - box.top - box.height / 2;
-        if (offset < 0 && offset > closest.offset) {
-            return { offset: offset, element: child };
-        }
-        return closest;
-    }, { offset: Number.NEGATIVE_INFINITY }).element;
-}
-
-// Legacy recalculate function - kept for compatibility but no longer used for drag/drop
-function recalculateCacheOrder() {
-    const currentRows = [...sortableListElement.querySelectorAll('.sort-item')];
-    localProjectCache = currentRows.map(row => localProjectCache[row.getAttribute('data-index')]);
-    currentRows.forEach((row, i) => row.setAttribute('data-index', i));
-    saveToServer();
-}
-
-function getCurrentFormData() {
-    return {
-        title: formTitle.value,
-        category: formCategory.value,
-        cardHeading: formTag ? formTag.value : '',
-        media: [...currentMediaArray].filter(m => m && m.trim()),
-        description: getEditorContent(),
-        imageAlign: formImageAlign.value,
-        selected: formSelected.checked,
-        published: formPublished.checked
-    };
-}
-
-function hasFormDataChanged() {
-    if (!lastSavedFormData) return true;
-    const currentData = getCurrentFormData();
-    return JSON.stringify(currentData) !== JSON.stringify(lastSavedFormData);
-}
-
-function autoSaveEditingProject() {
-    if (!isEditingMode || currentEditIndex === null) return;
-    if (!hasFormDataChanged()) return;
-    
-    const projectData = getCurrentFormData();
-    projectData.media = projectData.media.filter(m => m && m.trim());
-    
-    localProjectCache[currentEditIndex] = projectData;
-    renderAdminView();
-    saveToServer();
-    
-    lastSavedFormData = JSON.parse(JSON.stringify(projectData));
-    showAutoSaveNotification();
-}
-
-function debouncedAutoSave() {
-    if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
-    autoSaveTimeout = setTimeout(autoSaveEditingProject, 1000);
-}
-
-let autoSaveListenersActive = false;
-
-function setupAutoSaveListeners(enable) {
-    const inputs = [formTitle, formCategory, formImageAlign];
-    if (formTag) inputs.push(formTag);
-    
-    const checkboxes = [formPublished, formSelected];
-    const editor = descTextarea;
-    
-    inputs.forEach(input => {
-        if (input) {
-            if (enable) {
-                input.addEventListener('input', debouncedAutoSave);
-            } else {
-                input.removeEventListener('input', debouncedAutoSave);
-            }
-        }
-    });
-    
-    checkboxes.forEach(checkbox => {
-        if (checkbox) {
-            if (enable) {
-                checkbox.addEventListener('change', debouncedAutoSave);
-            } else {
-                checkbox.removeEventListener('change', debouncedAutoSave);
-            }
-        }
-    });
-    
-    if (editor) {
-        if (enable) {
-            editor.addEventListener('input', debouncedAutoSave);
-            editor.addEventListener('blur', () => {
-                syncDescriptionToHidden();
-                if (isEditingMode) debouncedAutoSave();
-            });
-        } else {
-            editor.removeEventListener('input', debouncedAutoSave);
-            editor.removeEventListener('blur', debouncedAutoSave);
-        }
-    }
-    
-    autoSaveListenersActive = enable;
-}
-
-function startNewProject() {
-    if (autoSaveListenersActive) {
-        setupAutoSaveListeners(false);
-    }
-    
-    isEditingMode = false;
-    currentEditIndex = null;
-    currentlySelectedIndex = null; // Clear the selection
-    lastSavedFormData = null;
-    
-    formActionTitle.textContent = "New Portfolio Project";
-    formEditIndex.value = "";
-    
-    formTitle.value = "";
-    formCategory.value = "";
-    if (formTag) formTag.value = "";
-    formSelected.checked = false;
-    formPublished.checked = false;
-    formImageAlign.value = "center";
-    currentMediaArray = [];
-    renderMediaBadges();
-    setEditorContent("");
-    
-    document.querySelectorAll('.sort-item').forEach(el => {
-        el.classList.remove('editing');
-        el.style.borderColor = '';
-        el.style.borderWidth = '';
-        el.style.borderStyle = '';
-        el.style.boxShadow = '';
-        el.style.backgroundColor = '';
-    });
-    
-    if (newProjectBtn) newProjectBtn.style.display = 'none';
-    if (submitBtn) submitBtn.style.display = 'block';
-}
-
-function loadProjectIntoForm(index) {
-    const target = localProjectCache[index];
-    if (!target) return;
-    
-    if (autoSaveListenersActive) {
-        setupAutoSaveListeners(false);
-    }
-    
-    isEditingMode = true;
-    currentEditIndex = index;
-    currentlySelectedIndex = index; // Store the selected index
-    
-    formActionTitle.textContent = `Editing: ${target.title}`;
-    formEditIndex.value = index;
-    
-    formTitle.value = target.title;
-    formCategory.value = target.category || "";
-    if (formTag) formTag.value = target.cardHeading || target.tag || "";
-    formSelected.checked = target.selected === true;
-    formPublished.checked = target.published !== false;
-    formImageAlign.value = target.imageAlign || 'center';
-    
-    currentMediaArray = target.media ? [...target.media] : [];
-    renderMediaBadges();
-    
-    setEditorContent(target.description || "");
-    
-    lastSavedFormData = getCurrentFormData();
-    setupAutoSaveListeners(true);
-    
-    // Remove highlight from ALL items first
-    document.querySelectorAll('.sort-item').forEach(el => {
-        el.classList.remove('editing');
-        el.style.borderColor = '';
-        el.style.borderWidth = '';
-        el.style.borderStyle = '';
-        el.style.boxShadow = '';
-        el.style.backgroundColor = '';
-    });
-    
-    // Then highlight only the selected one
-    const selectedRow = document.querySelector(`.sort-item[data-index="${index}"]`);
-    if (selectedRow) {
-        selectedRow.classList.add('editing');
-        selectedRow.style.borderColor = 'var(--color-accent)';
-        selectedRow.style.borderWidth = '2px';
-        selectedRow.style.borderStyle = 'solid';
-        selectedRow.style.boxShadow = '0 0 0 2px rgba(229, 72, 77, 0.3)';
-        selectedRow.style.backgroundColor = 'var(--color-bg-secondary)';
-        
-        setTimeout(() => {
-            selectedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 100);
-    }
-    
-    if (newProjectBtn) newProjectBtn.style.display = 'inline-block';
-    if (submitBtn) submitBtn.style.display = 'none';
-}
-
-if (newProjectBtn) {
-    newProjectBtn.addEventListener('click', () => {
-        startNewProject();
-    });
-}
-
-// Category button handlers
-if (addCategoryBtn) {
-    addCategoryBtn.addEventListener('click', () => {
-        showAddCategoryField();
-    });
-}
-
-if (confirmAddCategoryBtn) {
-    confirmAddCategoryBtn.addEventListener('click', () => {
-        const newCategory = newCategoryNameInput.value.trim();
-        if (addNewCategory(newCategory, true)) {
-            hideAddCategoryField();
-        }
-    });
-}
-
-if (cancelAddCategoryBtn) {
-    cancelAddCategoryBtn.addEventListener('click', () => {
-        hideAddCategoryField();
-    });
-}
-
-if (newCategoryNameInput) {
-    newCategoryNameInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const newCategory = newCategoryNameInput.value.trim();
-            if (addNewCategory(newCategory, true)) {
-                hideAddCategoryField();
-            }
-        }
-    });
-}
-
-if (manageBtn && categoryManager) {
-    manageBtn.addEventListener('click', () => {
-        renderCategoriesList();
-        categoryManager.style.display = categoryManager.style.display === 'none' ? 'block' : 'none';
-    });
-}
-
-if (closeCategoryManager) {
-    closeCategoryManager.addEventListener('click', () => {
-        categoryManager.style.display = 'none';
-    });
-}
-
-// ========================
-// MEDIA FUNCTIONS
-// ========================
-function renderMediaBadges() {
-    if (!mediaBadgesContainer) return;
-    mediaBadgesContainer.innerHTML = '';
-    if (currentMediaArray.length === 0) {
-        mediaBadgesContainer.innerHTML = '<div style="color: var(--color-text-muted); text-align: center; padding: 0.5rem; font-size: 0.75rem;">No media added yet.</div>';
-        return;
-    }
-    
-    currentMediaArray.forEach((media, index) => {
-        const badge = document.createElement('div');
-        badge.className = 'media-badge';
-        badge.setAttribute('data-index', index);
-        badge.innerHTML = `
-            <span class="drag-handle" style="cursor: grab; opacity: 0.5; margin-right: 4px;">⋮⋮</span>
-            <span class="media-badge-icon">${getMediaIcon(media)}</span>
-            <span class="media-badge-text" title="${escapeHtml(media)}">${media.length > 45 ? media.substring(0, 42) + '...' : media}</span>
-            <span class="media-badge-edit" data-index="${index}" title="Edit">✏️</span>
-            <span class="media-badge-delete" data-index="${index}" title="Delete">✕</span>
-        `;
-        
-        badge.querySelector('.media-badge-edit').addEventListener('click', (e) => {
-            e.stopPropagation();
-            showEditMediaModal(media, index);
-        });
-        
-        badge.querySelector('.media-badge-delete').addEventListener('click', (e) => {
-            e.stopPropagation();
-            showConfirmModal(`Remove this media item?\n\n${media.substring(0, 80)}${media.length > 80 ? '...' : ''}`, () => {
-                currentMediaArray.splice(index, 1);
-                renderMediaBadges();
-                if (isEditingMode) debouncedAutoSave();
-            }, () => {});
-        });
-        
-        mediaBadgesContainer.appendChild(badge);
-    });
-    
-    makeMediaBadgesDraggable();
-}
-
-function makeMediaBadgesDraggable() {
-    const badges = document.querySelectorAll('.media-badge');
-    let draggedIndex = null;
-    
-    badges.forEach((badge) => {
-        badge.setAttribute('draggable', 'true');
-        
-        badge.addEventListener('dragstart', (e) => {
-            draggedIndex = parseInt(badge.getAttribute('data-index'));
-            badge.style.opacity = '0.4';
-        });
-        
-        badge.addEventListener('dragend', (e) => {
-            badge.style.opacity = '1';
-            draggedIndex = null;
-        });
-        
-        badge.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-        });
-        
-        badge.addEventListener('drop', (e) => {
-            e.preventDefault();
-            const targetIndex = parseInt(badge.getAttribute('data-index'));
-            if (draggedIndex !== null && draggedIndex !== targetIndex) {
-                const draggedItem = currentMediaArray[draggedIndex];
-                currentMediaArray.splice(draggedIndex, 1);
-                currentMediaArray.splice(targetIndex, 0, draggedItem);
-                renderMediaBadges();
-                if (isEditingMode) debouncedAutoSave();
-            }
-        });
     });
 }
 
@@ -1861,17 +2101,10 @@ if (adminFilterSelect) {
     adminFilterSelect.value = 'all';
     
     adminFilterSelect.addEventListener('change', () => {
-        // Clear selection when filter changes
         currentlySelectedIndex = null;
         renderAdminView();
     });
 }
-
-const originalUpdateCategoryDropdown = updateCategoryDropdown;
-updateCategoryDropdown = function() {
-    originalUpdateCategoryDropdown();
-    updateCategoryFilterOptions();
-};
 
 // ========================
 // CLEANUP LINKS BUTTON
@@ -1937,6 +2170,21 @@ function init() {
     if (richTextEditor && hiddenDescription) {
         syncDescriptionToHidden();
         updateCharCount();
+    }
+}
+
+function init() {
+    renderMediaBadges();
+    loadData();
+    if (richTextEditor && hiddenDescription) {
+        syncDescriptionToHidden();
+        updateCharCount();
+    }
+    const categoryManager = document.getElementById('category-manager');
+    const categoryFormGroup = document.getElementById('category-form-group');
+    if (categoryManager && categoryFormGroup) {
+        // Remove from current position and insert after the form group
+        categoryFormGroup.parentNode.insertBefore(categoryManager, categoryFormGroup.nextSibling);
     }
 }
 
