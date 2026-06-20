@@ -717,6 +717,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================
     function formatCategoryForDisplay(cat) {
         if (!cat) return '';
+        // Use the demo-data.js function if available
+        if (typeof window.formatDemoCategory === 'function') {
+            return window.formatDemoCategory(cat);
+        }
         return cat.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ').replace(/&/g, '&');
     }
 
@@ -727,10 +731,94 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // FILTERING SYSTEM
+    // CATEGORY DATA FROM LOCALSTORAGE
     // ========================================
+    function loadCategoryDataFromStorage() {
+        const categoryData = {};
+        const DEMO_CATEGORIES_KEY = window.DEMO_CATEGORIES_KEY || 'demo_portfolio_categories';
+        
+        try {
+            // First try to load the categories list
+            const stored = localStorage.getItem(DEMO_CATEGORIES_KEY);
+            let categories = [];
+            
+            if (stored) {
+                try {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        categories = parsed;
+                    }
+                } catch (e) {
+                    console.warn('Failed to parse stored categories');
+                }
+            }
+            
+            // If no categories found, get them from demo-data.js
+            if (categories.length === 0 && typeof window.DEMO_CATEGORIES !== 'undefined') {
+                categories = window.DEMO_CATEGORIES;
+            }
+            
+            // Build category data with display names and shortcuts
+            categories.forEach(cat => {
+                // Get display name - check for saved display name or use format function
+                let display = formatCategoryForDisplay(cat);
+                
+                // Check if there's a saved display name
+                const savedDisplay = localStorage.getItem(`category_display_${cat}`);
+                if (savedDisplay) {
+                    display = savedDisplay;
+                }
+                
+                // Get shortcut from localStorage
+                const shortcut = localStorage.getItem(`category_shortcut_${cat}`) || '';
+                
+                categoryData[cat] = {
+                    display: display,
+                    shortcut: shortcut
+                };
+            });
+            
+            return categoryData;
+        } catch (e) {
+            console.warn('Error loading category data:', e);
+            return {};
+        }
+    }
+
+    function getCategoryDisplayName(categoryKey, categoryData) {
+        if (!categoryKey) return 'Uncategorized';
+        if (categoryData && categoryData[categoryKey]) {
+            return categoryData[categoryKey].display || formatCategoryForDisplay(categoryKey);
+        }
+        return formatCategoryForDisplay(categoryKey);
+    }
+
+    // ========================================
+    // FILTERING SYSTEM WITH LOCALSTORAGE
+    // ========================================
+    const FILTER_STORAGE_KEY = 'portfolio-filter-selection';
     let currentFilterValue = 'selected';
     let allPortfolioItems = [];
+
+    // Function to save filter state to localStorage
+    function saveFilterState(filterValue) {
+        try {
+            localStorage.setItem(FILTER_STORAGE_KEY, filterValue);
+        } catch (e) {
+            console.warn('Could not save filter state:', e);
+        }
+    }
+
+    // Function to load filter state from localStorage
+    function loadFilterState() {
+        try {
+            const saved = localStorage.getItem(FILTER_STORAGE_KEY);
+            return saved || null;
+        } catch (e) {
+            console.warn('Could not load filter state:', e);
+            return null;
+        }
+    }
 
     function setupFiltering() {
         const filterButtons = document.querySelectorAll('.filter-nav .filter-btn');
@@ -752,6 +840,10 @@ document.addEventListener('DOMContentLoaded', () => {
             button.classList.add('active');
 
             currentFilterValue = button.getAttribute('data-filter');
+            
+            // Save filter state to localStorage
+            saveFilterState(currentFilterValue);
+            
             applyFilter();
         }
     }
@@ -902,6 +994,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Load category data from localStorage
+        const categoryData = loadCategoryDataFromStorage();
+
         const hasSelectedWorks = visibleProjects.some(p => p.selected === true);
 
         visibleProjects.forEach((project, visibleIdx) => {
@@ -942,12 +1037,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 thumbnailHtml = `<div class="item-image"><div class="no-media">No media</div></div>`;
             }
 
-            const displayCategory = project.category ? formatCategoryForDisplay(project.category) : 'Uncategorized';
+            // Get category display name from localStorage data, with fallback
+            const categoryKey = project.category || 'uncategorized';
+            const displayCategory = getCategoryDisplayName(categoryKey, categoryData);
 
             article.innerHTML = `
                 ${thumbnailHtml}
                 <div class="item-content">
-                    <span class="category-tag" data-category-filter="${escapeHtml(project.category || 'uncategorized')}">${escapeHtml(displayCategory)}</span>
+                    <span class="category-tag" data-category-filter="${escapeHtml(categoryKey)}">${escapeHtml(displayCategory)}</span>
                     <h3>${escapeHtml(project.title)}</h3>
                     <p>${renderDescription(project.description)}</p>
                 </div>
@@ -1010,7 +1107,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 50 + (index * 30));
         });
 
-        // Build filter navigation
+        // Build filter navigation using category display names from localStorage
         const categories = [...new Set(visibleProjects.map(p => p.category).filter(c => c && c !== ''))].sort((a, b) => a.localeCompare(b));
         const hasSelected = visibleProjects.some(p => p.selected === true);
 
@@ -1030,7 +1127,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 filterNav.appendChild(divider1);
 
                 const selectedBtn = document.createElement('button');
-                selectedBtn.className = 'filter-btn filter-btn-selected active';
+                selectedBtn.className = 'filter-btn filter-btn-selected';
                 selectedBtn.setAttribute('data-filter', 'selected');
                 selectedBtn.textContent = 'Selected Work';
                 filterNav.appendChild(selectedBtn);
@@ -1055,12 +1152,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 const btn = document.createElement('button');
                 btn.className = 'filter-btn';
                 btn.setAttribute('data-filter', cat);
-                btn.textContent = formatCategoryForDisplay(cat);
+                // Use the display name from localStorage for filter button text
+                const displayName = getCategoryDisplayName(cat, categoryData);
+                // If there's a shortcut, append it in parentheses
+                const shortcut = categoryData[cat]?.shortcut || '';
+                btn.textContent = shortcut ? `${displayName} (${shortcut})` : displayName;
                 filterNav.appendChild(btn);
             });
         }
 
-        currentFilterValue = hasSelected ? 'selected' : 'all';
+        // Determine initial filter: check localStorage first, then fallback
+        const savedFilter = loadFilterState();
+        let initialFilter = hasSelected ? 'selected' : 'all';
+        
+        // Check if saved filter exists and is valid
+        if (savedFilter) {
+            const validFilters = ['all', 'selected', 'uncategorized', ...categories];
+            if (validFilters.includes(savedFilter)) {
+                // For 'selected' filter, only use it if there are selected projects
+                if (savedFilter === 'selected' && hasSelected) {
+                    initialFilter = savedFilter;
+                } else if (savedFilter !== 'selected') {
+                    // For 'all', 'uncategorized', or category filters, use saved value
+                    // But check if the category still exists
+                    if (savedFilter === 'all' || savedFilter === 'uncategorized' || categories.includes(savedFilter)) {
+                        initialFilter = savedFilter;
+                    }
+                }
+            }
+        }
+        
+        currentFilterValue = initialFilter;
         
         setTimeout(() => {
             const activeBtn = document.querySelector(`.filter-btn[data-filter="${currentFilterValue}"]`);
