@@ -940,6 +940,9 @@ document.addEventListener('DOMContentLoaded', () => {
         scrollToFilterPills();
     }
 
+    // ========================================
+    // SCROLL TO FILTER PILLS - FIXED
+    // ========================================
     function scrollToFilterPills() {
         const filterNav = document.getElementById('filter-nav');
         if (!filterNav) {
@@ -957,61 +960,36 @@ document.addEventListener('DOMContentLoaded', () => {
         const filterTop = filterRect.top + window.pageYOffset;
 
         // Target: filter nav should be positioned just below the header
-        const targetScrollY = filterTop - headerHeight - 10;
+        const targetScrollY = filterTop - headerHeight;
 
         const startPosition = window.pageYOffset;
         const distance = targetScrollY - startPosition;
+        const duration = 800;
+        let startTime = null;
 
         // If we're already at the target or very close, no need to scroll
-        if (Math.abs(distance) < 20) return;
+        if (Math.abs(distance) < 10) return;
 
-        // Use multiple attempts with increasing delays to ensure DOM is ready
-        const attemptScroll = (attempt) => {
-            const delay = 50 + (attempt * 100);
-            setTimeout(() => {
-                // Recalculate positions in case layout changed
-                const currentFilterNav = document.getElementById('filter-nav');
-                if (!currentFilterNav) {
-                    if (attempt < 5) attemptScroll(attempt + 1);
-                    return;
-                }
+        function smoothScroll(currentTime) {
+            if (startTime === null) startTime = currentTime;
+            const timeElapsed = currentTime - startTime;
+            const progress = Math.min(timeElapsed / duration, 1);
 
-                const currentHeader = document.getElementById('site-header');
-                const currentHeaderHeight = currentHeader ? currentHeader.offsetHeight : 0;
-                const currentFilterRect = currentFilterNav.getBoundingClientRect();
-                const currentFilterTop = currentFilterRect.top + window.pageYOffset;
-                const currentTargetScrollY = currentFilterTop - currentHeaderHeight - 10;
-                const currentDistance = currentTargetScrollY - window.pageYOffset;
+            const ease = progress < 0.5 ?
+                4 * progress * progress * progress :
+                1 - Math.pow(-2 * progress + 2, 3) / 2;
 
-                // Only scroll if we're not already at the target
-                if (Math.abs(currentDistance) > 20) {
-                    const newStartPosition = window.pageYOffset;
-                    const newDistance = currentTargetScrollY - newStartPosition;
-                    const duration = 600;
-                    let startTime = null;
-                    
-                    function smoothScroll(currentTime) {
-                        if (startTime === null) startTime = currentTime;
-                        const timeElapsed = currentTime - startTime;
-                        const progress = Math.min(timeElapsed / duration, 1);
+            window.scrollTo(0, startPosition + distance * ease);
 
-                        const ease = progress < 0.5 ?
-                            4 * progress * progress * progress :
-                            1 - Math.pow(-2 * progress + 2, 3) / 2;
+            if (timeElapsed < duration) {
+                requestAnimationFrame(smoothScroll);
+            }
+        }
 
-                        window.scrollTo(0, newStartPosition + newDistance * ease);
-
-                        if (timeElapsed < duration) {
-                            requestAnimationFrame(smoothScroll);
-                        }
-                    }
-                    requestAnimationFrame(smoothScroll);
-                }
-            }, delay);
-        };
-
-        // Start with attempt 0
-        attemptScroll(0);
+        // Wait for the filter to be applied and cards to render
+        setTimeout(() => {
+            requestAnimationFrame(smoothScroll);
+        }, 400);
     }
 
     // ========================================
