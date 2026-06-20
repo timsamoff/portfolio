@@ -872,7 +872,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-        // ========================================
+    // ========================================
     // URL FILTER PARAMETER SUPPORT
     // ========================================
 
@@ -936,7 +936,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.history.replaceState({}, '', cleanURL);
         }
         
-        // Auto-scroll to filter pills with retry logic
+        // Auto-scroll to filter pills
         scrollToFilterPills();
     }
 
@@ -961,28 +961,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const startPosition = window.pageYOffset;
         const distance = targetScrollY - startPosition;
-        const duration = 800;
-        let startTime = null;
 
         // If we're already at the target or very close, no need to scroll
         if (Math.abs(distance) < 20) return;
-
-        function smoothScroll(currentTime) {
-            if (startTime === null) startTime = currentTime;
-            const timeElapsed = currentTime - startTime;
-            const progress = Math.min(timeElapsed / duration, 1);
-
-            // Ease function: cubic-bezier equivalent
-            const ease = progress < 0.5 ?
-                4 * progress * progress * progress :
-                1 - Math.pow(-2 * progress + 2, 3) / 2;
-
-            window.scrollTo(0, startPosition + distance * ease);
-
-            if (timeElapsed < duration) {
-                requestAnimationFrame(smoothScroll);
-            }
-        }
 
         // Use multiple attempts with increasing delays to ensure DOM is ready
         const attemptScroll = (attempt) => {
@@ -1004,33 +985,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Only scroll if we're not already at the target
                 if (Math.abs(currentDistance) > 20) {
-                    // Update the target values
                     const newStartPosition = window.pageYOffset;
                     const newDistance = currentTargetScrollY - newStartPosition;
+                    const duration = 600;
+                    let startTime = null;
                     
-                    // If the distance is still significant, scroll
-                    if (Math.abs(newDistance) > 20) {
-                        // Use a fresh scroll with the updated values
-                        const newStartTime = null;
-                        const newDuration = 600;
-                        
-                        function smoothScroll2(currentTime) {
-                            if (newStartTime === null) newStartTime = currentTime;
-                            const timeElapsed = currentTime - newStartTime;
-                            const progress = Math.min(timeElapsed / newDuration, 1);
+                    function smoothScroll(currentTime) {
+                        if (startTime === null) startTime = currentTime;
+                        const timeElapsed = currentTime - startTime;
+                        const progress = Math.min(timeElapsed / duration, 1);
 
-                            const ease = progress < 0.5 ?
-                                4 * progress * progress * progress :
-                                1 - Math.pow(-2 * progress + 2, 3) / 2;
+                        const ease = progress < 0.5 ?
+                            4 * progress * progress * progress :
+                            1 - Math.pow(-2 * progress + 2, 3) / 2;
 
-                            window.scrollTo(0, newStartPosition + newDistance * ease);
+                        window.scrollTo(0, newStartPosition + newDistance * ease);
 
-                            if (timeElapsed < newDuration) {
-                                requestAnimationFrame(smoothScroll2);
-                            }
+                        if (timeElapsed < duration) {
+                            requestAnimationFrame(smoothScroll);
                         }
-                        requestAnimationFrame(smoothScroll2);
                     }
+                    requestAnimationFrame(smoothScroll);
                 }
             }, delay);
         };
