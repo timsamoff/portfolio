@@ -17,7 +17,7 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // Capture the payload and save it to projects.json
+    // Save projects to projects.json
     if (req.method === 'POST' && req.url === '/api/save-projects') {
         let body = '';
         req.on('data', chunk => { body += chunk.toString(); });
@@ -25,6 +25,25 @@ const server = http.createServer((req, res) => {
             try {
                 const formattedJson = JSON.stringify(JSON.parse(body), null, 2);
                 fs.writeFileSync(path.join(__dirname, 'projects.json'), formattedJson, 'utf8');
+                
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: true }));
+            } catch (err) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: false, error: err.message }));
+            }
+        });
+        return;
+    }
+
+    // Save categories to categories.json
+    if (req.method === 'POST' && req.url === '/api/save-categories') {
+        let body = '';
+        req.on('data', chunk => { body += chunk.toString(); });
+        req.on('end', () => {
+            try {
+                const formattedJson = JSON.stringify(JSON.parse(body), null, 2);
+                fs.writeFileSync(path.join(__dirname, 'categories.json'), formattedJson, 'utf8');
                 
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ success: true }));

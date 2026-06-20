@@ -1,13 +1,12 @@
-// demo/demo-admin.js
-// ========================================
-// DEMO ADMIN - localStorage version of admin.js
-// ========================================
-
+// Admin panel functionality - localStorage version
 let localProjectCache = [];
 let currentMediaArray = [];
 let draggedMediaIndexForReorder = null;
 let currentSearchTerm = '';
 let availableCategories = [];
+
+// Category data with display names and shortcuts
+let categoryData = {};
 
 // Auto-save tracking
 let autoSaveTimeout = null;
@@ -19,15 +18,16 @@ let lastSavedFormData = null;
 let activeModal = null;
 let inlineErrorTimeout = null;
 
-// Selection captured on toolbar mousedown
+// Selection captured on toolbar mousedown, before the button steals focus
 let capturedSel = null;
-
-// Track the currently selected/editing project index
-let currentlySelectedIndex = null;
 
 // Description textarea
 const descTextarea = document.getElementById('form-description');
 const charCounter = document.getElementById('char-counter');
+
+// Legacy aliases
+const richTextEditor = descTextarea;
+const hiddenDescription = descTextarea;
 
 // Get DOM elements
 const sortableListElement = document.getElementById('sortable-list');
@@ -60,13 +60,14 @@ const categoryHelpText = document.getElementById('category-help-text');
 
 // Category management elements
 const addCategoryBtn = document.getElementById('add-category-btn');
-const addCategoryField = document.getElementById('add-category-field');
-const newCategoryNameInput = document.getElementById('new-category-name');
-const confirmAddCategoryBtn = document.getElementById('confirm-add-category-btn');
-const cancelAddCategoryBtn = document.getElementById('cancel-add-category-btn');
-const manageBtn = document.getElementById('manage-categories-btn');
 const categoryManager = document.getElementById('category-manager');
-const closeCategoryManager = document.getElementById('close-category-manager');
+const categoryManagerClose = document.getElementById('category-manager-close');
+const categoryListContainer = document.getElementById('category-list-container');
+const modalNewCategoryName = document.getElementById('modal-new-category-name');
+const modalNewCategoryShortcut = document.getElementById('modal-new-category-shortcut');
+const modalAddCategoryBtn = document.getElementById('modal-add-category-btn');
+
+// Reset data button
 const resetDataBtn = document.getElementById('reset-data-btn');
 
 // Toolbar buttons
@@ -81,28 +82,121 @@ const toolbarLive = document.getElementById('toolbar-live');
 let floatingNotification = null;
 let notificationTimeout = null;
 
+// Track the currently selected/editing project index
+let currentlySelectedIndex = null;
+
 if (window.history.scrollRestoration) {
     window.history.scrollRestoration = 'manual';
 }
 
-// ========================
+// ============================================================
+// FORMATTING FUNCTIONS (use demo-data.js versions if available)
+// ============================================================
+
+function formatCategoryForDisplay(cat) {
+    if (!cat) return '';
+    // Use the demo-data.js function if available
+    if (typeof window.formatDemoCategory === 'function') {
+        return window.formatDemoCategory(cat);
+    }
+    return cat.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+}
+
+// ============================================================
+// CATEGORY DATA INITIALIZATION
+// ============================================================
+
+function loadCategoriesFromStorage() {
+    // First try to load from localStorage directly
+    const stored = localStorage.getItem(DEMO_CATEGORIES_KEY);
+    if (stored) {
+        try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                return parsed;
+            }
+        } catch (e) {
+            console.warn('Failed to parse stored categories');
+        }
+    }
+    return null;
+}
+
+function loadCategoryData() {
+    // Try to load categories from localStorage
+    let categories = loadCategoriesFromStorage();
+    
+    // If no categories found, get them from demo-data.js
+    if (!categories) {
+        const data = getDemoData();
+        categories = data.categories || [];
+    }
+    
+    availableCategories = categories;
+    
+    // Build categoryData from availableCategories
+    categoryData = {};
+    availableCategories.forEach(cat => {
+        const displayName = formatCategoryForDisplay(cat);
+        // Try to find existing shortcut from localStorage
+        const savedShortcut = localStorage.getItem(`category_shortcut_${cat}`);
+        // If no saved shortcut, try to get the default from demo-data.js
+        let shortcut = savedShortcut || '';
+        if (!shortcut && typeof window.getDemoCategoryShortcut === 'function') {
+            shortcut = window.getDemoCategoryShortcut(cat);
+        }
+        categoryData[cat] = {
+            display: displayName,
+            shortcut: shortcut || ''
+        };
+    });
+    
+    updateCategoryDropdown();
+    updateCategoryFilterOptions();
+    
+    // Save categories back to localStorage if they were loaded from defaults
+    if (!loadCategoriesFromStorage()) {
+        if (typeof saveDemoCategories === 'function') {
+            saveDemoCategories(availableCategories);
+        }
+        localStorage.setItem('demo_categories_backup', JSON.stringify(availableCategories));
+    }
+}
+
+function saveCategoryData() {
+    // Save categories to localStorage
+    if (typeof saveDemoCategories === 'function') {
+        saveDemoCategories(availableCategories);
+    }
+    
+    // Save shortcuts individually
+    Object.keys(categoryData).forEach(key => {
+        if (categoryData[key].shortcut) {
+            localStorage.setItem(`category_shortcut_${key}`, categoryData[key].shortcut);
+        } else {
+            localStorage.removeItem(`category_shortcut_${key}`);
+        }
+    });
+    
+    // Also save the categories list directly as a backup
+    localStorage.setItem('demo_categories_backup', JSON.stringify(availableCategories));
+}
+
+// ============================================================
 // SMART QUOTES - FIXED TO PRESERVE HTML
-// ========================
+// ============================================================
 function convertToSmartQuotes(text) {
     if (!text) return '';
     
-    // If no HTML tags, do simple conversion with proper opening/closing detection
     if (!/<[a-z][\s\S]*>/i.test(text)) {
         return convertPlainTextToSmartQuotes(text);
     }
     
-    // Parse character by character, tracking HTML context
     let result = '';
     let inTag = false;
     let inAttribute = false;
     let attributeQuoteChar = '';
     
-    // Build an array of characters with their positions for context analysis
     const chars = text.split('');
     
     for (let i = 0; i < chars.length; i++) {
@@ -110,7 +204,6 @@ function convertToSmartQuotes(text) {
         const nextChar = chars[i + 1] || '';
         const prevChar = chars[i - 1] || '';
         
-        // HTML tag detection
         if (char === '<' && !inTag) {
             inTag = true;
             inAttribute = false;
@@ -124,7 +217,6 @@ function convertToSmartQuotes(text) {
             continue;
         }
         
-        // Inside HTML tags, preserve everything as-is
         if (inTag) {
             if (char === '"' || char === "'") {
                 if (!inAttribute) {
@@ -133,21 +225,17 @@ function convertToSmartQuotes(text) {
                 } else if (char === attributeQuoteChar) {
                     inAttribute = false;
                 }
-                result += char; // Preserve quote
+                result += char;
                 continue;
             }
             result += char;
             continue;
         }
         
-        // If inside an attribute value (after the quote), preserve
         if (inAttribute) {
             result += char;
             continue;
         }
-        
-        // === NOT IN HTML TAGS ===
-        // Convert quotes with proper context awareness
         
         if (char === '"') {
             const isOpening = isOpeningQuote(text, i, result);
@@ -162,24 +250,19 @@ function convertToSmartQuotes(text) {
     return result;
 }
 
-// Determine if a double quote is an opening quote
 function isOpeningQuote(text, position, processedResult) {
     const prevChar = text[position - 1] || '';
     const nextChar = text[position + 1] || '';
     
     const isStartOrAfterWhitespace = position === 0 || /[\s(\[{]/.test(prevChar);
-    
     const nextIsWord = /\w/.test(nextChar);
-    
-    // Check if this might be a measurement or number (e.g., 5" or "5)
     const prevIsNumber = /\d/.test(prevChar);
     const nextIsNumber = /\d/.test(nextChar);
     
-    // Don't convert if it's part of a measurement (like 5" or "5")
     if (prevIsNumber || nextIsNumber) {
         const beforePrev = text[position - 2] || '';
         if (/\d/.test(prevChar) || (prevIsNumber && beforePrev !== '"')) {
-            return false; // Keep as straight quote for measurements
+            return false;
         }
     }
     
@@ -197,7 +280,6 @@ function isOpeningQuote(text, position, processedResult) {
     return false;
 }
 
-// Determine the correct apostrophe type
 function convertApostrophe(text, position, processedResult) {
     const prevChar = text[position - 1] || '';
     const nextChar = text[position + 1] || '';
@@ -205,40 +287,33 @@ function convertApostrophe(text, position, processedResult) {
     const prevPrevChar = text[position - 2] || '';
     
     if (/\w/.test(prevChar) && /\w/.test(nextChar)) {
-        return '’'; // Smart apostrophe for contractions
+        return '’';
     }
     
-    // === POSSESSIVES WITH NO FOLLOWING WORD ===
     if (/\w/.test(prevChar) && /\s/.test(nextChar)) {
-        return '’'; // Smart apostrophe for possessives
+        return '’';
     }
     
-    // === POSSESSIVE PLURAL ===
-    // Pattern: word + s' + space (e.g., girls' room)
     if (prevChar === 's' && /\w/.test(prevPrevChar) && /\s/.test(nextChar)) {
-        return '’'; // Smart apostrophe for plural possessives
+        return '’';
     }
     
-    // === MEASUREMENTS / NUMBERS ===
     if (/\d/.test(prevChar) || /\d/.test(nextChar)) {
-        return "'"; // Keep straight for measurements
+        return "'";
     }
     
-    // === OPENING QUOTE (e.g., 'Twas, 'Tis) ===
     const isStartOrAfterWhitespace = position === 0 || /[\s(\[{]/.test(prevChar);
     if (isStartOrAfterWhitespace && /\w/.test(nextChar)) {
-        return '‘'; // Opening smart quote
+        return '‘';
     }
     
-    // === CLOSING QUOTE ===
     if (/\w/.test(prevChar) && /[.,!?;:)\]}]\s*/.test(nextChar)) {
-        return '’'; // Closing smart quote
+        return '’';
     }
     
     return "'";
 }
 
-// Convert plain text (no HTML)
 function convertPlainTextToSmartQuotes(text) {
     let result = '';
     
@@ -258,12 +333,14 @@ function convertPlainTextToSmartQuotes(text) {
     return result;
 }
 
-// ========================
-// LINK CLEANUP
-// ========================
+// ============================================================
+// LINK CLEANUP FUNCTIONS
+// ============================================================
 function cleanupMalformedLinks(html) {
     if (!html) return html;
+    
     let cleaned = html;
+    
     cleaned = cleaned.replace(/href=["'”‘’]\s*["'”‘’]?(https?:\/\/[^"'\s>]+)["'”‘’]\s*["'”‘’]?/g, 'href="$1"');
     cleaned = cleaned.replace(/href=”(https?:\/\/[^”\s>]+)”/g, 'href="$1"');
     cleaned = cleaned.replace(/href=‘([^’\s>]+)’/g, 'href="$1"');
@@ -276,12 +353,15 @@ function cleanupMalformedLinks(html) {
     cleaned = cleaned.replace(/target=‘(_blank|_self|_parent|_top)’/g, 'target="$1"');
     cleaned = cleaned.replace(/rel=”(noopener noreferrer|nofollow|noopener)”/g, 'rel="$1"');
     cleaned = cleaned.replace(/rel=‘(noopener noreferrer|nofollow|noopener)’/g, 'rel="$1"');
+    
     return cleaned;
 }
 
-// ========================
+// ============================================================
 // TEXTAREA EDITOR HELPERS
-// ========================
+// ============================================================
+function syncDescriptionToHidden() { /* no-op: textarea IS the store */ }
+
 function updateCharCount() {
     if (charCounter && descTextarea) {
         charCounter.textContent = descTextarea.value.length + ' characters';
@@ -297,7 +377,9 @@ function insertAtCursor(before, after, selStart, selEnd, selText) {
     const val = descTextarea.value;
     const replacement = before + sel + after;
     descTextarea.value = val.slice(0, start) + replacement + val.slice(end);
-    const cursorPos = (start === end) ? start + before.length : start + replacement.length;
+    const cursorPos = (start === end)
+        ? start + before.length
+        : start + replacement.length;
     descTextarea.focus();
     descTextarea.setSelectionRange(cursorPos, cursorPos);
     updateCharCount();
@@ -323,9 +405,9 @@ function applySmartQuotesToEditor() {
     updateCharCount();
 }
 
-// ========================
-// TOOLBAR FUNCTIONS
-// ========================
+// ============================================================
+// APPLY / TOGGLE FORMATTING
+// ============================================================
 function applyInlineFormat(tagName) {
     if (!descTextarea || !capturedSel) return;
     const open = '<' + tagName + '>';
@@ -379,7 +461,6 @@ function applyInlineFormat(tagName) {
     insertAtCursor(open, close, start, end, sel);
 }
 
-// LIVE BUTTON
 function applyLiveTag() {
     if (!descTextarea || !capturedSel) return;
     const start = capturedSel.start;
@@ -415,7 +496,6 @@ function applyLiveTag() {
     insertAtCursor('<live>', '</live>', start, end, sel);
 }
 
-// AWARD BUTTON
 function applyAwardTag() {
     if (!descTextarea || !capturedSel) return;
     const start = capturedSel.start;
@@ -509,11 +589,13 @@ function insertLink() {
     const doInsert = () => {
         let url = urlInput.value.trim();
         if (!url) { closeModal(); return; }
+        
         if (!url.startsWith('http://') && !url.startsWith('https://') && 
             !url.startsWith('/') && !url.startsWith('./') && !url.startsWith('../') && 
             !url.startsWith('#') && !url.startsWith('mailto:') && !url.startsWith('tel:')) {
             url = 'https://' + url;
         }
+        
         const tag = '<a href="' + url + '" target="_blank" rel="noopener noreferrer">';
         insertAtCursor(tag, '</a>', start, end, sel);
         closeModal();
@@ -525,9 +607,13 @@ function insertLink() {
     modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
 }
 
-// ========================
+function handlePaste(e) {
+    setTimeout(() => { updateCharCount(); if (isEditingMode) debouncedAutoSave(); }, 0);
+}
+
+// ============================================================
 // NOTIFICATION SYSTEM
-// ========================
+// ============================================================
 function showFloatingNotification(message, isSuccess = true) {
     if (floatingNotification) {
         floatingNotification.remove();
@@ -584,27 +670,33 @@ function showAutoSaveNotification() {
     showFloatingNotification("✓ Auto-saved");
 }
 
-// ========================
+// ============================================================
 // CONFIRMATION MODAL
-// ========================
+// ============================================================
 function showConfirmModal(message, onConfirm, onCancel) {
-    if (activeModal) {
-        activeModal.remove();
+    // Remove any existing confirmation modal
+    const existing = document.querySelector('.confirmation-modal-overlay');
+    if (existing) {
+        existing.remove();
     }
     
     const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'confirmation-modal-overlay';
     modalOverlay.style.cssText = `
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.8);
-        backdrop-filter: blur(4px);
-        z-index: 20000;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 9999999;
         display: flex;
         align-items: center;
         justify-content: center;
+        margin: 0;
+        padding: 0;
     `;
     
     const modalContent = document.createElement('div');
@@ -615,42 +707,58 @@ function showConfirmModal(message, onConfirm, onCancel) {
         padding: 1.5rem;
         max-width: 400px;
         width: 90%;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        position: relative;
+        z-index: 10000000;
     `;
     
     modalContent.innerHTML = `
-        <p style="margin-bottom: 1.5rem; line-height: 1.5; color: var(--color-text); white-space: pre-wrap;">${escapeHtml(message)}</p>
+        <p style="margin-bottom: 1.5rem; line-height: 1.6; color: var(--color-text); white-space: pre-wrap; font-size: 0.95rem;">${escapeHtml(message)}</p>
         <div style="display: flex; gap: 1rem; justify-content: flex-end;">
-            <button id="modal-cancel-btn" class="btn-small" style="padding: 0.5rem 1rem;">Cancel</button>
-            <button id="modal-confirm-btn" class="filter-btn" style="padding: 0.5rem 1rem; background: var(--color-accent); color: var(--color-white);">Confirm</button>
+            <button id="modal-cancel-btn" class="btn-small" style="padding: 0.5rem 1.2rem; font-size: 0.85rem; cursor: pointer;">Cancel</button>
+            <button id="modal-confirm-btn" class="filter-btn" style="padding: 0.5rem 1.2rem; background: var(--color-accent); color: var(--color-white); border: none; cursor: pointer; font-size: 0.85rem;">Confirm</button>
         </div>
     `;
     
     modalOverlay.appendChild(modalContent);
     document.body.appendChild(modalOverlay);
-    activeModal = modalOverlay;
     
     const confirmBtn = modalContent.querySelector('#modal-confirm-btn');
-    confirmBtn.addEventListener('click', () => {
+    const cancelBtn = modalContent.querySelector('#modal-cancel-btn');
+    
+    const cleanup = () => {
         modalOverlay.remove();
-        activeModal = null;
+        document.removeEventListener('keydown', escHandler);
+    };
+    
+    confirmBtn.addEventListener('click', () => {
+        cleanup();
         if (onConfirm) onConfirm();
     });
     
-    const cancelBtn = modalContent.querySelector('#modal-cancel-btn');
     cancelBtn.addEventListener('click', () => {
-        modalOverlay.remove();
-        activeModal = null;
+        cleanup();
         if (onCancel) onCancel();
     });
     
     modalOverlay.addEventListener('click', (e) => {
         if (e.target === modalOverlay) {
-            modalOverlay.remove();
-            activeModal = null;
+            cleanup();
             if (onCancel) onCancel();
         }
     });
+    
+    const escHandler = (e) => {
+        if (e.key === 'Escape') {
+            cleanup();
+            if (onCancel) onCancel();
+        }
+    };
+    document.addEventListener('keydown', escHandler);
+    
+    setTimeout(() => {
+        confirmBtn.focus();
+    }, 100);
 }
 
 function showEditMediaModal(currentUrl, index) {
@@ -769,12 +877,14 @@ function showEditMediaModal(currentUrl, index) {
     }
     
     saveBtn.addEventListener('click', saveMedia);
+    
     cancelBtn.addEventListener('click', () => {
         if (activeModal) {
             activeModal.remove();
             activeModal = null;
         }
     });
+    
     modalOverlay.addEventListener('click', (e) => {
         if (e.target === modalOverlay) {
             if (activeModal) {
@@ -783,6 +893,7 @@ function showEditMediaModal(currentUrl, index) {
             }
         }
     });
+    
     input.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -807,6 +918,7 @@ function showInlineError(inputElement, message) {
         gap: 0.3rem;
     `;
     errorDiv.innerHTML = `⚠️ ${escapeHtml(message)}`;
+    
     inputElement.insertAdjacentElement('afterend', errorDiv);
     
     if (inlineErrorTimeout) clearTimeout(inlineErrorTimeout);
@@ -817,23 +929,38 @@ function showInlineError(inputElement, message) {
     }, 3000);
 }
 
-// ========================
+// ============================================================
 // CATEGORY MANAGEMENT
-// ========================
+// ============================================================
 function normalizeCategoryName(name) {
     if (!name || !name.trim()) return '';
+    
     let normalized = name.trim().toLowerCase();
     normalized = normalized.replace(/&/g, '_&_');
     normalized = normalized.replace(/\s+/g, ' ');
     normalized = normalized.replace(/ /g, '_');
     normalized = normalized.replace(/_+/g, '_');
     normalized = normalized.replace(/^_|_$/g, '');
+    
     return normalized;
 }
 
-function formatCategoryForDisplay(cat) {
-    if (!cat) return '';
-    return cat.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ').replace(/&/g, '&');
+function generateShortcutFromName(name) {
+    if (!name) return '';
+    
+    const words = name.toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w);
+    
+    if (words.length === 0) return '';
+    
+    if (words.length === 1) {
+        return words[0].substring(0, 4);
+    } else {
+        let shortcut = words[0].substring(0, 2);
+        if (words.length > 1) {
+            shortcut += words[1].substring(0, 2);
+        }
+        return shortcut;
+    }
 }
 
 function updateCategoryDropdown() {
@@ -852,13 +979,17 @@ function updateCategoryDropdown() {
     formCategory.appendChild(separator);
     
     const sortedCategories = [...availableCategories].sort((a, b) => {
-        return formatCategoryForDisplay(a).localeCompare(formatCategoryForDisplay(b));
+        const displayA = categoryData[a]?.display || formatCategoryForDisplay(a);
+        const displayB = categoryData[b]?.display || formatCategoryForDisplay(b);
+        return displayA.localeCompare(displayB);
     });
     
     sortedCategories.forEach(cat => {
         const option = document.createElement('option');
         option.value = cat;
-        option.textContent = formatCategoryForDisplay(cat);
+        const displayName = categoryData[cat]?.display || formatCategoryForDisplay(cat);
+        const shortcut = categoryData[cat]?.shortcut || '';
+        option.textContent = shortcut ? `${displayName} (${shortcut})` : displayName;
         formCategory.appendChild(option);
     });
     
@@ -871,127 +1002,296 @@ function updateCategoryDropdown() {
     }
 }
 
-function addNewCategory(rawName, applyToCurrentProject = true) {
-    if (!rawName || !rawName.trim()) {
-        showInlineError(newCategoryNameInput, 'Category name cannot be blank');
-        return false;
+// ============================================================
+// CATEGORY MANAGER - INLINE
+// ============================================================
+
+function toggleCategoryManager() {
+    if (!categoryManager) return;
+    
+    if (categoryManager.style.display === 'none' || categoryManager.style.display === '') {
+        categoryManager.style.display = 'block';
+        renderCategoryList();
+        if (addCategoryBtn) {
+            addCategoryBtn.textContent = '📁 Close';
+        }
+    } else {
+        categoryManager.style.display = 'none';
+        if (addCategoryBtn) {
+            addCategoryBtn.textContent = '📁 Manage';
+        }
+    }
+}
+
+function renderCategoryList() {
+    if (!categoryListContainer) return;
+    
+    categoryListContainer.innerHTML = '';
+    
+    const sortedCategories = [...availableCategories].sort((a, b) => {
+        const displayA = categoryData[a]?.display || formatCategoryForDisplay(a);
+        const displayB = categoryData[b]?.display || formatCategoryForDisplay(b);
+        return displayA.localeCompare(displayB);
+    });
+    
+    if (sortedCategories.length === 0) {
+        categoryListContainer.innerHTML = '<div style="color: var(--text-muted); padding: 1rem; text-align: center;">No categories yet. Add one below.</div>';
+        return;
     }
     
-    const normalized = normalizeCategoryName(rawName);
+    sortedCategories.forEach(cat => {
+        const displayName = categoryData[cat]?.display || formatCategoryForDisplay(cat);
+        const shortcut = categoryData[cat]?.shortcut || '';
+        
+        const row = document.createElement('div');
+        row.style.cssText = `
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 0.75rem;
+            align-items: center;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        `;
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = displayName;
+        nameSpan.style.color = 'var(--color-text)';
+        
+        const shortcutInput = document.createElement('input');
+        shortcutInput.type = 'text';
+        shortcutInput.value = shortcut;
+        shortcutInput.placeholder = 'No shortcut';
+        shortcutInput.style.cssText = `
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+            font-size: 0.85rem;
+            width: 100%;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        `;
+        shortcutInput.dataset.category = cat;
+        
+        let saveTimeout = null;
+        shortcutInput.addEventListener('input', () => {
+            if (saveTimeout) clearTimeout(saveTimeout);
+            
+            saveTimeout = setTimeout(() => {
+                const newShortcut = shortcutInput.value.trim();
+                const category = shortcutInput.dataset.category;
+                
+                if (category && categoryData[category]) {
+                    const existingShortcuts = Object.keys(categoryData)
+                        .filter(key => key !== category)
+                        .map(key => categoryData[key].shortcut)
+                        .filter(s => s);
+                    
+                    if (newShortcut && existingShortcuts.includes(newShortcut)) {
+                        showFloatingNotification(`⚠️ Shortcut "${newShortcut}" is already in use`, false);
+                        shortcutInput.style.borderColor = 'var(--color-accent)';
+                        return;
+                    }
+                    
+                    categoryData[category].shortcut = newShortcut || '';
+                    shortcutInput.style.borderColor = '';
+                    
+                    updateCategoryDropdown();
+                    updateCategoryFilterOptions();
+                    saveCategoryData();
+                    showFloatingNotification(`✓ Shortcut updated for "${displayName}"`);
+                }
+            }, 500);
+        });
+        
+        shortcutInput.addEventListener('blur', () => {
+            if (saveTimeout) clearTimeout(saveTimeout);
+            
+            const newShortcut = shortcutInput.value.trim();
+            const category = shortcutInput.dataset.category;
+            
+            if (category && categoryData[category]) {
+                const existingShortcuts = Object.keys(categoryData)
+                    .filter(key => key !== category)
+                    .map(key => categoryData[key].shortcut)
+                    .filter(s => s);
+                
+                if (newShortcut && existingShortcuts.includes(newShortcut)) {
+                    showFloatingNotification(`⚠️ Shortcut "${newShortcut}" is already in use`, false);
+                    shortcutInput.style.borderColor = 'var(--color-accent)';
+                    return;
+                }
+                
+                categoryData[category].shortcut = newShortcut || '';
+                shortcutInput.style.borderColor = '';
+                updateCategoryDropdown();
+                updateCategoryFilterOptions();
+                saveCategoryData();
+            }
+        });
+        
+        // Hover effect for better visibility
+        shortcutInput.addEventListener('mouseenter', () => {
+            if (!shortcutInput.style.borderColor || shortcutInput.style.borderColor === '') {
+                shortcutInput.style.borderColor = 'var(--color-text-muted)';
+            }
+        });
+        shortcutInput.addEventListener('mouseleave', () => {
+            if (shortcutInput.style.borderColor === 'var(--color-text-muted)') {
+                shortcutInput.style.borderColor = '';
+            }
+        });
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = '✕';
+        deleteBtn.style.cssText = `
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.2rem 0.5rem;
+            font-size: 1rem;
+            transition: color 0.2s;
+        `;
+        deleteBtn.title = `Delete "${displayName}" category`;
+        deleteBtn.addEventListener('mouseenter', () => {
+            deleteBtn.style.color = 'var(--color-accent)';
+        });
+        deleteBtn.addEventListener('mouseleave', () => {
+            deleteBtn.style.color = 'var(--text-muted)';
+        });
+        deleteBtn.addEventListener('click', () => {
+            deleteCategory(cat);
+        });
+        
+        row.appendChild(nameSpan);
+        row.appendChild(shortcutInput);
+        row.appendChild(deleteBtn);
+        categoryListContainer.appendChild(row);
+    });
+}
+
+function addCategory() {
+    if (!modalNewCategoryName) return;
+    const name = modalNewCategoryName.value.trim();
+    
+    if (!name) {
+        showFloatingNotification('⚠️ Category name is required', false);
+        return;
+    }
+    
+    const normalized = normalizeCategoryName(name);
     
     if (normalized === 'uncategorized') {
-        showInlineError(newCategoryNameInput, '"Uncategorized" is a reserved category name');
-        return false;
-    }
-    
-    if (!normalized) {
-        showInlineError(newCategoryNameInput, 'Category name cannot be blank');
-        return false;
+        showFloatingNotification('⚠️ "Uncategorized" is reserved', false);
+        return;
     }
     
     if (availableCategories.includes(normalized)) {
-        showInlineError(newCategoryNameInput, `Category "${formatCategoryForDisplay(normalized)}" already exists`);
-        return false;
+        showFloatingNotification(`⚠️ Category "${name}" already exists`, false);
+        return;
+    }
+    
+    let shortcut = modalNewCategoryShortcut ? modalNewCategoryShortcut.value.trim() : '';
+    if (!shortcut) {
+        shortcut = generateShortcutFromName(name);
+    }
+    
+    const existingShortcuts = Object.values(categoryData).map(c => c.shortcut).filter(s => s);
+    if (shortcut && existingShortcuts.includes(shortcut)) {
+        showFloatingNotification(`⚠️ Shortcut "${shortcut}" is already in use`, false);
+        return;
     }
     
     availableCategories.push(normalized);
-    updateCategoryDropdown();
+    categoryData[normalized] = {
+        display: name,
+        shortcut: shortcut || ''
+    };
     
-    if (applyToCurrentProject) {
-        formCategory.value = normalized;
-        if (isEditingMode) {
-            debouncedAutoSave();
-        }
+    if (modalNewCategoryName) modalNewCategoryName.value = '';
+    if (modalNewCategoryShortcut) modalNewCategoryShortcut.value = '';
+    
+    // Save everything
+    updateCategoryDropdown();
+    updateCategoryFilterOptions();
+    renderCategoryList();
+    saveCategoryData();
+    
+    // Also explicitly save categories via demo-data.js
+    if (typeof saveDemoCategories === 'function') {
+        saveDemoCategories(availableCategories);
     }
     
-    saveDemoCategories(availableCategories);
-    showFloatingNotification(`✓ Added category "${formatCategoryForDisplay(normalized)}"`);
-    return true;
-}
-
-function showAddCategoryField() {
-    addCategoryField.style.display = 'block';
-    if (categoryHelpText) categoryHelpText.style.display = 'none';
-    newCategoryNameInput.value = '';
-    newCategoryNameInput.focus();
-}
-
-function hideAddCategoryField() {
-    addCategoryField.style.display = 'none';
-    if (categoryHelpText) categoryHelpText.style.display = 'block';
-    newCategoryNameInput.value = '';
+    // Save backup
+    localStorage.setItem('demo_categories_backup', JSON.stringify(availableCategories));
+    
+    let successMsg = `✅ Added category "${name}"`;
+    if (shortcut) {
+        successMsg += ` (shortcut: ${shortcut})`;
+    }
+    showFloatingNotification(successMsg);
 }
 
 function deleteCategory(categoryToDelete) {
-    const displayName = formatCategoryForDisplay(categoryToDelete);
+    const displayName = categoryData[categoryToDelete]?.display || formatCategoryForDisplay(categoryToDelete);
     const projectsUsing = localProjectCache.filter(p => p.category === categoryToDelete).length;
+    
     let warning = `Delete category "${displayName}"?`;
     if (projectsUsing > 0) {
         warning += `\n\n⚠️ ${projectsUsing} project(s) currently use this category. They will become Uncategorized.`;
     }
     
     showConfirmModal(warning, () => {
+        // Remove from categories
         availableCategories = availableCategories.filter(c => c !== categoryToDelete);
+        delete categoryData[categoryToDelete];
         
+        // Update projects
+        let updatedCount = 0;
         localProjectCache.forEach(project => {
             if (project.category === categoryToDelete) {
                 project.category = '';
+                updatedCount++;
             }
         });
         
+        // Update UI and auto-save
         updateCategoryDropdown();
+        updateCategoryFilterOptions();
+        renderCategoryList();
         renderAdminView();
         saveToLocalStorage();
-        if (categoryManager) categoryManager.style.display = 'none';
-        saveDemoCategories(availableCategories);
-        showFloatingNotification(`✓ Deleted category "${displayName}"`);
+        saveCategoryData();
+        
+        // Also explicitly save categories via demo-data.js
+        if (typeof saveDemoCategories === 'function') {
+            saveDemoCategories(availableCategories);
+        }
+        
+        // Save backup
+        localStorage.setItem('demo_categories_backup', JSON.stringify(availableCategories));
+        
+        let successMsg = `✅ Deleted category "${displayName}"`;
+        if (updatedCount > 0) {
+            successMsg += ` (${updatedCount} project(s) moved to Uncategorized)`;
+        }
+        showFloatingNotification(successMsg);
     }, () => {});
 }
 
-function renderCategoriesList() {
-    const container = document.getElementById('categories-list');
-    if (!container) return;
-    container.innerHTML = '';
-    
-    const sortedCategories = [...availableCategories].sort((a, b) => {
-        return formatCategoryForDisplay(a).localeCompare(formatCategoryForDisplay(b));
-    });
-    
-    sortedCategories.forEach(cat => {
-        const badge = document.createElement('div');
-        badge.className = 'media-badge';
-        badge.style.cursor = 'pointer';
-        badge.style.display = 'inline-flex';
-        badge.style.alignItems = 'center';
-        badge.style.gap = '0.5rem';
-        badge.innerHTML = `
-            <span>${escapeHtml(formatCategoryForDisplay(cat))}</span>
-            <span class="media-badge-delete" data-category="${escapeHtml(cat)}" style="margin-left: 0.5rem; cursor: pointer;">✕</span>
-        `;
-        badge.querySelector('.media-badge-delete').addEventListener('click', (e) => {
-            e.stopPropagation();
-            deleteCategory(cat);
-        });
-        container.appendChild(badge);
-    });
-    
-    if (availableCategories.length === 0) {
-        container.innerHTML = '<div style="color: var(--color-text-muted); font-size: 0.75rem; padding: 0.5rem;">No categories yet. Add one using the "+ Add Category" button above.</div>';
-    }
-}
-
-// ========================
+// ============================================================
 // PROJECT CRUD
-// ========================
+// ============================================================
 if (addForm) {
     addForm.addEventListener('submit', function(e) {
         e.preventDefault();
+        
         const mediaToSave = [...currentMediaArray].filter(m => m && m.trim());
         
         const projectData = {
             title: formTitle.value,
             category: formCategory.value,
-            cardHeading: formTag.value,
             media: mediaToSave,
             description: getEditorContent(),
             imageAlign: formImageAlign.value,
@@ -1004,12 +1304,19 @@ if (addForm) {
         saveToLocalStorage();
         startNewProject();
         showFloatingNotification("✓ Project added with " + mediaToSave.length + " media resources(s)!");
+        
         return false;
     });
 }
 
 function saveToLocalStorage() {
-    localProjectCache = localProjectCache.map(project => {
+    if (localProjectCache.length === 0) {
+        console.warn('⚠️ Attempting to save empty project cache!');
+        showFloatingNotification('Warning: No projects to save!', false);
+        return;
+    }
+    
+    const projectsToSave = localProjectCache.map(project => {
         if (project.description) {
             project.description = cleanupMalformedLinks(project.description);
         }
@@ -1019,12 +1326,24 @@ function saveToLocalStorage() {
         return project;
     });
     
-    saveDemoProjects(localProjectCache);
+    if (typeof saveDemoProjects === 'function') {
+        saveDemoProjects(projectsToSave);
+    }
     
     const cats = [...new Set(localProjectCache.map(p => p.category).filter(c => c && c !== ''))];
     if (cats.length > 0) {
-        availableCategories = cats;
-        saveDemoCategories(cats);
+        cats.forEach(cat => {
+            if (!availableCategories.includes(cat)) {
+                availableCategories.push(cat);
+            }
+            if (!categoryData[cat]) {
+                categoryData[cat] = {
+                    display: formatCategoryForDisplay(cat),
+                    shortcut: ''
+                };
+            }
+        });
+        saveCategoryData();
         updateCategoryDropdown();
     }
 }
@@ -1042,20 +1361,41 @@ function getMediaIcon(url) {
     if (lowerUrl.match(/\.(mp4|webm|mov|ogg)$/)) return '🎥';
     if (lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be')) return '📺';
     if (lowerUrl.includes('vimeo.com')) return '🎬';
-    if (lowerUrl.includes('unsplash.com')) return '📷';
     return '🔗';
 }
 
 function getMediaPreview(mediaArray) {
     if (!mediaArray || mediaArray.length === 0) return "No media";
     const icons = mediaArray.map(m => getMediaIcon(m)).join(' ');
-    return `${icons} ${mediaArray.length} media resources(s)`;
+    return `${icons} ${mediaArray.length} media item(s)`;
 }
 
 function loadData() {
-    const data = getDemoData();
-    localProjectCache = data.projects;
-    availableCategories = data.categories;
+    // Load categories first - this will handle loading from storage
+    loadCategoryData();
+    
+    // Then load projects
+    let data = getDemoData();
+    localProjectCache = data.projects || [];
+    
+    // If we have categories from loadCategoryData, make sure they're in sync
+    if (availableCategories.length > 0) {
+        // Ensure all project categories are in availableCategories
+        const projectCats = [...new Set(localProjectCache.map(p => p.category).filter(c => c && c !== ''))];
+        projectCats.forEach(cat => {
+            if (!availableCategories.includes(cat)) {
+                availableCategories.push(cat);
+            }
+            if (!categoryData[cat]) {
+                categoryData[cat] = {
+                    display: formatCategoryForDisplay(cat),
+                    shortcut: ''
+                };
+            }
+        });
+        // Save any new categories
+        saveCategoryData();
+    }
     
     localProjectCache = localProjectCache.map(project => {
         if (project.description) {
@@ -1070,12 +1410,12 @@ function loadData() {
     updateCategoryDropdown();
     updateCategoryFilterOptions();
     renderAdminView();
-    showFloatingNotification(`✓ Loaded ${localProjectCache.length} projects from localStorage`);
+    showFloatingNotification(`✓ Loaded ${localProjectCache.length} projects and ${availableCategories.length} categories`);
 }
 
-// ========================
+// ============================================================
 // FILTER FUNCTIONS - NONDESTRUCTIVE
-// ========================
+// ============================================================
 
 function filterProjects(project) {
     const searchTerm = currentSearchTerm.toLowerCase();
@@ -1118,14 +1458,16 @@ function updateCategoryFilterOptions() {
     categories.forEach(cat => {
         const option = document.createElement('option');
         option.value = `cat_${cat}`;
-        option.textContent = `📂 ${formatCategoryForDisplay(cat)}`;
+        const displayName = categoryData[cat]?.display || formatCategoryForDisplay(cat);
+        const shortcut = categoryData[cat]?.shortcut || '';
+        option.textContent = shortcut ? `📂 ${displayName} (${shortcut})` : `📂 ${displayName}`;
         adminFilterSelect.appendChild(option);
     });
 }
 
-// ========================
+// ============================================================
 // REAPPLY SELECTION HIGHLIGHT
-// ========================
+// ============================================================
 function reapplySelectionHighlight() {
     if (currentlySelectedIndex === null) return;
     
@@ -1163,9 +1505,9 @@ function reapplySelectionHighlight() {
     }
 }
 
-// ========================
+// ============================================================
 // RENDER ADMIN VIEW - WITH WORKING DRAG & DROP
-// ========================
+// ============================================================
 function renderAdminView() {
     if (!sortableListElement) return;
     sortableListElement.innerHTML = '';
@@ -1175,7 +1517,6 @@ function renderAdminView() {
         return;
     }
     
-    // Filter for display only - localProjectCache remains unchanged
     const filteredProjects = localProjectCache.filter(project => filterProjects(project));
     
     if (filteredProjects.length === 0) {
@@ -1205,9 +1546,9 @@ function renderAdminView() {
                 <div style="font-size:0.7rem; color:var(--color-accent); margin-top:0.2rem;">${mediaPreview}</div>
             </div>
             <div style="display:flex; gap:0.25rem; align-items:center; flex-shrink:0; margin-left:0.5rem;">
-                <span class="row-btn move-top-btn" title="Move to top">⇈</span>
-                <span class="row-btn move-up-btn" title="Move up">↑</span>
-                <span class="row-btn move-down-btn" title="Move down">↓</span>
+                <span class="row-btn move-top-btn"    title="Move to top">⇈</span>
+                <span class="row-btn move-up-btn"     title="Move up">↑</span>
+                <span class="row-btn move-down-btn"   title="Move down">↓</span>
                 <span class="row-btn move-bottom-btn" title="Move to bottom">⇊</span>
                 <span class="row-btn delete-item-btn" data-index="${originalIndex}" title="Delete">✕</span>
                 <span class="sort-handle row-btn" style="cursor:grab;" title="Drag to reorder">☰</span>
@@ -1216,7 +1557,6 @@ function renderAdminView() {
         
         li.querySelector('.sort-content').addEventListener('click', () => loadProjectIntoForm(originalIndex));
 
-        // Move functions use originalIndex directly from the full cache
         const moveProject = (fromIdx, toIdx) => {
             toIdx = Math.max(0, Math.min(localProjectCache.length - 1, toIdx));
             if (fromIdx === toIdx) return;
@@ -1225,9 +1565,9 @@ function renderAdminView() {
             renderAdminView();
             saveToLocalStorage();
         };
-        li.querySelector('.move-top-btn').addEventListener('click', e => { e.stopPropagation(); moveProject(originalIndex, 0); });
-        li.querySelector('.move-up-btn').addEventListener('click', e => { e.stopPropagation(); moveProject(originalIndex, originalIndex - 1); });
-        li.querySelector('.move-down-btn').addEventListener('click', e => { e.stopPropagation(); moveProject(originalIndex, originalIndex + 1); });
+        li.querySelector('.move-top-btn').addEventListener('click',    e => { e.stopPropagation(); moveProject(originalIndex, 0); });
+        li.querySelector('.move-up-btn').addEventListener('click',     e => { e.stopPropagation(); moveProject(originalIndex, originalIndex - 1); });
+        li.querySelector('.move-down-btn').addEventListener('click',   e => { e.stopPropagation(); moveProject(originalIndex, originalIndex + 1); });
         li.querySelector('.move-bottom-btn').addEventListener('click', e => { e.stopPropagation(); moveProject(originalIndex, localProjectCache.length - 1); });
 
         li.querySelector('.delete-item-btn').addEventListener('click', (e) => {
@@ -1257,23 +1597,19 @@ function renderAdminView() {
     setTimeout(reapplySelectionHighlight, 50);
 }
 
-// ========================
+// ============================================================
 // DRAG & DROP REORDERING - WORKS WITH FILTERS
-// ========================
+// ============================================================
 
 function reorderFullCacheFromFilteredView() {
     const currentRows = [...sortableListElement.querySelectorAll('.sort-item')];
-    
     const filteredIndicesInOrder = currentRows.map(row => parseInt(row.getAttribute('data-index')));
-    
     const visibleProjects = currentRows.map(row => {
         const idx = parseInt(row.getAttribute('data-index'));
         return localProjectCache[idx];
     });
-    
     const visibleIndices = new Set(filteredIndicesInOrder);
     const hiddenProjects = localProjectCache.filter((_, idx) => !visibleIndices.has(idx));
-    
     const newCache = [...visibleProjects, ...hiddenProjects];
     
     let changed = false;
@@ -1402,6 +1738,7 @@ function setupAutoSaveListeners(enable) {
         if (enable) {
             editor.addEventListener('input', debouncedAutoSave);
             editor.addEventListener('blur', () => {
+                syncDescriptionToHidden();
                 if (isEditingMode) debouncedAutoSave();
             });
         } else {
@@ -1514,54 +1851,110 @@ if (newProjectBtn) {
 
 // Category button handlers
 if (addCategoryBtn) {
-    addCategoryBtn.addEventListener('click', () => {
-        showAddCategoryField();
+    addCategoryBtn.addEventListener('click', toggleCategoryManager);
+}
+
+if (categoryManagerClose) {
+    categoryManagerClose.addEventListener('click', toggleCategoryManager);
+}
+
+if (modalAddCategoryBtn) {
+    modalAddCategoryBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        addCategory();
     });
 }
 
-if (confirmAddCategoryBtn) {
-    confirmAddCategoryBtn.addEventListener('click', () => {
-        const newCategory = newCategoryNameInput.value.trim();
-        if (addNewCategory(newCategory, true)) {
-            hideAddCategoryField();
+// Enter key support for adding category - FIXED to prevent form submission
+if (modalNewCategoryName) {
+    modalNewCategoryName.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            e.stopPropagation();
+            addCategory();
+        }
+    });
+}
+if (modalNewCategoryShortcut) {
+    modalNewCategoryShortcut.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            e.stopPropagation();
+            addCategory();
         }
     });
 }
 
-if (cancelAddCategoryBtn) {
-    cancelAddCategoryBtn.addEventListener('click', () => {
-        hideAddCategoryField();
-    });
-}
-
-if (newCategoryNameInput) {
-    newCategoryNameInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const newCategory = newCategoryNameInput.value.trim();
-            if (addNewCategory(newCategory, true)) {
-                hideAddCategoryField();
+// Auto-generate shortcut when category name is typed
+if (modalNewCategoryName) {
+    modalNewCategoryName.addEventListener('input', () => {
+        const name = modalNewCategoryName.value.trim();
+        if (modalNewCategoryShortcut) {
+            if (name) {
+                modalNewCategoryShortcut.value = generateShortcutFromName(name);
+            } else {
+                modalNewCategoryShortcut.value = '';
             }
         }
     });
 }
 
-if (manageBtn && categoryManager) {
-    manageBtn.addEventListener('click', () => {
-        renderCategoriesList();
-        categoryManager.style.display = categoryManager.style.display === 'none' ? 'block' : 'none';
+// ============================================================
+// RESET DATA BUTTON
+// ============================================================
+if (resetDataBtn) {
+    resetDataBtn.addEventListener('click', () => {
+        showConfirmModal(
+            'Reset all demo data to the original defaults?\n\nThis will remove all your changes and restore the demo projects.',
+            () => {
+                // Reset the data using demo-data.js
+                const data = resetDemoData();
+                
+                // Update the caches
+                localProjectCache = data.projects || [];
+                availableCategories = data.categories || [];
+                
+                // Rebuild categoryData from availableCategories
+                categoryData = {};
+                availableCategories.forEach(cat => {
+                    const displayName = formatCategoryForDisplay(cat);
+                    const savedShortcut = localStorage.getItem(`category_shortcut_${cat}`);
+                    let shortcut = savedShortcut || '';
+                    if (!shortcut && typeof window.getDemoCategoryShortcut === 'function') {
+                        shortcut = window.getDemoCategoryShortcut(cat);
+                    }
+                    categoryData[cat] = {
+                        display: displayName,
+                        shortcut: shortcut || ''
+                    };
+                });
+                
+                // Update all UI components
+                updateCategoryDropdown();
+                updateCategoryFilterOptions();
+                renderCategoryList();
+                renderAdminView();
+                startNewProject();
+                
+                // Force close the category manager if open
+                if (categoryManager) {
+                    categoryManager.style.display = 'none';
+                }
+                if (addCategoryBtn) {
+                    addCategoryBtn.textContent = '📁 Manage';
+                }
+                
+                showFloatingNotification('✓ Demo data reset successfully!');
+            },
+            () => {}
+        );
     });
 }
 
-if (closeCategoryManager) {
-    closeCategoryManager.addEventListener('click', () => {
-        categoryManager.style.display = 'none';
-    });
-}
-
-// ========================
+// ============================================================
 // MEDIA FUNCTIONS
-// ========================
+// ============================================================
 function renderMediaBadges() {
     if (!mediaBadgesContainer) return;
     mediaBadgesContainer.innerHTML = '';
@@ -1754,11 +2147,9 @@ function addFilesToMediaList(files) {
 
 if (addMediaBtn) addMediaBtn.addEventListener('click', handleAddButtonClick);
 if (multiFileInput) multiFileInput.addEventListener('change', (e) => addFilesToMediaList(multiFileInput.files));
-
 if (togglePasteBtn) togglePasteBtn.addEventListener('click', () => {
     pasteArea.style.display = pasteArea.style.display === 'none' ? 'block' : 'none';
 });
-
 if (processPasteBtn) processPasteBtn.addEventListener('click', () => {
     const lines = pasteUrls.value.split(/\r?\n/);
     let added = 0;
@@ -1778,9 +2169,9 @@ if (processPasteBtn) processPasteBtn.addEventListener('click', () => {
     pasteArea.style.display = 'none';
 });
 
-// ========================
+// ============================================================
 // ADMIN SEARCH AND FILTER - NONDESTRUCTIVE
-// ========================
+// ============================================================
 
 if (adminSearchInput) {
     adminSearchInput.addEventListener('input', (e) => {
@@ -1802,7 +2193,6 @@ if (adminSearchClear) {
     });
 }
 
-// Admin filter dropdown
 if (adminFilterSelect) {
     adminFilterSelect.value = 'all';
     
@@ -1812,15 +2202,9 @@ if (adminFilterSelect) {
     });
 }
 
-const originalUpdateCategoryDropdown = updateCategoryDropdown;
-updateCategoryDropdown = function() {
-    originalUpdateCategoryDropdown();
-    updateCategoryFilterOptions();
-};
-
-// ========================
+// ============================================================
 // CLEANUP LINKS BUTTON
-// ========================
+// ============================================================
 const cleanupBtn = document.getElementById('cleanup-links-btn');
 if (cleanupBtn) {
     cleanupBtn.addEventListener('click', function() {
@@ -1843,38 +2227,17 @@ if (cleanupBtn) {
     });
 }
 
-// ========================
-// RESET DATA BUTTON
-// ========================
-if (resetDataBtn) {
-    resetDataBtn.addEventListener('click', () => {
-        showConfirmModal(
-            'Reset all demo data to the original defaults?\n\nThis will remove all your changes and restore the demo projects.',
-            () => {
-                const data = resetDemoData();
-                localProjectCache = data.projects;
-                availableCategories = data.categories;
-                updateCategoryDropdown();
-                updateCategoryFilterOptions();
-                renderAdminView();
-                startNewProject();
-                showFloatingNotification('✓ Demo data reset successfully!');
-            },
-            () => {}
-        );
-    });
-}
-
-// ========================
+// ============================================================
 // RICH TEXT TOOLBAR HANDLERS
-// ========================
+// ============================================================
+
 function captureTextareaSel(e) {
     e.preventDefault();
     capturedSel = {
         start: descTextarea.selectionStart,
-        end: descTextarea.selectionEnd,
-        val: descTextarea.value,
-        sel: descTextarea.value.slice(descTextarea.selectionStart, descTextarea.selectionEnd)
+        end:   descTextarea.selectionEnd,
+        val:   descTextarea.value,
+        sel:   descTextarea.value.slice(descTextarea.selectionStart, descTextarea.selectionEnd)
     };
 }
 
@@ -1882,11 +2245,11 @@ function captureTextareaSel(e) {
     if (btn) btn.addEventListener('mousedown', captureTextareaSel);
 });
 
-if (toolbarBold) toolbarBold.addEventListener('click', () => applyInlineFormat('strong'));
+if (toolbarBold)   toolbarBold.addEventListener('click',   () => applyInlineFormat('strong'));
 if (toolbarItalic) toolbarItalic.addEventListener('click', () => applyInlineFormat('em'));
-if (toolbarUl) toolbarUl.addEventListener('click', () => applyUnorderedList());
-if (toolbarLink) toolbarLink.addEventListener('click', () => insertLink());
-if (toolbarAward) toolbarAward.addEventListener('click', () => applyAwardTag());
+if (toolbarUl)     toolbarUl.addEventListener('click',     () => applyUnorderedList());
+if (toolbarLink)   toolbarLink.addEventListener('click',   () => insertLink());
+if (toolbarAward)  toolbarAward.addEventListener('click',  () => applyAwardTag());
 if (toolbarLive) toolbarLive.addEventListener('click', () => applyLiveTag());
 
 if (descTextarea) {
@@ -1897,9 +2260,9 @@ if (descTextarea) {
     descTextarea.addEventListener('blur', applySmartQuotesToEditor);
 }
 
-// ========================
+// ============================================================
 // DEMO INFO MODAL
-// ========================
+// ============================================================
 function initDemoInfoModal() {
     const modal = document.getElementById('demo-info-modal');
     const closeBtn = document.getElementById('demo-info-close');
@@ -1951,14 +2314,22 @@ function initDemoInfoModal() {
     });
 }
 
-// ========================
+// ============================================================
 // INITIALIZATION
-// ========================
+// ============================================================
 function init() {
     renderMediaBadges();
     loadData();
-    updateCharCount();
+    if (richTextEditor && hiddenDescription) {
+        syncDescriptionToHidden();
+        updateCharCount();
+    }
     initDemoInfoModal();
+}
+const categoryManagerEl = document.getElementById('category-manager');
+const categoryFormGroup = document.getElementById('category-form-group');
+if (categoryManagerEl && categoryFormGroup) {
+    categoryFormGroup.parentNode.insertBefore(categoryManagerEl, categoryFormGroup.nextSibling);
 }
 
 init();

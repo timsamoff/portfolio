@@ -255,6 +255,18 @@
     transform: translateY(0);
 }
 
+/* Category shortcut styling in dropdown */
+#form-category option {
+    font-size: 0.85rem;
+    padding: 0.3rem 0.5rem;
+}
+
+/* Category manager - shortcut input styling */
+.category-list-container input[type="text"] {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.5px;
+}
+
 @media (max-width: 640px) {
     .demo-info-card {
         padding: 1.5rem;

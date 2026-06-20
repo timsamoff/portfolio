@@ -1697,16 +1697,18 @@ header.scrolled {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    z-index: 20000;
+    z-index: 99998;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
 }
 
 .admin-modal-overlay > div {
+    position: relative;
+    z-index: 99999;
     background: var(--color-card);
     border: 1px solid var(--color-border);
     border-radius: 24px;
@@ -1789,6 +1791,262 @@ header.scrolled {
     gap: 1rem;
     justify-content: flex-end;
     margin-top: 0.5rem;
+}
+
+/* Category Modal - Specific overrides */
+#category-modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 99998 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(0, 0, 0, 0.8) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+#category-modal > div {
+    position: relative !important;
+    z-index: 99999 !important;
+    background: var(--color-card) !important;
+    border: 1px solid var(--color-border) !important;
+    border-radius: 24px !important;
+    padding: 1.5rem !important;
+    max-width: 500px !important;
+    width: 90% !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4) !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+}
+
+/* Confirmation Modal - Top Level */
+#confirm-modal-root {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 999999999 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    pointer-events: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+#confirm-modal-root > div:first-child {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.85) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
+
+#confirm-modal-root > div:last-child {
+    position: relative !important;
+    z-index: 1 !important;
+    background: var(--color-card) !important;
+    border: 1px solid var(--color-border) !important;
+    border-radius: 24px !important;
+    padding: 1.5rem !important;
+    max-width: 450px !important;
+    width: 90% !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8) !important;
+    pointer-events: auto !important;
+    margin: 0 auto !important;
+}
+
+#confirm-modal-root .btn-small {
+    font-size: 0.75rem !important;
+    padding: 0.5rem 1.2rem !important;
+    background: var(--color-filter-bg) !important;
+    border: 1px solid var(--color-border) !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    color: var(--color-text-secondary) !important;
+    transition: all 0.2s !important;
+}
+
+#confirm-modal-root .btn-small:hover {
+    background: var(--color-border) !important;
+    color: var(--color-text) !important;
+}
+
+#confirm-modal-root .filter-btn {
+    padding: 0.5rem 1.2rem !important;
+    background: var(--color-accent) !important;
+    color: var(--color-white) !important;
+    border: none !important;
+    border-radius: 100px !important;
+    cursor: pointer !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    transition: all 0.2s !important;
+}
+
+#confirm-modal-root .filter-btn:hover {
+    background: var(--color-accent-hover) !important;
+}
+
+/* ========================================
+   CATEGORY MANAGER
+   ======================================== */
+.category-manager {
+    display: none;
+    margin-top: 0.5rem;
+    padding: 1rem;
+    background: var(--color-bg);
+    border-radius: 14px;
+    border: 1px solid var(--color-border);
+    animation: fadeIn 0.2s ease;
+}
+
+.category-manager-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.category-manager-title {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.category-manager-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.2rem 0.5rem;
+    transition: color 0.2s;
+}
+
+.category-manager-close:hover {
+    color: var(--color-accent);
+}
+
+.category-list-container {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-accent) var(--color-border);
+}
+
+.category-list-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.category-list-container::-webkit-scrollbar-track {
+    background: var(--color-border);
+    border-radius: 3px;
+}
+
+.category-list-container::-webkit-scrollbar-thumb {
+    background: var(--color-accent);
+    border-radius: 3px;
+    transition: background 0.2s;
+}
+
+.category-list-container::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent-hover);
+}
+
+.category-add-form {
+    border-top: 1px solid var(--color-border);
+    padding-top: 1rem;
+}
+
+.category-add-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.category-add-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 0.2rem;
+}
+
+.category-input-field {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 10px;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: 0.85rem;
+    border: 1px solid var(--color-border);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.category-input-field:hover {
+    border-color: var(--color-text-muted);
+}
+
+.category-input-field:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 2px rgba(var(--color-accent-rgb), 0.15);
+}
+
+.category-add-hint {
+    color: var(--text-muted);
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.75rem;
+}
+
+.category-add-btn {
+    margin-top: 0.5rem;
+    width: 100%;
+}
+
+/* Shortcut input in category list - subtle gray outline */
+.category-list-container input[type="text"] {
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: 0.85rem;
+    width: 100%;
+    border: 1px solid var(--color-border);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.category-list-container input[type="text"]:hover {
+    border-color: var(--color-text-muted);
+}
+
+.category-list-container input[type="text"]:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 2px rgba(var(--color-accent-rgb), 0.15);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* ========================================
@@ -2014,6 +2272,34 @@ header.scrolled {
 
 .filter-btn-selected:hover:not(.active) {
     background: rgba(229, 72, 77, 0.08) !important;
+}
+
+/* ========================================
+   CATEGORY MODAL SCROLLBAR
+   ======================================== */
+
+#category-list-container {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-accent) var(--color-border);
+}
+
+#category-list-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+#category-list-container::-webkit-scrollbar-track {
+    background: var(--color-border);
+    border-radius: 3px;
+}
+
+#category-list-container::-webkit-scrollbar-thumb {
+    background: var(--color-accent);
+    border-radius: 3px;
+    transition: background 0.2s;
+}
+
+#category-list-container::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent-hover);
 }
 
 /* ========================================
