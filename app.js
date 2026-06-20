@@ -873,6 +873,71 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
+    // URL FILTER PARAMETER SUPPORT
+    // ========================================
+
+    // Define short aliases for categories
+    // These map URL shortcuts to full category IDs
+    const filterAliases = {
+        'game': 'game_design_&_development',
+        'brand': 'brand_&_identity',
+        'web': 'web_design_&_development',
+        'production': 'production_&_installation',
+        'digital': 'digital_art_&_design',
+        'motion': 'motion_graphics_&_animation',
+        'app': 'app_design_&_development',
+        'ux': 'user_experience',
+        'selected': 'selected',
+        'all': 'all',
+        'uncategorized': 'uncategorized'
+    };
+
+    function applyFilterFromURL() {
+        // Get filter from URL query parameter
+        const params = new URLSearchParams(window.location.search);
+        let filterValue = params.get('filter');
+        
+        // If no filter parameter, return (use default)
+        if (!filterValue) return;
+        
+        // Check if it's an alias
+        if (filterAliases[filterValue]) {
+            filterValue = filterAliases[filterValue];
+        }
+        
+        // Find the filter button with matching data-filter attribute
+        const buttons = document.querySelectorAll('.filter-nav .filter-btn');
+        let found = false;
+        
+        buttons.forEach(btn => {
+            const btnFilter = btn.getAttribute('data-filter');
+            if (btnFilter === filterValue) {
+                // Click the button to apply the filter
+                btn.click();
+                found = true;
+            }
+        });
+        
+        // If filter not found, show all
+        if (!found) {
+            const allBtn = document.querySelector('.filter-btn[data-filter="all"]');
+            if (allBtn) allBtn.click();
+        }
+        
+        // Clean the URL - remove the ?filter parameter
+        if (window.history && window.history.replaceState) {
+            // Get the current URL without the filter parameter
+            const cleanURL = window.location.pathname + window.location.search
+                .replace(/[&?]filter=[^&]*/g, '')
+                .replace(/^&/, '?')
+                .replace(/\?$/, '');
+            
+            // Replace the URL without reloading the page
+            window.history.replaceState({}, '', cleanURL);
+        }
+    }
+
+    // ========================================
     // PROJECT LOADING
     // ========================================
     function loadProjects(projects) {
@@ -1111,6 +1176,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setupFiltering();
         setupScrollButton();
+
+        // Apply filter from URL after everything is set up
+        setTimeout(() => {
+            applyFilterFromURL();
+        }, 150);
 
         const shareData = parseShareUrl();
         if (shareData && shareData.p !== undefined && !modalManuallyClosed) {
