@@ -872,7 +872,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ========================================
+        // ========================================
     // URL FILTER PARAMETER SUPPORT
     // ========================================
 
@@ -935,6 +935,55 @@ document.addEventListener('DOMContentLoaded', () => {
             // Replace the URL without reloading the page
             window.history.replaceState({}, '', cleanURL);
         }
+        
+        // Auto-scroll to filter pills (same as hero button)
+        scrollToFilterPills();
+    }
+
+    function scrollToFilterPills() {
+        const filterNav = document.getElementById('filter-nav');
+        if (!filterNav) return;
+
+        // Get header height
+        const header = document.getElementById('site-header');
+        const headerHeight = header ? header.offsetHeight : 0;
+
+        // Get filter nav's position relative to the document
+        const filterRect = filterNav.getBoundingClientRect();
+        const filterTop = filterRect.top + window.pageYOffset;
+
+        // Target: filter nav should be positioned just below the header
+        const targetScrollY = filterTop - headerHeight;
+
+        const startPosition = window.pageYOffset;
+        const distance = targetScrollY - startPosition;
+        const duration = 800;
+        let startTime = null;
+
+        // If we're already at the target, no need to scroll
+        if (Math.abs(distance) < 10) return;
+
+        function smoothScroll(currentTime) {
+            if (startTime === null) startTime = currentTime;
+            const timeElapsed = currentTime - startTime;
+            const progress = Math.min(timeElapsed / duration, 1);
+
+            // Ease function: cubic-bezier equivalent
+            const ease = progress < 0.5 ?
+                4 * progress * progress * progress :
+                1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+            window.scrollTo(0, startPosition + distance * ease);
+
+            if (timeElapsed < duration) {
+                requestAnimationFrame(smoothScroll);
+            }
+        }
+
+        // Small delay to ensure the filter has been applied and DOM is ready
+        setTimeout(() => {
+            requestAnimationFrame(smoothScroll);
+        }, 200);
     }
 
     // ========================================
