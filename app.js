@@ -872,7 +872,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ========================================
+        // ========================================
     // URL FILTER PARAMETER SUPPORT
     // ========================================
 
@@ -936,13 +936,17 @@ document.addEventListener('DOMContentLoaded', () => {
             window.history.replaceState({}, '', cleanURL);
         }
         
-        // Auto-scroll to filter pills (same as hero button)
+        // Auto-scroll to filter pills with retry logic
         scrollToFilterPills();
     }
 
     function scrollToFilterPills() {
         const filterNav = document.getElementById('filter-nav');
-        if (!filterNav) return;
+        if (!filterNav) {
+            // If filter nav doesn't exist, try again after a delay
+            setTimeout(scrollToFilterPills, 200);
+            return;
+        }
 
         // Get header height
         const header = document.getElementById('site-header');
@@ -953,15 +957,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const filterTop = filterRect.top + window.pageYOffset;
 
         // Target: filter nav should be positioned just below the header
-        const targetScrollY = filterTop - headerHeight;
+        const targetScrollY = filterTop - headerHeight - 10;
 
         const startPosition = window.pageYOffset;
         const distance = targetScrollY - startPosition;
         const duration = 800;
         let startTime = null;
 
-        // If we're already at the target, no need to scroll
-        if (Math.abs(distance) < 10) return;
+        // If we're already at the target or very close, no need to scroll
+        if (Math.abs(distance) < 20) return;
 
         function smoothScroll(currentTime) {
             if (startTime === null) startTime = currentTime;
@@ -980,10 +984,59 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Small delay to ensure the filter has been applied and DOM is ready
-        setTimeout(() => {
-            requestAnimationFrame(smoothScroll);
-        }, 200);
+        // Use multiple attempts with increasing delays to ensure DOM is ready
+        const attemptScroll = (attempt) => {
+            const delay = 50 + (attempt * 100);
+            setTimeout(() => {
+                // Recalculate positions in case layout changed
+                const currentFilterNav = document.getElementById('filter-nav');
+                if (!currentFilterNav) {
+                    if (attempt < 5) attemptScroll(attempt + 1);
+                    return;
+                }
+
+                const currentHeader = document.getElementById('site-header');
+                const currentHeaderHeight = currentHeader ? currentHeader.offsetHeight : 0;
+                const currentFilterRect = currentFilterNav.getBoundingClientRect();
+                const currentFilterTop = currentFilterRect.top + window.pageYOffset;
+                const currentTargetScrollY = currentFilterTop - currentHeaderHeight - 10;
+                const currentDistance = currentTargetScrollY - window.pageYOffset;
+
+                // Only scroll if we're not already at the target
+                if (Math.abs(currentDistance) > 20) {
+                    // Update the target values
+                    const newStartPosition = window.pageYOffset;
+                    const newDistance = currentTargetScrollY - newStartPosition;
+                    
+                    // If the distance is still significant, scroll
+                    if (Math.abs(newDistance) > 20) {
+                        // Use a fresh scroll with the updated values
+                        const newStartTime = null;
+                        const newDuration = 600;
+                        
+                        function smoothScroll2(currentTime) {
+                            if (newStartTime === null) newStartTime = currentTime;
+                            const timeElapsed = currentTime - newStartTime;
+                            const progress = Math.min(timeElapsed / newDuration, 1);
+
+                            const ease = progress < 0.5 ?
+                                4 * progress * progress * progress :
+                                1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+                            window.scrollTo(0, newStartPosition + newDistance * ease);
+
+                            if (timeElapsed < newDuration) {
+                                requestAnimationFrame(smoothScroll2);
+                            }
+                        }
+                        requestAnimationFrame(smoothScroll2);
+                    }
+                }
+            }, delay);
+        };
+
+        // Start with attempt 0
+        attemptScroll(0);
     }
 
     // ========================================
