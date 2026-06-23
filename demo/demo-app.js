@@ -225,7 +225,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const badge = document.createElement('span');
                 badge.className = 'live-badge';
                 
-                // Check if there's an <a> tag inside
                 const innerLink = el.querySelector('a');
                 let url = el.getAttribute('href') || '';
                 let text = el.textContent || 'Live';
@@ -233,17 +232,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (innerLink) {
                     url = innerLink.getAttribute('href') || '';
                     text = innerLink.textContent || 'Live';
-                    // Remove the inner <a> from the live element
                     while (innerLink.firstChild) {
                         el.insertBefore(innerLink.firstChild, innerLink);
                     }
                     el.removeChild(innerLink);
                 }
                 
-                // Clean up any remaining text
                 text = el.textContent.trim() || 'Live';
                 
-                // If there's a valid URL, wrap the badge in an <a>
                 if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
                     const link = document.createElement('a');
                     link.href = url;
@@ -251,7 +247,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     link.rel = 'noopener noreferrer';
                     link.className = 'live-badge-link';
                     
-                    // Build the badge content inside the link
                     const dot = document.createElement('span');
                     dot.className = 'live-dot';
                     const label = document.createTextNode(text);
@@ -261,7 +256,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     el.parentNode.replaceChild(link, el);
                 } else {
-                    // No URL — just show the badge as a non-interactive element
                     const dot = document.createElement('span');
                     dot.className = 'live-dot';
                     const label = document.createTextNode(text);
@@ -389,7 +383,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const isVideo = isVideoUrl(mediaUrl);
         const objectPosition = getObjectPosition(alignSetting);
 
-        // Handle YouTube videos
         if (mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be')) {
             const videoId = getYouTubeVideoId(mediaUrl);
             if (videoId) {
@@ -405,7 +398,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Handle Vimeo videos
         if (mediaUrl.includes('vimeo.com')) {
             const vimeoId = (mediaUrl.match(/vimeo\.com\/(\d+)/) || [])[1];
             if (vimeoId) {
@@ -422,7 +414,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Handle regular images
         if (!isVideo) {
             return `<div class="thumb-shimmer">
                 <img
@@ -435,7 +426,6 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>`;
         }
 
-        // Handle direct video files
         return `<div class="thumb-shimmer">
             <video class="thumb-media" muted playsinline preload="metadata">
                 <source src="${mediaUrl}#t=0.1" type="video/mp4">
@@ -447,7 +437,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // LAZY LOADING - SIMPLIFIED
     // ========================================
     function setupLazyLoading() {
-        // Fallback for browsers without IntersectionObserver
         if (!('IntersectionObserver' in window)) {
             document.querySelectorAll('.thumb-shimmer').forEach(wrapper => {
                 const img = wrapper.querySelector('img.thumb-media[data-src]');
@@ -495,11 +484,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         img.src = img.dataset.src;
                         img.removeAttribute('data-src');
                     } else if (img.complete && img.naturalWidth > 0) {
-                        // Already loaded (e.g. cached)
                         onLoad();
                     }
                 } else if (video) {
-                    // For video thumbnails: show first frame once metadata loads
                     const finish = () => {
                         wrapper.classList.remove('loading');
                         wrapper.classList.add('loaded');
@@ -509,7 +496,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         wrapper.classList.remove('loading');
                         wrapper.classList.add('error');
                     }, { once: true });
-                    // Trigger load if not already started
                     if (video.readyState >= 2) {
                         finish();
                     } else {
@@ -537,7 +523,6 @@ document.addEventListener('DOMContentLoaded', () => {
             m: mediaIndex
         };
         const data = btoa(JSON.stringify(shareData));
-        // Point to share.html instead of index.html
         return `${window.location.origin}${window.location.pathname}share.html?share=${data}`;
     }
 
@@ -546,7 +531,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================
 
     function updateSocialMetaTags(project, mediaArray, mediaIndex) {
-        // Get the preview image
         let previewImage = '';
         if (mediaArray && mediaArray.length > 0) {
             const media = mediaArray[mediaIndex || 0];
@@ -559,12 +543,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        // Fallback to default social image
         if (!previewImage) {
             previewImage = new URL('tsp_social.png', window.location.href).href;
         }
         
-        // Strip HTML from description and truncate
         let description = project.description || '';
         description = description.replace(/<[^>]*>/g, '');
         if (description.length > 150) {
@@ -574,10 +556,8 @@ document.addEventListener('DOMContentLoaded', () => {
             description = 'Interactive Production, Design & Development. A curated collection of games, software, websites, and creative experiments.';
         }
         
-        // Remove existing dynamic meta tags
         document.querySelectorAll('meta[data-dynamic]').forEach(el => el.remove());
         
-        // Create dynamic meta tags
         const tags = [
             { property: 'og:title', content: `Tim Samoff | Portfolio - ${project.title}` },
             { property: 'og:description', content: description },
@@ -601,7 +581,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.head.appendChild(meta);
         });
         
-        // Update page title
         document.title = `Tim Samoff | Portfolio - ${project.title}`;
     }
 
@@ -717,7 +696,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================
     function formatCategoryForDisplay(cat) {
         if (!cat) return '';
-        // Use the demo-data.js function if available
         if (typeof window.formatDemoCategory === 'function') {
             return window.formatDemoCategory(cat);
         }
@@ -738,7 +716,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const DEMO_CATEGORIES_KEY = window.DEMO_CATEGORIES_KEY || 'demo_portfolio_categories';
         
         try {
-            // First try to load the categories list
             const stored = localStorage.getItem(DEMO_CATEGORIES_KEY);
             let categories = [];
             
@@ -753,29 +730,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
-            // If no categories found, get them from demo-data.js
             if (categories.length === 0 && typeof window.DEMO_CATEGORIES !== 'undefined') {
                 categories = window.DEMO_CATEGORIES;
             }
             
-            // Build category data with display names and shortcuts
             categories.forEach(cat => {
-                // Get display name - check for saved display name or use format function
                 let display = formatCategoryForDisplay(cat);
-                
-                // Check if there's a saved display name
                 const savedDisplay = localStorage.getItem(`category_display_${cat}`);
                 if (savedDisplay) {
                     display = savedDisplay;
                 }
-                
-                // Get shortcut from localStorage
-                const shortcut = localStorage.getItem(`category_shortcut_${cat}`) || '';
-                
-                categoryData[cat] = {
-                    display: display,
-                    shortcut: shortcut
-                };
+                categoryData[cat] = { display: display };
             });
             
             return categoryData;
@@ -794,31 +759,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // FILTERING SYSTEM WITH LOCALSTORAGE
+    // FILTERING SYSTEM
     // ========================================
-    const FILTER_STORAGE_KEY = 'portfolio-filter-selection';
     let currentFilterValue = 'selected';
     let allPortfolioItems = [];
+    let hasAppliedURLFilter = false;
 
-    // Function to save filter state to localStorage
-    function saveFilterState(filterValue) {
-        try {
-            localStorage.setItem(FILTER_STORAGE_KEY, filterValue);
-        } catch (e) {
-            console.warn('Could not save filter state:', e);
-        }
-    }
-
-    // Function to load filter state from localStorage
-    function loadFilterState() {
-        try {
-            const saved = localStorage.getItem(FILTER_STORAGE_KEY);
-            return saved || null;
-        } catch (e) {
-            console.warn('Could not load filter state:', e);
-            return null;
-        }
-    }
+    const filterAliases = {
+        'game': 'digital_craft',
+        'brand': 'visual_stories',
+        'web': 'creative_experiments',
+        'production': 'interactive_media',
+        'digital': 'digital_craft',
+        'motion': 'interactive_media',
+        'app': 'interactive_media',
+        'ux': 'creative_experiments',
+        'selected': 'selected',
+        'all': 'all',
+        'uncategorized': 'uncategorized'
+    };
 
     function setupFiltering() {
         const filterButtons = document.querySelectorAll('.filter-nav .filter-btn');
@@ -841,10 +800,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
             currentFilterValue = button.getAttribute('data-filter');
             
-            // Save filter state to localStorage
-            saveFilterState(currentFilterValue);
+            updateURLWithFilter(currentFilterValue);
             
             applyFilter();
+        }
+    }
+
+    function updateURLWithFilter(filterValue) {
+        if (window.history && window.history.pushState) {
+            const url = new URL(window.location);
+            
+            if (filterValue === 'all' || filterValue === 'selected') {
+                url.searchParams.delete('filter');
+            } else {
+                let alias = null;
+                for (const [key, value] of Object.entries(filterAliases)) {
+                    if (value === filterValue) {
+                        alias = key;
+                        break;
+                    }
+                }
+                url.searchParams.set('filter', alias || filterValue);
+            }
+            
+            window.history.pushState({}, '', url);
         }
     }
 
@@ -899,7 +878,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 50 + (index * 40));
         });
         
-        // Re-setup swipers
         const projects = window.__projectsData || [];
         projects.forEach((project, idx) => {
             if (project.published === false) return;
@@ -926,12 +904,99 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         
-        // Re-initialize lazy loading
         setTimeout(setupLazyLoading, 100);
     }
 
     // ========================================
-    // SCROLL BUTTON
+    // URL FILTER PARAMETER SUPPORT (for page load)
+    // ========================================
+
+    function applyFilterFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        let filterValue = params.get('filter');
+        
+        if (!filterValue) return;
+        
+        if (filterAliases[filterValue]) {
+            filterValue = filterAliases[filterValue];
+        }
+        
+        const buttons = document.querySelectorAll('.filter-nav .filter-btn');
+        let found = false;
+        
+        buttons.forEach(btn => {
+            const btnFilter = btn.getAttribute('data-filter');
+            if (btnFilter === filterValue) {
+                btn.click();
+                found = true;
+            }
+        });
+        
+        if (!found) {
+            const allBtn = document.querySelector('.filter-btn[data-filter="all"]');
+            if (allBtn) allBtn.click();
+        }
+        
+        hasAppliedURLFilter = true;
+        
+        scrollToFilterPills();
+    }
+
+    // ========================================
+    // SCROLL TO FILTER PILLS - MATCHES app.js EXACTLY
+    // ========================================
+    function scrollToFilterPills() {
+        const filterNav = document.getElementById('filter-nav');
+        if (!filterNav) {
+            setTimeout(scrollToFilterPills, 200);
+            return;
+        }
+
+        const header = document.getElementById('site-header');
+        const headerHeight = header ? header.offsetHeight : 0;
+
+        const filterRect = filterNav.getBoundingClientRect();
+        const filterTop = filterRect.top + window.pageYOffset;
+
+        const targetScrollY = filterTop - headerHeight;
+
+        const startPosition = window.pageYOffset;
+        const distance = targetScrollY - startPosition;
+
+        if (Math.abs(distance) < 10) return;
+
+        const duration = 800;
+        let startTime = null;
+
+        function smoothScroll(currentTime) {
+            if (startTime === null) startTime = currentTime;
+            const timeElapsed = currentTime - startTime;
+            const progress = Math.min(timeElapsed / duration, 1);
+
+            const ease = progress < 0.5 ?
+                4 * progress * progress * progress :
+                1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+            window.scrollTo(0, startPosition + distance * ease);
+
+            if (timeElapsed < duration) {
+                requestAnimationFrame(smoothScroll);
+            }
+        }
+
+        // Wait for the filter to be applied and cards to render
+        // Use multiple timeouts to ensure layout is complete
+        setTimeout(() => {
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    requestAnimationFrame(smoothScroll);
+                }, 50);
+            });
+        }, 400);
+    }
+
+    // ========================================
+    // SCROLL BUTTON - MATCHES app.js EXACTLY
     // ========================================
     function setupScrollButton() {
         const scrollBtn = document.querySelector('.scroll-btn');
@@ -994,9 +1059,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Load category data from localStorage
         const categoryData = loadCategoryDataFromStorage();
-
         const hasSelectedWorks = visibleProjects.some(p => p.selected === true);
 
         visibleProjects.forEach((project, visibleIdx) => {
@@ -1037,7 +1100,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 thumbnailHtml = `<div class="item-image"><div class="no-media">No media</div></div>`;
             }
 
-            // Get category display name from localStorage data, with fallback
             const categoryKey = project.category || 'uncategorized';
             const displayCategory = getCategoryDisplayName(categoryKey, categoryData);
 
@@ -1107,7 +1169,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 50 + (index * 30));
         });
 
-        // Build filter navigation using category display names from localStorage
         const categories = [...new Set(visibleProjects.map(p => p.category).filter(c => c && c !== ''))].sort((a, b) => a.localeCompare(b));
         const hasSelected = visibleProjects.some(p => p.selected === true);
 
@@ -1152,37 +1213,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const btn = document.createElement('button');
                 btn.className = 'filter-btn';
                 btn.setAttribute('data-filter', cat);
-                // Use the display name from localStorage for filter button text
                 const displayName = getCategoryDisplayName(cat, categoryData);
-                // If there's a shortcut, append it in parentheses
-                const shortcut = categoryData[cat]?.shortcut || '';
-                btn.textContent = shortcut ? `${displayName} (${shortcut})` : displayName;
+                btn.textContent = displayName;
                 filterNav.appendChild(btn);
             });
         }
 
-        // Determine initial filter: check localStorage first, then fallback
-        const savedFilter = loadFilterState();
-        let initialFilter = hasSelected ? 'selected' : 'all';
-        
-        // Check if saved filter exists and is valid
-        if (savedFilter) {
-            const validFilters = ['all', 'selected', 'uncategorized', ...categories];
-            if (validFilters.includes(savedFilter)) {
-                // For 'selected' filter, only use it if there are selected projects
-                if (savedFilter === 'selected' && hasSelected) {
-                    initialFilter = savedFilter;
-                } else if (savedFilter !== 'selected') {
-                    // For 'all', 'uncategorized', or category filters, use saved value
-                    // But check if the category still exists
-                    if (savedFilter === 'all' || savedFilter === 'uncategorized' || categories.includes(savedFilter)) {
-                        initialFilter = savedFilter;
-                    }
-                }
-            }
-        }
-        
-        currentFilterValue = initialFilter;
+        currentFilterValue = hasSelected ? 'selected' : 'all';
         
         setTimeout(() => {
             const activeBtn = document.querySelector(`.filter-btn[data-filter="${currentFilterValue}"]`);
@@ -1193,7 +1230,6 @@ document.addEventListener('DOMContentLoaded', () => {
             applyFilter();
         }, 100);
 
-        // Setup swipers
         projects.forEach((project, idx) => {
             if (project.published === false) return;
             const mediaArray = project.media || (project.image ? [project.image] : []);
@@ -1216,10 +1252,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Initial lazy loading
         setTimeout(setupLazyLoading, 200);
 
-        // Category tag click handlers
         document.querySelectorAll('.category-tag').forEach(tag => {
             const newTag = tag.cloneNode(true);
             tag.parentNode.replaceChild(newTag, tag);
@@ -1243,6 +1277,12 @@ document.addEventListener('DOMContentLoaded', () => {
         setupFiltering();
         setupScrollButton();
 
+        if (!hasAppliedURLFilter) {
+            setTimeout(() => {
+                applyFilterFromURL();
+            }, 150);
+        }
+
         const shareData = parseShareUrl();
         if (shareData && shareData.p !== undefined && !modalManuallyClosed) {
             const targetProject = projects[shareData.p];
@@ -1263,11 +1303,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const grid = document.getElementById('portfolio-grid');
     if (!grid) return;
 
-    // Get data from localStorage
     const data = getDemoData();
     loadProjects(data.projects);
 
-    // Listen for storage changes (when admin updates)
     window.addEventListener('storage', (e) => {
         if (e.key === DEMO_STORAGE_KEY) {
             const newData = getDemoData();

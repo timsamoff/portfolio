@@ -718,10 +718,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // FILTERING SYSTEM
+    // FILTERING SYSTEM WITH URL SYNC
     // ========================================
     let currentFilterValue = 'selected';
     let allPortfolioItems = [];
+
+    // Define short aliases for categories (for URL mapping)
+    const filterAliases = {
+        'game': 'game_design_&_development',
+        'brand': 'brand_&_identity',
+        'web': 'web_design_&_development',
+        'production': 'production_&_installation',
+        'digital': 'digital_art_&_design',
+        'motion': 'motion_graphics_&_animation',
+        'app': 'app_design_&_development',
+        'ux': 'user_experience',
+        'selected': 'selected',
+        'all': 'all',
+        'uncategorized': 'uncategorized'
+    };
 
     function setupFiltering() {
         const filterButtons = document.querySelectorAll('.filter-nav .filter-btn');
@@ -743,7 +758,35 @@ document.addEventListener('DOMContentLoaded', () => {
             button.classList.add('active');
 
             currentFilterValue = button.getAttribute('data-filter');
+            
+            // Update URL with filter parameter
+            updateURLWithFilter(currentFilterValue);
+            
             applyFilter();
+        }
+    }
+
+    function updateURLWithFilter(filterValue) {
+        if (window.history && window.history.pushState) {
+            const url = new URL(window.location);
+            
+            // If filter is 'all' or 'selected', remove the parameter (clean URL)
+            if (filterValue === 'all' || filterValue === 'selected') {
+                url.searchParams.delete('filter');
+            } else {
+                // Check if there's an alias for this filter
+                let alias = null;
+                for (const [key, value] of Object.entries(filterAliases)) {
+                    if (value === filterValue) {
+                        alias = key;
+                        break;
+                    }
+                }
+                // Use alias if found, otherwise use the full category name
+                url.searchParams.set('filter', alias || filterValue);
+            }
+            
+            window.history.pushState({}, '', url);
         }
     }
 
@@ -830,67 +873,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // SCROLL BUTTON
+    // URL FILTER PARAMETER SUPPORT (for page load)
     // ========================================
-    function setupScrollButton() {
-        const scrollBtn = document.querySelector('.scroll-btn');
-        const filterNav = document.getElementById('filter-nav');
-
-        if (!scrollBtn || !filterNav) return;
-
-        scrollBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-
-            const header = document.getElementById('site-header');
-            const headerHeight = header ? header.offsetHeight : 0;
-            const filterRect = filterNav.getBoundingClientRect();
-            const filterTop = filterRect.top + window.pageYOffset;
-            const targetScrollY = filterTop - headerHeight;
-
-            const startPosition = window.pageYOffset;
-            const distance = targetScrollY - startPosition;
-            const duration = 800;
-            let startTime = null;
-
-            function smoothScroll(currentTime) {
-                if (startTime === null) startTime = currentTime;
-                const timeElapsed = currentTime - startTime;
-                const progress = Math.min(timeElapsed / duration, 1);
-
-                const ease = progress < 0.5 ?
-                    4 * progress * progress * progress :
-                    1 - Math.pow(-2 * progress + 2, 3) / 2;
-
-                window.scrollTo(0, startPosition + distance * ease);
-
-                if (timeElapsed < duration) {
-                    requestAnimationFrame(smoothScroll);
-                }
-            }
-
-            requestAnimationFrame(smoothScroll);
-        });
-    }
-
-    // ========================================
-    // URL FILTER PARAMETER SUPPORT
-    // ========================================
-
-    // Define short aliases for categories
-    // These map URL shortcuts to full category IDs
-    const filterAliases = {
-        'game': 'game_design_&_development',
-        'brand': 'brand_&_identity',
-        'web': 'web_design_&_development',
-        'production': 'production_&_installation',
-        'digital': 'digital_art_&_design',
-        'motion': 'motion_graphics_&_animation',
-        'app': 'app_design_&_development',
-        'ux': 'user_experience',
-        'selected': 'selected',
-        'all': 'all',
-        'uncategorized': 'uncategorized'
-    };
 
     function applyFilterFromURL() {
         // Get filter from URL query parameter
@@ -912,7 +896,7 @@ document.addEventListener('DOMContentLoaded', () => {
         buttons.forEach(btn => {
             const btnFilter = btn.getAttribute('data-filter');
             if (btnFilter === filterValue) {
-                // Click the button to apply the filter
+                // Click the button to apply the filter (this will also update the URL)
                 btn.click();
                 found = true;
             }
@@ -922,18 +906,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!found) {
             const allBtn = document.querySelector('.filter-btn[data-filter="all"]');
             if (allBtn) allBtn.click();
-        }
-        
-        // Clean the URL - remove the ?filter parameter
-        if (window.history && window.history.replaceState) {
-            // Get the current URL without the filter parameter
-            const cleanURL = window.location.pathname + window.location.search
-                .replace(/[&?]filter=[^&]*/g, '')
-                .replace(/^&/, '?')
-                .replace(/\?$/, '');
-            
-            // Replace the URL without reloading the page
-            window.history.replaceState({}, '', cleanURL);
         }
         
         // Auto-scroll to filter pills
@@ -990,6 +962,49 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             requestAnimationFrame(smoothScroll);
         }, 400);
+    }
+
+    // ========================================
+    // SCROLL BUTTON
+    // ========================================
+    function setupScrollButton() {
+        const scrollBtn = document.querySelector('.scroll-btn');
+        const filterNav = document.getElementById('filter-nav');
+
+        if (!scrollBtn || !filterNav) return;
+
+        scrollBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const header = document.getElementById('site-header');
+            const headerHeight = header ? header.offsetHeight : 0;
+            const filterRect = filterNav.getBoundingClientRect();
+            const filterTop = filterRect.top + window.pageYOffset;
+            const targetScrollY = filterTop - headerHeight;
+
+            const startPosition = window.pageYOffset;
+            const distance = targetScrollY - startPosition;
+            const duration = 800;
+            let startTime = null;
+
+            function smoothScroll(currentTime) {
+                if (startTime === null) startTime = currentTime;
+                const timeElapsed = currentTime - startTime;
+                const progress = Math.min(timeElapsed / duration, 1);
+
+                const ease = progress < 0.5 ?
+                    4 * progress * progress * progress :
+                    1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+                window.scrollTo(0, startPosition + distance * ease);
+
+                if (timeElapsed < duration) {
+                    requestAnimationFrame(smoothScroll);
+                }
+            }
+
+            requestAnimationFrame(smoothScroll);
+        });
     }
 
     // ========================================
