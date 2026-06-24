@@ -5,50 +5,55 @@
    ======================================== */
 
 /* ========================================
-   FORCE HEADER STICKY - FIX FOR DEMO
+   HEADER - DEMO USES FIXED (VS STICKY IN MAIN)
    ======================================== */
 
-/* Force the header to be sticky even if a wrapper breaks it */
 #site-header {
-    position: sticky !important;
+    position: fixed !important;
     top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
     z-index: 1000 !important;
-    background: var(--color-bg) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-    border-bottom: 1px solid var(--border-color) !important;
 }
 
-/* Ensure no ancestor breaks sticky positioning */
-html,
+/* Add padding to body to account for fixed header */
 body {
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-    height: auto !important;
+    padding-top: 80px !important;
 }
 
-/* Any direct child of body should not break sticky */
-body > * {
-    overflow: visible !important;
-}
-
-/* If there's any demo wrapper, ensure it doesn't break sticky */
-.demo-wrapper,
-.demo-container,
-#demo-wrapper,
-#demo-container,
-.demo-info-modal {
-    overflow: visible !important;
-    transform: none !important;
-    will-change: auto !important;
+/* Scroll padding for smooth anchor scrolling */
+html {
+    scroll-padding-top: 80px !important;
 }
 
 /* ========================================
-   SCROLL PADDING FOR SMOOTH ANCHOR SCROLLING
+   DEMO HERO
    ======================================== */
 
-html {
-    scroll-padding-top: 80px !important;
+:root {
+    --hero-pad-top: 0rem !important;
+    --hero-pad-bottom: 6rem !important;
+}
+
+.hero-section {
+    padding-top: 0 !important;
+    /* padding-bottom: 0 !important; */
+    margin-top: -1rem !important;
+}
+
+/* ========================================
+   DEMO-SPECIFIC UI ELEMENTS
+   ======================================== */
+
+/* Demo badge in header */
+.demo-badge {
+    font-size: 0.6rem;
+    background: var(--color-accent);
+    color: white;
+    padding: 0.1rem 0.6rem;
+    border-radius: 20px;
+    vertical-align: middle;
+    margin-left: 0.5rem;
 }
 
 /* Admin button in header */
@@ -67,23 +72,6 @@ html {
 .admin-btn svg {
     color: #000000 !important;
     stroke: #000000 !important;
-}
-
-/* Demo badge styling */
-.demo-badge {
-    font-size: 0.6rem;
-    background: var(--color-accent);
-    color: white;
-    padding: 0.1rem 0.6rem;
-    border-radius: 20px;
-    vertical-align: middle;
-    margin-left: 0.5rem;
-}
-
-/* Demo Hero Height */
-.hero-section {
-    padding-top: 5rem !important;
-    padding-bottom: 8rem !important;
 }
 
 /* Demo footer note */
@@ -313,6 +301,10 @@ html {
     font-family: 'Courier New', monospace;
     letter-spacing: 0.5px;
 }
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
 
 @media (max-width: 640px) {
     .demo-info-card {
