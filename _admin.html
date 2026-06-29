@@ -36,22 +36,30 @@
                 </div>
                 
                 <div class="form-group" id="category-form-group">
-                    <label>Category Identifier</label>
-                    <div style="display: flex; gap: 0.5rem; align-items: center;">
-                        <select id="form-category" style="flex: 1;">
-                            <option value="">Uncategorized</option>
-                            <option disabled>──────────</option>
-                            <option value="brand_&_identity">Brand & Identity</option>
-                            <option value="production_&_installation">Production & Installation</option>
-                            <option value="game_design">Game Design</option>
-                            <option value="web_&_interactive">Web & Interactive</option>
-                        </select>
+                    <label>Categories</label>
+                    <div class="category-dropdown-wrapper">
+                        <div class="category-dropdown-container">
+                            <button type="button" id="category-dropdown-toggle" class="category-dropdown-toggle">
+                                <span id="category-display">Uncategorized</span>
+                                <span class="dropdown-arrow">▾</span>
+                            </button>
+                            <div id="category-dropdown-panel" class="category-dropdown-panel" style="display:none;">
+                                <div id="category-checkbox-list" class="category-checkbox-list">
+                                    <!-- Checkboxes generated here -->
+                                </div>
+                                <div class="category-dropdown-footer">
+                                    <small>Leave all unchecked for "Uncategorized"</small>
+                                </div>
+                            </div>
+                        </div>
                         <button type="button" id="add-category-btn" class="filter-btn" style="padding: 0 1rem; white-space: nowrap;">📁 Manage</button>
                     </div>
-                    <small id="category-help-text" style="color: var(--text-muted); display: block; margin-top: 0.3rem;">📁 Click "Manage" to add/edit categories and shortcuts</small>
+                    <small id="category-help-text" style="color: var(--text-muted); display: block; margin-top: 0.3rem;">
+                        📁 Click to select multiple categories. Click "Manage" to add/edit categories.
+                    </small>
                 </div>
                 
-                <!-- Category Manager - Inline (will be moved here by JavaScript) -->
+                <!-- Category Manager - Inline -->
                 <div id="category-manager" class="category-manager" style="display: none;">
                     <div class="category-manager-header">
                         <h4 class="category-manager-title">📁 Manage Categories</h4>

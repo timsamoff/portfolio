@@ -797,7 +797,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const visibleItems = [];
         
         items.forEach((item) => {
-            const itemCategory = item.getAttribute('data-category');
+            const itemCategories = item.__categories || [];
             const isSelected = item.getAttribute('data-selected') === 'true';
             let shouldShow = false;
             
@@ -806,9 +806,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (currentFilterValue === 'selected') {
                 shouldShow = isSelected;
             } else if (currentFilterValue === 'uncategorized') {
-                shouldShow = (!itemCategory || itemCategory === 'uncategorized' || itemCategory === '');
+                shouldShow = itemCategories.length === 0;
             } else {
-                shouldShow = (itemCategory === currentFilterValue);
+                shouldShow = itemCategories.includes(currentFilterValue);
             }
             
             if (shouldShow) {
@@ -1039,12 +1039,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const imageAlign = project.imageAlign || 'center';
             const isSelected = project.selected === true;
+            
+            // Get categories array (or empty array if not set)
+            const categories = project.categories || [];
+            const categoryAttr = categories.length > 0 ? categories.join(',') : 'uncategorized';
 
             const article = document.createElement('article');
             article.className = 'portfolio-item';
-            article.setAttribute('data-category', project.category || 'uncategorized');
+            article.setAttribute('data-category', categoryAttr);
             article.setAttribute('data-project-id', originalIndex);
             article.setAttribute('data-selected', isSelected ? 'true' : 'false');
+            // Store categories for filtering
+            article.__categories = categories;
 
             let thumbnailHtml = '';
             if (mediaArray.length === 1) {
@@ -1068,12 +1074,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 thumbnailHtml = `<div class="item-image"><div class="no-media">No media</div></div>`;
             }
 
-            const displayCategory = project.category ? formatCategoryForDisplay(project.category) : 'Uncategorized';
-
+            // We're removing category tags from cards - just show title and description
             article.innerHTML = `
                 ${thumbnailHtml}
                 <div class="item-content">
-                    <span class="category-tag" data-category-filter="${escapeHtml(project.category || 'uncategorized')}">${escapeHtml(displayCategory)}</span>
                     <h3>${escapeHtml(project.title)}</h3>
                     <p>${renderDescription(project.description)}</p>
                 </div>
@@ -1137,8 +1141,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Build filter navigation
-        const categories = [...new Set(visibleProjects.map(p => p.category).filter(c => c && c !== ''))].sort((a, b) => a.localeCompare(b));
+        // Get all unique categories from projects
+        const allCategories = new Set();
+        visibleProjects.forEach(p => {
+            const cats = p.categories || [];
+            cats.forEach(c => allCategories.add(c));
+        });
+        const categories = [...allCategories].filter(c => c && c !== '').sort((a, b) => a.localeCompare(b));
         const hasSelected = visibleProjects.some(p => p.selected === true);
+        const hasUncategorized = visibleProjects.some(p => {
+            const cats = p.categories || [];
+            return cats.length === 0;
+        });
 
         const filterNav = document.querySelector('.filter-nav');
         if (filterNav) {
@@ -1162,14 +1176,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 filterNav.appendChild(selectedBtn);
             }
 
-            if (categories.length > 0) {
+            if (categories.length > 0 || hasUncategorized) {
                 const divider = document.createElement('span');
                 divider.className = 'filter-divider';
                 filterNav.appendChild(divider);
             }
 
-            const hasUncategorizedProjects = visibleProjects.some(p => !p.category || p.category === '');
-            if (hasUncategorizedProjects) {
+            if (hasUncategorized) {
                 const uncatBtn = document.createElement('button');
                 uncatBtn.className = 'filter-btn';
                 uncatBtn.setAttribute('data-filter', 'uncategorized');
@@ -1181,7 +1194,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const btn = document.createElement('button');
                 btn.className = 'filter-btn';
                 btn.setAttribute('data-filter', cat);
-                btn.textContent = formatCategoryForDisplay(cat);
+                const displayName = formatCategoryForDisplay(cat);
+                btn.textContent = displayName;
                 filterNav.appendChild(btn);
             });
         }
@@ -1223,27 +1237,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Initial lazy loading
         setTimeout(setupLazyLoading, 200);
 
-        // Category tag click handlers
-        document.querySelectorAll('.category-tag').forEach(tag => {
-            const newTag = tag.cloneNode(true);
-            tag.parentNode.replaceChild(newTag, tag);
-
-            newTag.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const category = newTag.getAttribute('data-category-filter');
-                if (category) {
-                    const filterButtons = document.querySelectorAll('.filter-nav .filter-btn');
-                    filterButtons.forEach(btn => {
-                        const btnFilter = btn.getAttribute('data-filter');
-                        if (btnFilter === category) {
-                            btn.click();
-                            btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }
-                    });
-                }
-            });
-        });
-
         setupFiltering();
         setupScrollButton();
 
@@ -1275,7 +1268,18 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('projects.json')
         .then(response => response.json())
         .then(data => {
-            loadProjects(data);
+            // Migrate data if needed (convert old category string to categories array)
+            const migratedData = data.map(project => {
+                if (!project.categories && project.category) {
+                    project.categories = [project.category];
+                    delete project.category;
+                }
+                if (!project.categories) {
+                    project.categories = [];
+                }
+                return project;
+            });
+            loadProjects(migratedData);
         })
         .catch(error => {
             console.error('Error loading projects:', error);

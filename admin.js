@@ -51,12 +51,17 @@ const multiFileInput = document.getElementById('multi-file-input');
 const adminSearchInput = document.getElementById('admin-search-input');
 const adminFilterSelect = document.getElementById('admin-filter-select');
 const formTitle = document.getElementById('form-title');
-const formCategory = document.getElementById('form-category');
 const formTag = document.getElementById('form-tag');
 const formSelected = document.getElementById('form-selected');
 const formPublished = document.getElementById('form-published');
 const formImageAlign = document.getElementById('form-image-align');
 const categoryHelpText = document.getElementById('category-help-text');
+
+// Category dropdown elements
+const categoryToggle = document.getElementById('category-dropdown-toggle');
+const categoryDisplay = document.getElementById('category-display');
+const categoryPanel = document.getElementById('category-dropdown-panel');
+const categoryCheckboxList = document.getElementById('category-checkbox-list');
 
 // Category management elements
 const addCategoryBtn = document.getElementById('add-category-btn');
@@ -81,6 +86,10 @@ let notificationTimeout = null;
 
 // Track the currently selected/editing project index
 let currentlySelectedIndex = null;
+
+// Selected categories for the current project
+let selectedCategories = [];
+let categoryDropdownOpen = false;
 
 if (window.history.scrollRestoration) {
     window.history.scrollRestoration = 'manual';
@@ -122,6 +131,7 @@ function loadCategoryData() {
                 }
             });
             updateCategoryDropdown();
+            renderCategoryCheckboxes();
         })
         .catch(() => {
             initCategoryData();
@@ -134,6 +144,7 @@ function loadCategoryData() {
                 }
             });
             updateCategoryDropdown();
+            renderCategoryCheckboxes();
         });
 }
 
@@ -158,6 +169,104 @@ function saveCategoryData() {
         }
     })
     .catch(() => console.warn('Could not save categories'));
+}
+
+// ========================
+// CATEGORY DROPDOWN WITH CHECKBOXES
+// ========================
+
+function renderCategoryCheckboxes() {
+    if (!categoryCheckboxList) return;
+    
+    categoryCheckboxList.innerHTML = '';
+    
+    const sortedCategories = [...availableCategories].sort((a, b) => {
+        const displayA = categoryData[a]?.display || formatCategoryForDisplay(a);
+        const displayB = categoryData[b]?.display || formatCategoryForDisplay(b);
+        return displayA.localeCompare(displayB);
+    });
+    
+    if (sortedCategories.length === 0) {
+        const emptyMsg = document.createElement('div');
+        emptyMsg.style.cssText = 'padding: 0.5rem; color: var(--color-text-muted); font-size: 0.85rem; text-align: center;';
+        emptyMsg.textContent = 'No categories yet. Click "Manage" to add some.';
+        categoryCheckboxList.appendChild(emptyMsg);
+        return;
+    }
+    
+    sortedCategories.forEach(cat => {
+        const displayName = categoryData[cat]?.display || formatCategoryForDisplay(cat);
+        const shortcut = categoryData[cat]?.shortcut || '';
+        const isChecked = selectedCategories.includes(cat);
+        
+        const item = document.createElement('label');
+        item.className = 'category-checkbox-item';
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'custom-checkbox-input';
+        checkbox.value = cat;
+        checkbox.checked = isChecked;
+        checkbox.addEventListener('change', () => {
+            if (checkbox.checked) {
+                if (!selectedCategories.includes(cat)) {
+                    selectedCategories.push(cat);
+                }
+            } else {
+                selectedCategories = selectedCategories.filter(c => c !== cat);
+            }
+            updateCategoryDisplay();
+            if (isEditingMode) debouncedAutoSave();
+        });
+        
+        const boxSpan = document.createElement('span');
+        boxSpan.className = 'custom-checkbox-box';
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'category-name';
+        nameSpan.textContent = displayName;
+        
+        const shortcutSpan = document.createElement('span');
+        shortcutSpan.className = 'category-shortcut';
+        shortcutSpan.textContent = shortcut ? `(${shortcut})` : '';
+        
+        item.appendChild(checkbox);
+        item.appendChild(boxSpan);
+        item.appendChild(nameSpan);
+        item.appendChild(shortcutSpan);
+        
+        categoryCheckboxList.appendChild(item);
+    });
+}
+
+function toggleCategoryDropdown() {
+    categoryDropdownOpen = !categoryDropdownOpen;
+    categoryPanel.style.display = categoryDropdownOpen ? 'block' : 'none';
+    if (categoryToggle) {
+        categoryToggle.classList.toggle('open', categoryDropdownOpen);
+    }
+    
+    if (categoryDropdownOpen) {
+        renderCategoryCheckboxes();
+        // Scroll to top of panel
+        if (categoryPanel) {
+            categoryPanel.scrollTop = 0;
+        }
+    }
+}
+
+function closeCategoryDropdown() {
+    categoryDropdownOpen = false;
+    if (categoryPanel) {
+        categoryPanel.style.display = 'none';
+    }
+    if (categoryToggle) {
+        categoryToggle.classList.remove('open');
+    }
+}
+
+function getCategoryArray() {
+    return [...selectedCategories];
 }
 
 // ========================
@@ -688,42 +797,9 @@ function generateShortcutFromName(name) {
 }
 
 function updateCategoryDropdown() {
-    if (!formCategory) return;
-    const currentValue = formCategory.value;
-    formCategory.innerHTML = '';
-    
-    const uncategorizedOption = document.createElement('option');
-    uncategorizedOption.value = '';
-    uncategorizedOption.textContent = 'Uncategorized';
-    formCategory.appendChild(uncategorizedOption);
-    
-    const separator = document.createElement('option');
-    separator.disabled = true;
-    separator.textContent = '──────────';
-    formCategory.appendChild(separator);
-    
-    const sortedCategories = [...availableCategories].sort((a, b) => {
-        const displayA = categoryData[a]?.display || formatCategoryForDisplay(a);
-        const displayB = categoryData[b]?.display || formatCategoryForDisplay(b);
-        return displayA.localeCompare(displayB);
-    });
-    
-    sortedCategories.forEach(cat => {
-        const option = document.createElement('option');
-        option.value = cat;
-        const displayName = categoryData[cat]?.display || formatCategoryForDisplay(cat);
-        const shortcut = categoryData[cat]?.shortcut || '';
-        option.textContent = shortcut ? `${displayName} (${shortcut})` : displayName;
-        formCategory.appendChild(option);
-    });
-    
-    if (currentValue === '' || currentValue === 'uncategorized') {
-        formCategory.value = '';
-    } else if (availableCategories.includes(currentValue)) {
-        formCategory.value = currentValue;
-    } else {
-        formCategory.value = '';
-    }
+    // The dropdown now uses checkboxes, so we just need to update availableCategories
+    // and re-render the checkboxes
+    renderCategoryCheckboxes();
 }
 
 // ========================
@@ -738,6 +814,10 @@ function toggleCategoryManager() {
         renderCategoryList();
         if (addCategoryBtn) {
             addCategoryBtn.textContent = '📁 Close';
+        }
+        // Close the dropdown if it's open
+        if (categoryDropdownOpen) {
+            closeCategoryDropdown();
         }
     } else {
         categoryManager.style.display = 'none';
@@ -957,7 +1037,12 @@ function deleteCategory(categoryToDelete) {
 // ========================
 function showCategoryDeleteModal(categoryToDelete) {
     const displayName = categoryData[categoryToDelete]?.display || formatCategoryForDisplay(categoryToDelete);
-    const projectsUsing = localProjectCache.filter(p => p.category === categoryToDelete).length;
+    const projectsUsing = localProjectCache.filter(p => {
+        if (p.categories && Array.isArray(p.categories)) {
+            return p.categories.includes(categoryToDelete);
+        }
+        return false;
+    }).length;
     
     let message = `Delete category "${displayName}"?`;
     let details = '';
@@ -1063,9 +1148,12 @@ function showCategoryDeleteModal(categoryToDelete) {
         
         let updatedCount = 0;
         localProjectCache.forEach(project => {
-            if (project.category === categoryToDelete) {
-                project.category = '';
-                updatedCount++;
+            if (project.categories && Array.isArray(project.categories)) {
+                const index = project.categories.indexOf(categoryToDelete);
+                if (index !== -1) {
+                    project.categories.splice(index, 1);
+                    updatedCount++;
+                }
             }
         });
         
@@ -1078,7 +1166,7 @@ function showCategoryDeleteModal(categoryToDelete) {
         
         let successMsg = `✅ Deleted category "${displayName}"`;
         if (updatedCount > 0) {
-            successMsg += ` (${updatedCount} project(s) moved to Uncategorized)`;
+            successMsg += ` (${updatedCount} project(s) had it removed)`;
         }
         showFloatingNotification(successMsg);
     }
@@ -1119,7 +1207,7 @@ if (addForm) {
         
         const projectData = {
             title: formTitle.value,
-            category: formCategory.value,
+            categories: [...selectedCategories],
             media: mediaToSave,
             description: getEditorContent(),
             imageAlign: formImageAlign.value,
@@ -1145,10 +1233,20 @@ function saveToServer() {
     }
     
     const projectsToSave = localProjectCache.map(project => {
-        if (project.description) {
-            project.description = cleanupMalformedLinks(project.description);
+        const cleaned = { ...project };
+        // Ensure categories is always an array
+        if (!cleaned.categories || !Array.isArray(cleaned.categories)) {
+            if (cleaned.category) {
+                cleaned.categories = [cleaned.category];
+            } else {
+                cleaned.categories = [];
+            }
         }
-        return project;
+        delete cleaned.category; // Remove old field
+        if (cleaned.description) {
+            cleaned.description = cleanupMalformedLinks(cleaned.description);
+        }
+        return cleaned;
     });
     
     fetch('http://localhost:3001/api/save-projects', {
@@ -1194,6 +1292,14 @@ function loadData() {
         .then(res => res.json())
         .then(data => {
             data = data.map(project => {
+                // Migrate from old category string to categories array
+                if (!project.categories && project.category) {
+                    project.categories = [project.category];
+                    delete project.category;
+                }
+                if (!project.categories) {
+                    project.categories = [];
+                }
                 if (project.description) {
                     project.description = cleanupMalformedLinks(project.description);
                 }
@@ -1205,7 +1311,7 @@ function loadData() {
             
             localProjectCache = data;
             
-            const cats = [...new Set(localProjectCache.map(p => p.category).filter(c => c && c !== ''))];
+            const cats = [...new Set(localProjectCache.flatMap(p => p.categories || []).filter(c => c && c !== ''))];
             if (cats.length > 0) {
                 availableCategories = cats;
                 cats.forEach(cat => {
@@ -1217,6 +1323,7 @@ function loadData() {
                     }
                 });
                 updateCategoryDropdown();
+                renderCategoryCheckboxes();
             }
             
             updateCategoryFilterOptions();
@@ -1251,10 +1358,12 @@ function filterProjects(project) {
     } else if (filterValue === 'selected') {
         return project.selected === true;
     } else if (filterValue === 'uncategorized') {
-        return !project.category || project.category === '';
+        const categories = project.categories || [];
+        return categories.length === 0;
     } else if (filterValue.startsWith('cat_')) {
         const category = filterValue.replace('cat_', '');
-        return project.category === category;
+        const categories = project.categories || [];
+        return categories.includes(category);
     }
     
     return true;
@@ -1263,7 +1372,7 @@ function filterProjects(project) {
 function updateCategoryFilterOptions() {
     if (!adminFilterSelect) return;
     
-    const categories = [...new Set(localProjectCache.map(p => p.category).filter(c => c && c !== ''))];
+    const categories = [...new Set(localProjectCache.flatMap(p => p.categories || []).filter(c => c && c !== ''))];
     
     const separatorIndex = Array.from(adminFilterSelect.options).findIndex(opt => opt.value === 'category_separator');
     if (separatorIndex !== -1) {
@@ -1354,13 +1463,20 @@ function renderAdminView() {
         const mediaPreview = getMediaPreview(mediaArray);
         const draftBadge = project.published === false ? ' [DRAFT]' : '';
         const selectedBadge = project.selected === true ? ' <span class="selected-star">⭐</span>' : '';
-        const category = project.category ? formatCategoryForDisplay(project.category) : 'Uncategorized';
+        
+        // Show categories in the admin list
+        const categories = project.categories || [];
+        let categoryDisplay = 'Uncategorized';
+        if (categories.length > 0) {
+            const displayNames = categories.map(c => categoryData[c]?.display || formatCategoryForDisplay(c));
+            categoryDisplay = displayNames.join(', ');
+        }
         
         if (project.published === false) li.style.opacity = '0.5';
         li.innerHTML = `
             <div class="sort-content" style="flex-grow:1; cursor:pointer; min-width:0; overflow:hidden;">
                 <strong>${escapeHtml(project.title)}${draftBadge}${selectedBadge}</strong>
-                <small style="color:var(--color-text-muted); margin-left:0.5rem;">(${escapeHtml(category)})</small>
+                <small style="color:var(--color-text-muted); margin-left:0.5rem;">(${escapeHtml(categoryDisplay)})</small>
                 <div style="font-size:0.7rem; color:var(--color-accent); margin-top:0.2rem;">${mediaPreview}</div>
             </div>
             <div style="display:flex; gap:0.25rem; align-items:center; flex-shrink:0; margin-left:0.5rem;">
@@ -1488,7 +1604,7 @@ function recalculateCacheOrder() {
 function getCurrentFormData() {
     return {
         title: formTitle.value,
-        category: formCategory.value,
+        categories: [...selectedCategories],
         cardHeading: formTag ? formTag.value : '',
         media: [...currentMediaArray].filter(m => m && m.trim()),
         description: getEditorContent(),
@@ -1527,11 +1643,14 @@ function debouncedAutoSave() {
 let autoSaveListenersActive = false;
 
 function setupAutoSaveListeners(enable) {
-    const inputs = [formTitle, formCategory, formImageAlign];
+    const inputs = [formTitle, formImageAlign];
     if (formTag) inputs.push(formTag);
     
     const checkboxes = [formPublished, formSelected];
     const editor = descTextarea;
+    
+    // Category checkboxes need special handling - they use their own change listeners
+    // We'll handle categories separately
     
     inputs.forEach(input => {
         if (input) {
@@ -1583,7 +1702,9 @@ function startNewProject() {
     formEditIndex.value = "";
     
     formTitle.value = "";
-    formCategory.value = "";
+    selectedCategories = [];
+    updateCategoryDisplay();
+    renderCategoryCheckboxes();
     if (formTag) formTag.value = "";
     formSelected.checked = false;
     formPublished.checked = false;
@@ -1621,7 +1742,19 @@ function loadProjectIntoForm(index) {
     formEditIndex.value = index;
     
     formTitle.value = target.title;
-    formCategory.value = target.category || "";
+    
+    // Handle categories
+    if (target.categories && Array.isArray(target.categories)) {
+        selectedCategories = [...target.categories];
+    } else if (target.category && typeof target.category === 'string') {
+        // Backward compatibility: convert old string to array
+        selectedCategories = [target.category];
+    } else {
+        selectedCategories = [];
+    }
+    updateCategoryDisplay();
+    renderCategoryCheckboxes();
+    
     if (formTag) formTag.value = target.cardHeading || target.tag || "";
     formSelected.checked = target.selected === true;
     formPublished.checked = target.published !== false;
@@ -1667,6 +1800,24 @@ if (newProjectBtn) {
         startNewProject();
     });
 }
+
+// Category dropdown toggle
+if (categoryToggle) {
+    categoryToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleCategoryDropdown();
+    });
+}
+
+// Click outside to close dropdown
+document.addEventListener('click', (e) => {
+    if (categoryDropdownOpen) {
+        const wrapper = document.getElementById('category-form-group');
+        if (wrapper && !wrapper.contains(e.target)) {
+            closeCategoryDropdown();
+        }
+    }
+});
 
 // Category button handlers
 if (addCategoryBtn) {
@@ -2186,6 +2337,16 @@ function init() {
         // Remove from current position and insert after the form group
         categoryFormGroup.parentNode.insertBefore(categoryManager, categoryFormGroup.nextSibling);
     }
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (categoryDropdownOpen) {
+            const wrapper = document.getElementById('category-form-group');
+            if (wrapper && !wrapper.contains(e.target)) {
+                closeCategoryDropdown();
+            }
+        }
+    });
 }
 
 init();
