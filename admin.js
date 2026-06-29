@@ -96,82 +96,6 @@ if (window.history.scrollRestoration) {
 }
 
 // ========================
-// CATEGORY DATA INITIALIZATION
-// ========================
-
-function initCategoryData() {
-    const defaults = {
-        'brand_&_identity': { display: 'Brand & Identity', shortcut: 'brand' },
-        'production_&_installation': { display: 'Production & Installation', shortcut: 'production' },
-        'game_design': { display: 'Game Design', shortcut: 'game' },
-        'web_&_interactive': { display: 'Web & Interactive', shortcut: 'web' }
-    };
-    
-    Object.keys(defaults).forEach(key => {
-        if (!categoryData[key]) {
-            categoryData[key] = defaults[key];
-        }
-    });
-}
-
-function loadCategoryData() {
-    fetch('categories.json')
-        .then(res => {
-            if (!res.ok) throw new Error('categories.json not found');
-            return res.json();
-        })
-        .then(data => {
-            categoryData = data;
-            availableCategories.forEach(cat => {
-                if (!categoryData[cat]) {
-                    categoryData[cat] = {
-                        display: formatCategoryForDisplay(cat),
-                        shortcut: ''
-                    };
-                }
-            });
-            updateCategoryDropdown();
-            renderCategoryCheckboxes();
-        })
-        .catch(() => {
-            initCategoryData();
-            availableCategories.forEach(cat => {
-                if (!categoryData[cat]) {
-                    categoryData[cat] = {
-                        display: formatCategoryForDisplay(cat),
-                        shortcut: ''
-                    };
-                }
-            });
-            updateCategoryDropdown();
-            renderCategoryCheckboxes();
-        });
-}
-
-function saveCategoryData() {
-    const dataToSave = {};
-    Object.keys(categoryData).forEach(key => {
-        dataToSave[key] = {
-            display: categoryData[key].display,
-            shortcut: categoryData[key].shortcut || ''
-        };
-    });
-    
-    fetch('http://localhost:3001/api/save-categories', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dataToSave)
-    })
-    .then(res => res.json())
-    .then(res => {
-        if (!res.success) {
-            console.warn('Could not save categories:', res.error);
-        }
-    })
-    .catch(() => console.warn('Could not save categories'));
-}
-
-// ========================
 // CATEGORY DROPDOWN WITH CHECKBOXES
 // ========================
 
@@ -239,6 +163,18 @@ function renderCategoryCheckboxes() {
     });
 }
 
+function updateCategoryDisplay() {
+    if (!categoryDisplay) return;
+    
+    if (selectedCategories.length === 0) {
+        categoryDisplay.textContent = 'Uncategorized';
+    } else {
+        const firstCat = selectedCategories[0];
+        const displayName = categoryData[firstCat]?.display || formatCategoryForDisplay(firstCat);
+        categoryDisplay.textContent = displayName;
+    }
+}
+
 function toggleCategoryDropdown() {
     categoryDropdownOpen = !categoryDropdownOpen;
     categoryPanel.style.display = categoryDropdownOpen ? 'block' : 'none';
@@ -248,7 +184,6 @@ function toggleCategoryDropdown() {
     
     if (categoryDropdownOpen) {
         renderCategoryCheckboxes();
-        // Scroll to top of panel
         if (categoryPanel) {
             categoryPanel.scrollTop = 0;
         }
@@ -267,6 +202,82 @@ function closeCategoryDropdown() {
 
 function getCategoryArray() {
     return [...selectedCategories];
+}
+
+// ========================
+// CATEGORY DATA INITIALIZATION
+// ========================
+
+function initCategoryData() {
+    const defaults = {
+        'brand_&_identity': { display: 'Brand & Identity', shortcut: 'brand' },
+        'production_&_installation': { display: 'Production & Installation', shortcut: 'production' },
+        'game_design': { display: 'Game Design', shortcut: 'game' },
+        'web_&_interactive': { display: 'Web & Interactive', shortcut: 'web' }
+    };
+    
+    Object.keys(defaults).forEach(key => {
+        if (!categoryData[key]) {
+            categoryData[key] = defaults[key];
+        }
+    });
+}
+
+function loadCategoryData() {
+    fetch('categories.json')
+        .then(res => {
+            if (!res.ok) throw new Error('categories.json not found');
+            return res.json();
+        })
+        .then(data => {
+            categoryData = data;
+            availableCategories.forEach(cat => {
+                if (!categoryData[cat]) {
+                    categoryData[cat] = {
+                        display: formatCategoryForDisplay(cat),
+                        shortcut: ''
+                    };
+                }
+            });
+            renderCategoryCheckboxes();
+            updateCategoryDisplay();
+        })
+        .catch(() => {
+            initCategoryData();
+            availableCategories.forEach(cat => {
+                if (!categoryData[cat]) {
+                    categoryData[cat] = {
+                        display: formatCategoryForDisplay(cat),
+                        shortcut: ''
+                    };
+                }
+            });
+            renderCategoryCheckboxes();
+            updateCategoryDisplay();
+        });
+}
+
+function saveCategoryData() {
+    const dataToSave = {};
+    Object.keys(categoryData).forEach(key => {
+        dataToSave[key] = {
+            display: categoryData[key].display,
+            shortcut: categoryData[key].shortcut || ''
+        };
+    });
+    
+    fetch('http://localhost:3001/api/save-categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataToSave)
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (!res.success) {
+            console.warn('Could not save categories:', res.error);
+        }
+    })
+    .catch(() => console.warn('Could not save categories'));
 }
 
 // ========================
@@ -796,12 +807,6 @@ function generateShortcutFromName(name) {
     }
 }
 
-function updateCategoryDropdown() {
-    // The dropdown now uses checkboxes, so we just need to update availableCategories
-    // and re-render the checkboxes
-    renderCategoryCheckboxes();
-}
-
 // ========================
 // CATEGORY MANAGER - INLINE
 // ========================
@@ -815,7 +820,6 @@ function toggleCategoryManager() {
         if (addCategoryBtn) {
             addCategoryBtn.textContent = '📁 Close';
         }
-        // Close the dropdown if it's open
         if (categoryDropdownOpen) {
             closeCategoryDropdown();
         }
@@ -900,7 +904,7 @@ function renderCategoryList() {
                     categoryData[category].shortcut = newShortcut || '';
                     shortcutInput.style.borderColor = '';
                     
-                    updateCategoryDropdown();
+                    renderCategoryCheckboxes();
                     updateCategoryFilterOptions();
                     saveCategoryData();
                     showFloatingNotification(`✓ Shortcut updated for "${displayName}"`);
@@ -928,13 +932,12 @@ function renderCategoryList() {
                 
                 categoryData[category].shortcut = newShortcut || '';
                 shortcutInput.style.borderColor = '';
-                updateCategoryDropdown();
+                renderCategoryCheckboxes();
                 updateCategoryFilterOptions();
                 saveCategoryData();
             }
         });
         
-        // Hover effect for better visibility
         shortcutInput.addEventListener('mouseenter', () => {
             if (!shortcutInput.style.borderColor || shortcutInput.style.borderColor === '') {
                 shortcutInput.style.borderColor = 'var(--color-text-muted)';
@@ -1016,7 +1019,7 @@ function addCategory() {
     if (modalNewCategoryName) modalNewCategoryName.value = '';
     if (modalNewCategoryShortcut) modalNewCategoryShortcut.value = '';
     
-    updateCategoryDropdown();
+    renderCategoryCheckboxes();
     updateCategoryFilterOptions();
     renderCategoryList();
     saveCategoryData();
@@ -1029,13 +1032,6 @@ function addCategory() {
 }
 
 function deleteCategory(categoryToDelete) {
-    showCategoryDeleteModal(categoryToDelete);
-}
-
-// ========================
-// CATEGORY DELETE MODAL
-// ========================
-function showCategoryDeleteModal(categoryToDelete) {
     const displayName = categoryData[categoryToDelete]?.display || formatCategoryForDisplay(categoryToDelete);
     const projectsUsing = localProjectCache.filter(p => {
         if (p.categories && Array.isArray(p.categories)) {
@@ -1044,105 +1040,12 @@ function showCategoryDeleteModal(categoryToDelete) {
         return false;
     }).length;
     
-    let message = `Delete category "${displayName}"?`;
-    let details = '';
+    let warning = `Delete category "${displayName}"?`;
     if (projectsUsing > 0) {
-        details = `${projectsUsing} project(s) will become Uncategorized.`;
+        warning += `\n\n⚠️ ${projectsUsing} project(s) currently use this category. It will be removed from them.`;
     }
     
-    const existing = document.querySelector('.category-delete-modal');
-    if (existing) {
-        existing.remove();
-    }
-    
-    const modalOverlay = document.createElement('div');
-    modalOverlay.className = 'category-delete-modal';
-    modalOverlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.85);
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
-        z-index: 20000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    `;
-    
-    const modalContent = document.createElement('div');
-    modalContent.style.cssText = `
-        background: var(--color-card);
-        border: 1px solid var(--color-border);
-        border-radius: 24px;
-        padding: 1.5rem;
-        max-width: 420px;
-        width: 90%;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    `;
-    
-    modalContent.innerHTML = `
-        <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem; color: var(--color-text);">🗑️ Delete Category</h3>
-        <p style="color: var(--color-text-secondary); margin-bottom: 0.5rem; line-height: 1.6;">${escapeHtml(message)}</p>
-        ${details ? `<p style="color: var(--color-accent); margin-bottom: 1rem; font-size: 0.9rem; line-height: 1.5;">⚠️ ${escapeHtml(details)}</p>` : ''}
-        <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1rem;">
-            <button id="category-delete-cancel" style="
-                font-size: 0.75rem;
-                padding: 0.5rem 1rem;
-                background: var(--color-filter-bg);
-                border: 1px solid var(--color-border);
-                border-radius: 8px;
-                cursor: pointer;
-                color: var(--color-text-secondary);
-                transition: all 0.2s;
-            ">Cancel</button>
-            <button id="category-delete-confirm" style="
-                background: var(--color-accent);
-                border: none;
-                padding: 0.5rem 1.2rem;
-                border-radius: 100px;
-                font-size: 0.85rem;
-                font-weight: 500;
-                cursor: pointer;
-                color: var(--color-white);
-                transition: all 0.2s;
-            ">Delete</button>
-        </div>
-    `;
-    
-    modalOverlay.appendChild(modalContent);
-    document.body.appendChild(modalOverlay);
-    
-    const cancelBtn = modalContent.querySelector('#category-delete-cancel');
-    const confirmBtn = modalContent.querySelector('#category-delete-confirm');
-    
-    cancelBtn.addEventListener('mouseenter', () => {
-        cancelBtn.style.background = 'var(--color-border)';
-        cancelBtn.style.color = 'var(--color-text)';
-    });
-    cancelBtn.addEventListener('mouseleave', () => {
-        cancelBtn.style.background = 'var(--color-filter-bg)';
-        cancelBtn.style.color = 'var(--color-text-secondary)';
-    });
-    
-    confirmBtn.addEventListener('mouseenter', () => {
-        confirmBtn.style.background = 'var(--color-accent-hover)';
-    });
-    confirmBtn.addEventListener('mouseleave', () => {
-        confirmBtn.style.background = 'var(--color-accent)';
-    });
-    
-    function cleanup() {
-        if (modalOverlay && modalOverlay.parentNode) {
-            modalOverlay.remove();
-        }
-        document.removeEventListener('keydown', escHandler);
-    }
-    
-    function handleConfirm() {
-        cleanup();
+    if (confirm(warning)) {
         availableCategories = availableCategories.filter(c => c !== categoryToDelete);
         delete categoryData[categoryToDelete];
         
@@ -1157,7 +1060,7 @@ function showCategoryDeleteModal(categoryToDelete) {
             }
         });
         
-        updateCategoryDropdown();
+        renderCategoryCheckboxes();
         updateCategoryFilterOptions();
         renderCategoryList();
         renderAdminView();
@@ -1166,34 +1069,10 @@ function showCategoryDeleteModal(categoryToDelete) {
         
         let successMsg = `✅ Deleted category "${displayName}"`;
         if (updatedCount > 0) {
-            successMsg += ` (${updatedCount} project(s) had it removed)`;
+            successMsg += ` (removed from ${updatedCount} project(s))`;
         }
         showFloatingNotification(successMsg);
     }
-    
-    function handleCancel() {
-        cleanup();
-    }
-    
-    cancelBtn.addEventListener('click', handleCancel);
-    confirmBtn.addEventListener('click', handleConfirm);
-    
-    modalOverlay.addEventListener('click', (e) => {
-        if (e.target === modalOverlay) {
-            handleCancel();
-        }
-    });
-    
-    const escHandler = (e) => {
-        if (e.key === 'Escape') {
-            handleCancel();
-        }
-    };
-    document.addEventListener('keydown', escHandler);
-    
-    setTimeout(() => {
-        confirmBtn.focus();
-    }, 100);
 }
 
 // ========================
@@ -1322,8 +1201,8 @@ function loadData() {
                         };
                     }
                 });
-                updateCategoryDropdown();
                 renderCategoryCheckboxes();
+                updateCategoryDisplay();
             }
             
             updateCategoryFilterOptions();
@@ -1349,6 +1228,8 @@ function filterProjects(project) {
     const titleMatch = project.title.toLowerCase().includes(searchTerm);
     if (!titleMatch) return false;
     
+    const categories = project.categories || [];
+    
     if (filterValue === 'all') {
         return true;
     } else if (filterValue === 'published') {
@@ -1358,11 +1239,9 @@ function filterProjects(project) {
     } else if (filterValue === 'selected') {
         return project.selected === true;
     } else if (filterValue === 'uncategorized') {
-        const categories = project.categories || [];
         return categories.length === 0;
     } else if (filterValue.startsWith('cat_')) {
         const category = filterValue.replace('cat_', '');
-        const categories = project.categories || [];
         return categories.includes(category);
     }
     
@@ -1464,7 +1343,6 @@ function renderAdminView() {
         const draftBadge = project.published === false ? ' [DRAFT]' : '';
         const selectedBadge = project.selected === true ? ' <span class="selected-star">⭐</span>' : '';
         
-        // Show categories in the admin list
         const categories = project.categories || [];
         let categoryDisplay = 'Uncategorized';
         if (categories.length > 0) {
@@ -1648,9 +1526,6 @@ function setupAutoSaveListeners(enable) {
     
     const checkboxes = [formPublished, formSelected];
     const editor = descTextarea;
-    
-    // Category checkboxes need special handling - they use their own change listeners
-    // We'll handle categories separately
     
     inputs.forEach(input => {
         if (input) {
@@ -2315,14 +2190,9 @@ if (descTextarea) {
     descTextarea.addEventListener('blur', applySmartQuotesToEditor);
 }
 
-function init() {
-    renderMediaBadges();
-    loadData();
-    if (richTextEditor && hiddenDescription) {
-        syncDescriptionToHidden();
-        updateCharCount();
-    }
-}
+// ========================
+// INITIALIZATION
+// ========================
 
 function init() {
     renderMediaBadges();
@@ -2331,22 +2201,11 @@ function init() {
         syncDescriptionToHidden();
         updateCharCount();
     }
-    const categoryManager = document.getElementById('category-manager');
+    const categoryManagerEl = document.getElementById('category-manager');
     const categoryFormGroup = document.getElementById('category-form-group');
-    if (categoryManager && categoryFormGroup) {
-        // Remove from current position and insert after the form group
-        categoryFormGroup.parentNode.insertBefore(categoryManager, categoryFormGroup.nextSibling);
+    if (categoryManagerEl && categoryFormGroup) {
+        categoryFormGroup.parentNode.insertBefore(categoryManagerEl, categoryFormGroup.nextSibling);
     }
-    
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-        if (categoryDropdownOpen) {
-            const wrapper = document.getElementById('category-form-group');
-            if (wrapper && !wrapper.contains(e.target)) {
-                closeCategoryDropdown();
-            }
-        }
-    });
 }
 
 init();

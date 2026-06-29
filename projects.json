@@ -1,5 +1,259 @@
 [
   {
+    "title": "Nokia/Rooftop Cocreation Session",
+    "cardHeading": "",
+    "media": [
+      "media/ux/rooftop_01.webp",
+      "media/ux/rooftop_02.webp",
+      "media/ux/rooftop_03.webp",
+      "media/ux/rooftop_04.webp",
+      "media/ux/rooftop_05.webp"
+    ],
+    "description": "I was honored to be chosen as one of eight <a href=\"https://en.wikipedia.org/wiki/Maemo\"target=\"_blank\" rel=\"noopener noreferrer\">Maemo</a> Community members to take part in a Nokia/Rooftop Cocreation session in Amsterdam, in which we dreamt up four mobile apps. Swipe to the end to see me speaking.",
+    "imageAlign": "center",
+    "selected": false,
+    "published": true,
+    "categories": [
+      "user_experience"
+    ]
+  },
+  {
+    "title": "Written & Formatted",
+    "categories": [
+      "app_design_&_development",
+      "user_experience"
+    ],
+    "cardHeading": "",
+    "media": [
+      "media/app/written_01.webp",
+      "media/app/written_02.webp",
+      "media/app/written_03.webp",
+      "media/app/written_04.webp"
+    ],
+    "description": "Embedded editor that converts simple plain-text markup into publication-ready, accessible HTML with sophisticated typographic features like drop caps, ligatures, footnotes, and more.\n\n<live><a href=\"https://samoff.com/written/app\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
+    "imageAlign": "center",
+    "selected": false,
+    "published": true
+  },
+  {
+    "title": "Enclosure Pro",
+    "categories": [
+      "app_design_&_development",
+      "user_experience"
+    ],
+    "cardHeading": "",
+    "media": [
+      "media/app/ep_01.webp",
+      "media/app/ep_02.webp",
+      "https://www.youtube.com/watch?v=jDg9bKsPez0"
+    ],
+    "description": "A cross-platform precision drill hole layout tool for effect pedal enclosures. Built with TypeScript, JS, CSS, and Electron.\n\nOver 1,000 downloads and counting.\n\n<strong>Roles:</strong> Design, Development, UI, UX\n\n<live><a href=\"https://samoff.com/enclosure-pro/\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
+    "imageAlign": "center",
+    "selected": true,
+    "published": true
+  },
+  {
+    "title": "Babylon 5 Entertainment Utilities",
+    "categories": [
+      "user_experience",
+      "app_design_&_development",
+      "game_design_&_development"
+    ],
+    "cardHeading": "",
+    "media": [
+      "media/game/b5_01.webp",
+      "media/game/b5_app_01.webp",
+      "media/game/b5_02.webp"
+    ],
+    "description": "B5 “Entertainment Utility” and “Arcade Series,” based the <em>B5</em> brand.\n\n<strong>Roles:</strong> Producer, Creative Director, Game Designer (B5 Arcade Series), UX Designer, QA\n\n<award>Family Software Recommended Award</award>",
+    "imageAlign": "top",
+    "selected": true,
+    "published": true
+  },
+  {
+    "title": "Undead Pairs",
+    "categories": [
+      "game_design_&_development",
+      "user_experience"
+    ],
+    "cardHeading": "",
+    "media": [
+      "media/game/up_01.webp",
+      "media/game/up_03.webp",
+      "media/game/up_03.webp",
+      "media/game/up_04.webp"
+    ],
+    "description": "A Concentration clone, but it’s zombies! Made in Unity.\n\n<strong>Roles:</strong> Design, Development, UI, Sfx\n\nArt by <a href=\"https://www.thomasthesen.art/\"target=\"_blank\" rel=\"noopener noreferrer\">Thomas Paul Thesen</a>.\n\n<live><a href=\"https://timsamoff.itch.io/up\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
+    "imageAlign": "center",
+    "selected": true,
+    "published": true
+  },
+  {
+    "title": "Mevl",
+    "categories": [
+      "brand_&_identity",
+      "user_experience",
+      "digital_art_&_design"
+    ],
+    "cardHeading": "",
+    "media": [
+      "media/brand/mevl_01.webp"
+    ],
+    "description": "UI/UX and art for a mobile carpentry level.\n\n<strong>Roles:</strong> UI Designer, UX Designer, Artist",
+    "imageAlign": "center",
+    "selected": false,
+    "published": true
+  },
+  {
+    "title": "Tim Samoff | Portfolio",
+    "categories": [
+      "app_design_&_development",
+      "user_experience"
+    ],
+    "cardHeading": "",
+    "media": [
+      "media/app/tsp_01.webp",
+      "media/app/tsp_02.webp",
+      "media/app/tsp_03.webp"
+    ],
+    "description": "A simple one-page web-based portfolio.\n\nLocal admin saves to JSON for static site publishing.\n\n<strong>Roles:</strong> Design, Development, UI, UX\n\n<live><a href=\"https://samoff.com/portfolio/demo/\"target=\"_blank\" rel=\"noopener noreferrer\">Demo site with admin...</a></live>",
+    "imageAlign": "center",
+    "selected": false,
+    "published": true
+  },
+  {
+    "title": "Circuit Scout",
+    "categories": [
+      "app_design_&_development",
+      "user_experience"
+    ],
+    "cardHeading": "",
+    "media": [
+      "media/app/cs_01.webp",
+      "media/app/cs_02.webp",
+      "media/app/cs_03.webp"
+    ],
+    "description": "A DIY guitar pedal circuit database and search tool. Scrape, organize, and discover effects pedal layouts from the DIY community.\n\nLocal admin saves to SQLite, then exports to JSON for static site publishing.\n\n<strong>Roles:</strong> Design, Development, UI, UX\n\n<live><a href=\"https://samoff.com/circuit-scout\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
+    "imageAlign": "center",
+    "selected": true,
+    "published": true
+  },
+  {
+    "title": "AIrmark",
+    "categories": [
+      "app_design_&_development",
+      "user_experience"
+    ],
+    "cardHeading": "",
+    "media": [
+      "media/app/am_01.webp",
+      "media/app/am_02.webp",
+      "media/app/am_03.webp",
+      "media/app/am_04.webp",
+      "media/app/am_05.webp",
+      "media/app/am_06.webp",
+      "media/app/am_07.webp"
+    ],
+    "description": "BYOK (bring your own keys) AI detection Chrome Extension that tries to detect AI-generated text, images, and audio (depending on the keys you possess).\n\n<strong>Roles:</strong> Design, Development, UI, UX\n\n<live><a href=\"https://github.com/timsamoff/AIrmark\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
+    "imageAlign": "center",
+    "selected": true,
+    "published": true
+  },
+  {
+    "title": "YouTube Title Shuffler",
+    "categories": [
+      "app_design_&_development",
+      "user_experience"
+    ],
+    "cardHeading": "",
+    "media": [
+      "media/app/ytts_01.webp"
+    ],
+    "description": "Chrome Extension that hilariously shuffles all of the titles under the video thumbnails.\n\n<strong>Roles:</strong> Design, Development, UI, UX\n\n<live><a href=\"https://github.com/timsamoff/YouTube-Title-Shuffler\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
+    "imageAlign": "center",
+    "selected": false,
+    "published": true
+  },
+  {
+    "title": "Smart Object Rotator for Unity",
+    "categories": [
+      "app_design_&_development",
+      "user_experience"
+    ],
+    "cardHeading": "",
+    "media": [
+      "https://vimeo.com/897266720"
+    ],
+    "description": "A simple script that breathes life into object rotation in Unity.\n\n<strong>Roles:</strong> Design, Development, UI, UX\n\n<live><a href=\"https://github.com/timsamoff/Smart-Object-Rotator-for-Unity\"target=\"_blank\" rel=\"noopener noreferrer\">View project on GitHub!</a></live>",
+    "imageAlign": "center",
+    "selected": false,
+    "published": true
+  },
+  {
+    "title": "CodePen Experiments",
+    "categories": [
+      "user_experience",
+      "web_design_&_development",
+      "game_design_&_development",
+      "motion_graphics_&_animation",
+      "app_design_&_development"
+    ],
+    "cardHeading": "",
+    "media": [
+      "media/web/cp_01.webp"
+    ],
+    "description": "A lot of web-based UI and UX experiments happened (and sometimes still happen) on CodePen.\n\n<live><a href=\"https://codepen.io/timsamoff\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
+    "imageAlign": "center",
+    "selected": false,
+    "published": true
+  },
+  {
+    "title": "EQ Copilot",
+    "categories": [
+      "app_design_&_development",
+      "user_experience"
+    ],
+    "cardHeading": "",
+    "media": [
+      "media/app/eq_copilot_app_01.webp"
+    ],
+    "description": "RSS reader widget that disseminated company news to employees’ desktops. The Idea was iterated and eventually patented.\n\n<strong>Roles:</strong> Development, UI, UX",
+    "imageAlign": "center",
+    "selected": false,
+    "published": true
+  },
+  {
+    "title": "ActiveCasting",
+    "categories": [
+      "app_design_&_development",
+      "user_experience"
+    ],
+    "cardHeading": "",
+    "media": [
+      "media/app/ac_app_01.webp",
+      "media/app/ac_app_02.webp"
+    ],
+    "description": "App that delivered aggregated training videos to employees.\n\n<strong>Roles:</strong> UI, UX",
+    "imageAlign": "center",
+    "selected": false,
+    "published": true
+  },
+  {
+    "title": "Three Dragons",
+    "categories": [
+      "game_design_&_development",
+      "user_experience"
+    ],
+    "cardHeading": "",
+    "media": [
+      "media/game/3drag_01.webp"
+    ],
+    "description": "<em>Three Dragons</em> is a text-based micro-RPG based on a European folktale about “two brothers and an old man with a white beard.” Made in <a href=\"https://twinery.org/\"target=\"_blank\" rel=\"noopener noreferrer\">Twine</a>, <em>Three Dragons</em> is a short-form experience with deep branching interactions, a real-time battle mechanic, and a distinct moral message.\n\n<strong>Roles:</strong> Design, Development\n\n<live><a href=\"https://timsamoff.itch.io/three-dragons\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
+    "imageAlign": "center",
+    "selected": false,
+    "published": true
+  },
+  {
     "title": "Commercial Game Production & Design",
     "cardHeading": "",
     "media": [
@@ -49,39 +303,6 @@
     ]
   },
   {
-    "title": "Babylon 5 Entertainment Utilities",
-    "cardHeading": "",
-    "media": [
-      "media/game/b5_01.webp",
-      "media/game/b5_app_01.webp",
-      "media/game/b5_02.webp"
-    ],
-    "description": "B5 “Entertainment Utility” and “Arcade Series,” based the <em>B5</em> brand.\n\n<strong>Roles:</strong> Producer, Creative Director, Game Designer (B5 Arcade Series), UX Designer, QA\n\n<award>Family Software Recommended Award</award>",
-    "imageAlign": "top",
-    "selected": true,
-    "published": true,
-    "categories": [
-      "user_experience"
-    ]
-  },
-  {
-    "title": "Undead Pairs",
-    "cardHeading": "",
-    "media": [
-      "media/game/up_01.webp",
-      "media/game/up_03.webp",
-      "media/game/up_03.webp",
-      "media/game/up_04.webp"
-    ],
-    "description": "A Concentration clone, but it’s zombies! Made in Unity.\n\n<strong>Roles:</strong> Design, Development, UI, Sfx\n\nArt by <a href=\"https://www.thomasthesen.art/\"target=\"_blank\" rel=\"noopener noreferrer\">Thomas Paul Thesen</a>.\n\n<live><a href=\"https://timsamoff.itch.io/up\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
-    "imageAlign": "center",
-    "selected": true,
-    "published": true,
-    "categories": [
-      "game_design_&_development"
-    ]
-  },
-  {
     "title": "The Flock Beneath",
     "cardHeading": "",
     "media": [
@@ -93,119 +314,6 @@
     "published": true,
     "categories": [
       "game_design_&_development"
-    ]
-  },
-  {
-    "title": "Enclosure Pro",
-    "cardHeading": "",
-    "media": [
-      "media/app/ep_01.webp",
-      "media/app/ep_02.webp",
-      "https://www.youtube.com/watch?v=jDg9bKsPez0"
-    ],
-    "description": "A cross-platform precision drill hole layout tool for effect pedal enclosures. Built with TypeScript, JS, CSS, and Electron.\n\nOver 1,000 downloads and counting.\n\n<strong>Roles:</strong> Design, Development, UI, UX\n\n<live><a href=\"https://samoff.com/enclosure-pro/\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
-    "imageAlign": "center",
-    "selected": true,
-    "published": true,
-    "categories": [
-      "app_design_&_development"
-    ]
-  },
-  {
-    "title": "Mevl",
-    "cardHeading": "",
-    "media": [
-      "media/brand/mevl_01.webp"
-    ],
-    "description": "",
-    "imageAlign": "center",
-    "selected": false,
-    "published": false,
-    "categories": [
-      "brand_&_identity"
-    ]
-  },
-  {
-    "title": "Tim Samoff | Portfolio",
-    "cardHeading": "",
-    "media": [
-      "media/app/tsp_01.webp",
-      "media/app/tsp_02.webp",
-      "media/app/tsp_03.webp"
-    ],
-    "description": "A simple one-page web-based portfolio.\n\nLocal admin saves to JSON for static site publishing.\n\n<strong>Roles:</strong> Design, Development, UI, UX\n\n<live><a href=\"https://samoff.com/portfolio/demo/\"target=\"_blank\" rel=\"noopener noreferrer\">Demo site with admin...</a></live>",
-    "imageAlign": "center",
-    "selected": false,
-    "published": true,
-    "categories": [
-      "app_design_&_development"
-    ]
-  },
-  {
-    "title": "Written & Formatted",
-    "cardHeading": "",
-    "media": [
-      "media/app/written_01.webp",
-      "media/app/written_02.webp",
-      "media/app/written_03.webp",
-      "media/app/written_04.webp"
-    ],
-    "description": "Embedded editor that converts simple plain-text markup into publication-ready, accessible HTML with sophisticated typographic features like drop caps, ligatures, footnotes, and more.\n\n<live><a href=\"https://samoff.com/written/app\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
-    "imageAlign": "center",
-    "published": true,
-    "selected": false,
-    "categories": [
-      "app_design_&_development"
-    ]
-  },
-  {
-    "title": "Circuit Scout",
-    "cardHeading": "",
-    "media": [
-      "media/app/cs_01.webp",
-      "media/app/cs_02.webp",
-      "media/app/cs_03.webp"
-    ],
-    "description": "A DIY guitar pedal circuit database and search tool. Scrape, organize, and discover effects pedal layouts from the DIY community.\n\nLocal admin saves to SQLite, then exports to JSON for static site publishing.\n\n<strong>Roles:</strong> Design, Development, UI, UX\n\n<live><a href=\"https://samoff.com/circuit-scout\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
-    "imageAlign": "center",
-    "selected": true,
-    "published": true,
-    "categories": [
-      "app_design_&_development"
-    ]
-  },
-  {
-    "title": "AIrmark",
-    "cardHeading": "",
-    "media": [
-      "media/app/am_01.webp",
-      "media/app/am_02.webp",
-      "media/app/am_03.webp",
-      "media/app/am_04.webp",
-      "media/app/am_05.webp",
-      "media/app/am_06.webp",
-      "media/app/am_07.webp"
-    ],
-    "description": "BYOK (bring your own keys) AI detection Chrome Extension that tries to detect AI-generated text, images, and audio (depending on the keys you possess).\n\n<strong>Roles:</strong> Design, Development, UI, UX\n\n<live><a href=\"https://github.com/timsamoff/AIrmark\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
-    "imageAlign": "center",
-    "selected": true,
-    "published": true,
-    "categories": [
-      "app_design_&_development"
-    ]
-  },
-  {
-    "title": "YouTube Title Shuffler",
-    "cardHeading": "",
-    "media": [
-      "media/app/ytts_01.webp"
-    ],
-    "description": "Chrome Extension that hilariously shuffles all of the titles under the video thumbnails.\n\n<strong>Roles:</strong> Design, Development, UI, UX\n\n<live><a href=\"https://github.com/timsamoff/YouTube-Title-Shuffler\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
-    "imageAlign": "center",
-    "selected": false,
-    "published": true,
-    "categories": [
-      "app_design_&_development"
     ]
   },
   {
@@ -236,20 +344,6 @@
     "selected": false,
     "categories": [
       "game_design_&_development"
-    ]
-  },
-  {
-    "title": "Smart Object Rotator for Unity",
-    "cardHeading": "",
-    "media": [
-      "https://vimeo.com/897266720"
-    ],
-    "description": "A simple script that breathes life into object rotation in Unity.\n\n<strong>Roles:</strong> Design, Development, UI, UX\n\n<live><a href=\"https://github.com/timsamoff/Smart-Object-Rotator-for-Unity\"target=\"_blank\" rel=\"noopener noreferrer\">View project on GitHub!</a></live>",
-    "imageAlign": "center",
-    "selected": false,
-    "published": true,
-    "categories": [
-      "app_design_&_development"
     ]
   },
   {
@@ -468,60 +562,18 @@
   },
   {
     "title": "HMLabs",
+    "categories": [
+      "game_design_&_development",
+      "app_design_&_development"
+    ],
     "cardHeading": "",
     "media": [
       "media/game/hml_01.webp"
     ],
     "description": "Text-based game designed and developed in 2017, as part of my <a href=”https://library.scad.edu/search?/asamoff/asamoff/1%2C2%2C2%2CE/frameset&FF=asamoff+timothy&1%2C1%2C/indexsort=-“ target=\"_blank\" rel=\"noopener noreferrer\">MFA thesis</a> on using real-time mechanics in text-based games. Made with HTML, JS, and CSS.\n\n<strong>Roles:</strong> Design, Development\n\n<live><a href=\"https://timsamoff.itch.io/hmlabs\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
     "imageAlign": "center",
-    "published": true,
     "selected": false,
-    "categories": [
-      "game_design_&_development"
-    ]
-  },
-  {
-    "title": "CodePen Experiments",
-    "cardHeading": "",
-    "media": [
-      "media/web/cp_01.webp"
-    ],
-    "description": "A lot of web-based UI and UX experiments happened (and sometimes still happen) on CodePen.\n\n<live><a href=\"https://codepen.io/timsamoff\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
-    "imageAlign": "center",
-    "published": true,
-    "selected": false,
-    "categories": [
-      "user_experience"
-    ]
-  },
-  {
-    "title": "EQ Copilot",
-    "cardHeading": "",
-    "media": [
-      "media/app/eq_copilot_app_01.webp"
-    ],
-    "description": "RSS reader widget that disseminated company news to employees’ desktops. The Idea was iterated and eventually patented.\n\n<strong>Roles:</strong> Development, UI, UX",
-    "imageAlign": "center",
-    "selected": false,
-    "published": true,
-    "categories": [
-      "app_design_&_development"
-    ]
-  },
-  {
-    "title": "ActiveCasting",
-    "cardHeading": "",
-    "media": [
-      "media/app/ac_app_01.webp",
-      "media/app/ac_app_02.webp"
-    ],
-    "description": "App that delivered aggregated training videos to employees.\n\n<strong>Roles:</strong> UI, UX",
-    "imageAlign": "center",
-    "selected": false,
-    "published": true,
-    "categories": [
-      "app_design_&_development"
-    ]
+    "published": true
   },
   {
     "title": "Tim Samoff - Portfolio Reel",
@@ -550,20 +602,6 @@
     "selected": false,
     "categories": [
       "motion_graphics_&_animation"
-    ]
-  },
-  {
-    "title": "Three Dragons",
-    "cardHeading": "",
-    "media": [
-      "media/game/3drag_01.webp"
-    ],
-    "description": "<em>Three Dragons</em> is a text-based micro-RPG based on a European folktale about “two brothers and an old man with a white beard.” Made in <a href=\"https://twinery.org/\"target=\"_blank\" rel=\"noopener noreferrer\">Twine</a>, <em>Three Dragons</em> is a short-form experience with deep branching interactions, a real-time battle mechanic, and a distinct moral message.\n\n<strong>Roles:</strong> Design, Development\n\n<live><a href=\"https://timsamoff.itch.io/three-dragons\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
-    "imageAlign": "center",
-    "published": true,
-    "selected": false,
-    "categories": [
-      "game_design_&_development"
     ]
   },
   {
@@ -629,24 +667,6 @@
     "selected": false,
     "categories": [
       "production_&_installation"
-    ]
-  },
-  {
-    "title": "Nokia/Rooftop Cocreation Session",
-    "cardHeading": "",
-    "media": [
-      "media/ux/rooftop_01.webp",
-      "media/ux/rooftop_02.webp",
-      "media/ux/rooftop_03.webp",
-      "media/ux/rooftop_04.webp",
-      "media/ux/rooftop_05.webp"
-    ],
-    "description": "I was honored to be chosen as one of eight <a href=\"https://en.wikipedia.org/wiki/Maemo\"target=\"_blank\" rel=\"noopener noreferrer\">Maemo</a> Community members to take part in a Nokia/Rooftop Cocreation session in Amsterdam, in which we dreamt up four mobile apps. Swipe to the end to see me speaking.",
-    "imageAlign": "center",
-    "selected": false,
-    "published": true,
-    "categories": [
-      "user_experience"
     ]
   }
 ]
