@@ -1,4 +1,4 @@
-// Admin panel functionality - localStorage version
+// Admin panel functionality - localStorage version with multi-category checkboxes
 let localProjectCache = [];
 let currentMediaArray = [];
 let draggedMediaIndexForReorder = null;
@@ -18,7 +18,7 @@ let lastSavedFormData = null;
 let activeModal = null;
 let inlineErrorTimeout = null;
 
-// Selection captured on toolbar mousedown, before the button steals focus
+// Selection captured on toolbar mousedown
 let capturedSel = null;
 
 // Description textarea
@@ -51,12 +51,16 @@ const multiFileInput = document.getElementById('multi-file-input');
 const adminSearchInput = document.getElementById('admin-search-input');
 const adminFilterSelect = document.getElementById('admin-filter-select');
 const formTitle = document.getElementById('form-title');
-const formCategory = document.getElementById('form-category');
 const formTag = document.getElementById('form-tag');
 const formSelected = document.getElementById('form-selected');
 const formPublished = document.getElementById('form-published');
 const formImageAlign = document.getElementById('form-image-align');
-const categoryHelpText = document.getElementById('category-help-text');
+
+// Category dropdown elements
+const categoryToggle = document.getElementById('category-dropdown-toggle');
+const categoryDisplay = document.getElementById('category-display');
+const categoryPanel = document.getElementById('category-dropdown-panel');
+const categoryCheckboxList = document.getElementById('category-checkbox-list');
 
 // Category management elements
 const addCategoryBtn = document.getElementById('add-category-btn');
@@ -85,17 +89,20 @@ let notificationTimeout = null;
 // Track the currently selected/editing project index
 let currentlySelectedIndex = null;
 
+// Selected categories for the current project
+let selectedCategories = [];
+let categoryDropdownOpen = false;
+
 if (window.history.scrollRestoration) {
     window.history.scrollRestoration = 'manual';
 }
 
 // ============================================================
-// FORMATTING FUNCTIONS (use demo-data.js versions if available)
+// FORMATTING FUNCTIONS
 // ============================================================
 
 function formatCategoryForDisplay(cat) {
     if (!cat) return '';
-    // Use the demo-data.js function if available
     if (typeof window.formatDemoCategory === 'function') {
         return window.formatDemoCategory(cat);
     }
@@ -103,11 +110,119 @@ function formatCategoryForDisplay(cat) {
 }
 
 // ============================================================
+// CATEGORY DROPDOWN WITH CHECKBOXES
+// ============================================================
+
+function renderCategoryCheckboxes() {
+    if (!categoryCheckboxList) return;
+    
+    categoryCheckboxList.innerHTML = '';
+    
+    const sortedCategories = [...availableCategories].sort((a, b) => {
+        const displayA = categoryData[a]?.display || formatCategoryForDisplay(a);
+        const displayB = categoryData[b]?.display || formatCategoryForDisplay(b);
+        return displayA.localeCompare(displayB);
+    });
+    
+    if (sortedCategories.length === 0) {
+        const emptyMsg = document.createElement('div');
+        emptyMsg.style.cssText = 'padding: 0.5rem; color: var(--color-text-muted); font-size: 0.85rem; text-align: center;';
+        emptyMsg.textContent = 'No categories yet. Click "Manage" to add some.';
+        categoryCheckboxList.appendChild(emptyMsg);
+        return;
+    }
+    
+    sortedCategories.forEach(cat => {
+        const displayName = categoryData[cat]?.display || formatCategoryForDisplay(cat);
+        const shortcut = categoryData[cat]?.shortcut || '';
+        const isChecked = selectedCategories.includes(cat);
+        
+        const item = document.createElement('label');
+        item.className = 'category-checkbox-item';
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'custom-checkbox-input';
+        checkbox.value = cat;
+        checkbox.checked = isChecked;
+        checkbox.addEventListener('change', () => {
+            if (checkbox.checked) {
+                if (!selectedCategories.includes(cat)) {
+                    selectedCategories.push(cat);
+                }
+            } else {
+                selectedCategories = selectedCategories.filter(c => c !== cat);
+            }
+            updateCategoryDisplay();
+            if (isEditingMode) debouncedAutoSave();
+        });
+        
+        const boxSpan = document.createElement('span');
+        boxSpan.className = 'custom-checkbox-box';
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'category-name';
+        nameSpan.textContent = displayName;
+        
+        const shortcutSpan = document.createElement('span');
+        shortcutSpan.className = 'category-shortcut';
+        shortcutSpan.textContent = shortcut ? `(${shortcut})` : '';
+        
+        item.appendChild(checkbox);
+        item.appendChild(boxSpan);
+        item.appendChild(nameSpan);
+        item.appendChild(shortcutSpan);
+        
+        categoryCheckboxList.appendChild(item);
+    });
+}
+
+function updateCategoryDisplay() {
+    if (!categoryDisplay) return;
+    
+    if (selectedCategories.length === 0) {
+        categoryDisplay.textContent = 'Uncategorized';
+    } else {
+        const firstCat = selectedCategories[0];
+        const displayName = categoryData[firstCat]?.display || formatCategoryForDisplay(firstCat);
+        categoryDisplay.textContent = displayName;
+    }
+}
+
+function toggleCategoryDropdown() {
+    categoryDropdownOpen = !categoryDropdownOpen;
+    categoryPanel.style.display = categoryDropdownOpen ? 'block' : 'none';
+    if (categoryToggle) {
+        categoryToggle.classList.toggle('open', categoryDropdownOpen);
+    }
+    
+    if (categoryDropdownOpen) {
+        renderCategoryCheckboxes();
+        if (categoryPanel) {
+            categoryPanel.scrollTop = 0;
+        }
+    }
+}
+
+function closeCategoryDropdown() {
+    categoryDropdownOpen = false;
+    if (categoryPanel) {
+        categoryPanel.style.display = 'none';
+    }
+    if (categoryToggle) {
+        categoryToggle.classList.remove('open');
+    }
+}
+
+function getCategoryArray() {
+    return [...selectedCategories];
+}
+
+// ============================================================
 // CATEGORY DATA INITIALIZATION
 // ============================================================
 
 function loadCategoriesFromStorage() {
-    // First try to load from localStorage directly
     const stored = localStorage.getItem(DEMO_CATEGORIES_KEY);
     if (stored) {
         try {
@@ -123,10 +238,8 @@ function loadCategoriesFromStorage() {
 }
 
 function loadCategoryData() {
-    // Try to load categories from localStorage
     let categories = loadCategoriesFromStorage();
     
-    // If no categories found, get them from demo-data.js
     if (!categories) {
         const data = getDemoData();
         categories = data.categories || [];
@@ -134,13 +247,10 @@ function loadCategoryData() {
     
     availableCategories = categories;
     
-    // Build categoryData from availableCategories
     categoryData = {};
     availableCategories.forEach(cat => {
         const displayName = formatCategoryForDisplay(cat);
-        // Try to find existing shortcut from localStorage
         const savedShortcut = localStorage.getItem(`category_shortcut_${cat}`);
-        // If no saved shortcut, try to get the default from demo-data.js
         let shortcut = savedShortcut || '';
         if (!shortcut && typeof window.getDemoCategoryShortcut === 'function') {
             shortcut = window.getDemoCategoryShortcut(cat);
@@ -151,10 +261,10 @@ function loadCategoryData() {
         };
     });
     
-    updateCategoryDropdown();
     updateCategoryFilterOptions();
+    renderCategoryCheckboxes();
+    updateCategoryDisplay();
     
-    // Save categories back to localStorage if they were loaded from defaults
     if (!loadCategoriesFromStorage()) {
         if (typeof saveDemoCategories === 'function') {
             saveDemoCategories(availableCategories);
@@ -164,12 +274,10 @@ function loadCategoryData() {
 }
 
 function saveCategoryData() {
-    // Save categories to localStorage
     if (typeof saveDemoCategories === 'function') {
         saveDemoCategories(availableCategories);
     }
     
-    // Save shortcuts individually
     Object.keys(categoryData).forEach(key => {
         if (categoryData[key].shortcut) {
             localStorage.setItem(`category_shortcut_${key}`, categoryData[key].shortcut);
@@ -178,13 +286,324 @@ function saveCategoryData() {
         }
     });
     
-    // Also save the categories list directly as a backup
     localStorage.setItem('demo_categories_backup', JSON.stringify(availableCategories));
 }
 
 // ============================================================
-// SMART QUOTES - FIXED TO PRESERVE HTML
+// CATEGORY MANAGEMENT
 // ============================================================
+
+function normalizeCategoryName(name) {
+    if (!name || !name.trim()) return '';
+    
+    let normalized = name.trim().toLowerCase();
+    normalized = normalized.replace(/&/g, '_&_');
+    normalized = normalized.replace(/\s+/g, ' ');
+    normalized = normalized.replace(/ /g, '_');
+    normalized = normalized.replace(/_+/g, '_');
+    normalized = normalized.replace(/^_|_$/g, '');
+    
+    return normalized;
+}
+
+function generateShortcutFromName(name) {
+    if (!name) return '';
+    
+    const words = name.toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w);
+    
+    if (words.length === 0) return '';
+    
+    if (words.length === 1) {
+        return words[0].substring(0, 4);
+    } else {
+        let shortcut = words[0].substring(0, 2);
+        if (words.length > 1) {
+            shortcut += words[1].substring(0, 2);
+        }
+        return shortcut;
+    }
+}
+
+function toggleCategoryManager() {
+    if (!categoryManager) return;
+    
+    if (categoryManager.style.display === 'none' || categoryManager.style.display === '') {
+        categoryManager.style.display = 'block';
+        renderCategoryList();
+        if (addCategoryBtn) {
+            addCategoryBtn.textContent = '📁 Close';
+        }
+        if (categoryDropdownOpen) {
+            closeCategoryDropdown();
+        }
+    } else {
+        categoryManager.style.display = 'none';
+        if (addCategoryBtn) {
+            addCategoryBtn.textContent = '📁 Manage';
+        }
+    }
+}
+
+function renderCategoryList() {
+    if (!categoryListContainer) return;
+    
+    categoryListContainer.innerHTML = '';
+    
+    const sortedCategories = [...availableCategories].sort((a, b) => {
+        const displayA = categoryData[a]?.display || formatCategoryForDisplay(a);
+        const displayB = categoryData[b]?.display || formatCategoryForDisplay(b);
+        return displayA.localeCompare(displayB);
+    });
+    
+    if (sortedCategories.length === 0) {
+        categoryListContainer.innerHTML = '<div style="color: var(--text-muted); padding: 1rem; text-align: center;">No categories yet. Add one below.</div>';
+        return;
+    }
+    
+    sortedCategories.forEach(cat => {
+        const displayName = categoryData[cat]?.display || formatCategoryForDisplay(cat);
+        const shortcut = categoryData[cat]?.shortcut || '';
+        
+        const row = document.createElement('div');
+        row.style.cssText = `
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 0.75rem;
+            align-items: center;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        `;
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = displayName;
+        nameSpan.style.color = 'var(--color-text)';
+        
+        const shortcutInput = document.createElement('input');
+        shortcutInput.type = 'text';
+        shortcutInput.value = shortcut;
+        shortcutInput.placeholder = 'No shortcut';
+        shortcutInput.style.cssText = `
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+            font-size: 0.85rem;
+            width: 100%;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        `;
+        shortcutInput.dataset.category = cat;
+        
+        let saveTimeout = null;
+        shortcutInput.addEventListener('input', () => {
+            if (saveTimeout) clearTimeout(saveTimeout);
+            
+            saveTimeout = setTimeout(() => {
+                const newShortcut = shortcutInput.value.trim();
+                const category = shortcutInput.dataset.category;
+                
+                if (category && categoryData[category]) {
+                    const existingShortcuts = Object.keys(categoryData)
+                        .filter(key => key !== category)
+                        .map(key => categoryData[key].shortcut)
+                        .filter(s => s);
+                    
+                    if (newShortcut && existingShortcuts.includes(newShortcut)) {
+                        showFloatingNotification(`⚠️ Shortcut "${newShortcut}" is already in use`, false);
+                        shortcutInput.style.borderColor = 'var(--color-accent)';
+                        return;
+                    }
+                    
+                    categoryData[category].shortcut = newShortcut || '';
+                    shortcutInput.style.borderColor = '';
+                    
+                    renderCategoryCheckboxes();
+                    updateCategoryFilterOptions();
+                    saveCategoryData();
+                    showFloatingNotification(`✓ Shortcut updated for "${displayName}"`);
+                }
+            }, 500);
+        });
+        
+        shortcutInput.addEventListener('blur', () => {
+            if (saveTimeout) clearTimeout(saveTimeout);
+            
+            const newShortcut = shortcutInput.value.trim();
+            const category = shortcutInput.dataset.category;
+            
+            if (category && categoryData[category]) {
+                const existingShortcuts = Object.keys(categoryData)
+                    .filter(key => key !== category)
+                    .map(key => categoryData[key].shortcut)
+                    .filter(s => s);
+                
+                if (newShortcut && existingShortcuts.includes(newShortcut)) {
+                    showFloatingNotification(`⚠️ Shortcut "${newShortcut}" is already in use`, false);
+                    shortcutInput.style.borderColor = 'var(--color-accent)';
+                    return;
+                }
+                
+                categoryData[category].shortcut = newShortcut || '';
+                shortcutInput.style.borderColor = '';
+                renderCategoryCheckboxes();
+                updateCategoryFilterOptions();
+                saveCategoryData();
+            }
+        });
+        
+        shortcutInput.addEventListener('mouseenter', () => {
+            if (!shortcutInput.style.borderColor || shortcutInput.style.borderColor === '') {
+                shortcutInput.style.borderColor = 'var(--color-text-muted)';
+            }
+        });
+        shortcutInput.addEventListener('mouseleave', () => {
+            if (shortcutInput.style.borderColor === 'var(--color-text-muted)') {
+                shortcutInput.style.borderColor = '';
+            }
+        });
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = '✕';
+        deleteBtn.style.cssText = `
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.2rem 0.5rem;
+            font-size: 1rem;
+            transition: color 0.2s;
+        `;
+        deleteBtn.title = `Delete "${displayName}" category`;
+        deleteBtn.addEventListener('mouseenter', () => {
+            deleteBtn.style.color = 'var(--color-accent)';
+        });
+        deleteBtn.addEventListener('mouseleave', () => {
+            deleteBtn.style.color = 'var(--text-muted)';
+        });
+        deleteBtn.addEventListener('click', () => {
+            deleteCategory(cat);
+        });
+        
+        row.appendChild(nameSpan);
+        row.appendChild(shortcutInput);
+        row.appendChild(deleteBtn);
+        categoryListContainer.appendChild(row);
+    });
+}
+
+function addCategory() {
+    if (!modalNewCategoryName) return;
+    const name = modalNewCategoryName.value.trim();
+    
+    if (!name) {
+        showFloatingNotification('⚠️ Category name is required', false);
+        return;
+    }
+    
+    const normalized = normalizeCategoryName(name);
+    
+    if (normalized === 'uncategorized') {
+        showFloatingNotification('⚠️ "Uncategorized" is reserved', false);
+        return;
+    }
+    
+    if (availableCategories.includes(normalized)) {
+        showFloatingNotification(`⚠️ Category "${name}" already exists`, false);
+        return;
+    }
+    
+    let shortcut = modalNewCategoryShortcut ? modalNewCategoryShortcut.value.trim() : '';
+    if (!shortcut) {
+        shortcut = generateShortcutFromName(name);
+    }
+    
+    const existingShortcuts = Object.values(categoryData).map(c => c.shortcut).filter(s => s);
+    if (shortcut && existingShortcuts.includes(shortcut)) {
+        showFloatingNotification(`⚠️ Shortcut "${shortcut}" is already in use`, false);
+        return;
+    }
+    
+    availableCategories.push(normalized);
+    categoryData[normalized] = {
+        display: name,
+        shortcut: shortcut || ''
+    };
+    
+    if (modalNewCategoryName) modalNewCategoryName.value = '';
+    if (modalNewCategoryShortcut) modalNewCategoryShortcut.value = '';
+    
+    renderCategoryCheckboxes();
+    updateCategoryFilterOptions();
+    renderCategoryList();
+    saveCategoryData();
+    
+    if (typeof saveDemoCategories === 'function') {
+        saveDemoCategories(availableCategories);
+    }
+    
+    localStorage.setItem('demo_categories_backup', JSON.stringify(availableCategories));
+    
+    let successMsg = `✅ Added category "${name}"`;
+    if (shortcut) {
+        successMsg += ` (shortcut: ${shortcut})`;
+    }
+    showFloatingNotification(successMsg);
+}
+
+function deleteCategory(categoryToDelete) {
+    const displayName = categoryData[categoryToDelete]?.display || formatCategoryForDisplay(categoryToDelete);
+    const projectsUsing = localProjectCache.filter(p => {
+        if (p.categories && Array.isArray(p.categories)) {
+            return p.categories.includes(categoryToDelete);
+        }
+        return false;
+    }).length;
+    
+    let warning = `Delete category "${displayName}"?`;
+    if (projectsUsing > 0) {
+        warning += `\n\n⚠️ ${projectsUsing} project(s) currently use this category. It will be removed from them.`;
+    }
+    
+    showConfirmModal(warning, () => {
+        availableCategories = availableCategories.filter(c => c !== categoryToDelete);
+        delete categoryData[categoryToDelete];
+        
+        let updatedCount = 0;
+        localProjectCache.forEach(project => {
+            if (project.categories && Array.isArray(project.categories)) {
+                const index = project.categories.indexOf(categoryToDelete);
+                if (index !== -1) {
+                    project.categories.splice(index, 1);
+                    updatedCount++;
+                }
+            }
+        });
+        
+        renderCategoryCheckboxes();
+        updateCategoryFilterOptions();
+        renderCategoryList();
+        renderAdminView();
+        saveToLocalStorage();
+        saveCategoryData();
+        
+        if (typeof saveDemoCategories === 'function') {
+            saveDemoCategories(availableCategories);
+        }
+        
+        localStorage.setItem('demo_categories_backup', JSON.stringify(availableCategories));
+        
+        let successMsg = `✅ Deleted category "${displayName}"`;
+        if (updatedCount > 0) {
+            successMsg += ` (removed from ${updatedCount} project(s))`;
+        }
+        showFloatingNotification(successMsg);
+    }, () => {});
+}
+
+// ============================================================
+// SMART QUOTES
+// ============================================================
+
 function convertToSmartQuotes(text) {
     if (!text) return '';
     
@@ -336,6 +755,7 @@ function convertPlainTextToSmartQuotes(text) {
 // ============================================================
 // LINK CLEANUP FUNCTIONS
 // ============================================================
+
 function cleanupMalformedLinks(html) {
     if (!html) return html;
     
@@ -360,7 +780,8 @@ function cleanupMalformedLinks(html) {
 // ============================================================
 // TEXTAREA EDITOR HELPERS
 // ============================================================
-function syncDescriptionToHidden() { /* no-op: textarea IS the store */ }
+
+function syncDescriptionToHidden() {}
 
 function updateCharCount() {
     if (charCounter && descTextarea) {
@@ -408,6 +829,7 @@ function applySmartQuotesToEditor() {
 // ============================================================
 // APPLY / TOGGLE FORMATTING
 // ============================================================
+
 function applyInlineFormat(tagName) {
     if (!descTextarea || !capturedSel) return;
     const open = '<' + tagName + '>';
@@ -614,6 +1036,7 @@ function handlePaste(e) {
 // ============================================================
 // NOTIFICATION SYSTEM
 // ============================================================
+
 function showFloatingNotification(message, isSuccess = true) {
     if (floatingNotification) {
         floatingNotification.remove();
@@ -673,8 +1096,8 @@ function showAutoSaveNotification() {
 // ============================================================
 // CONFIRMATION MODAL
 // ============================================================
+
 function showConfirmModal(message, onConfirm, onCancel) {
-    // Remove any existing confirmation modal
     const existing = document.querySelector('.confirmation-modal-overlay');
     if (existing) {
         existing.remove();
@@ -930,359 +1353,9 @@ function showInlineError(inputElement, message) {
 }
 
 // ============================================================
-// CATEGORY MANAGEMENT
-// ============================================================
-function normalizeCategoryName(name) {
-    if (!name || !name.trim()) return '';
-    
-    let normalized = name.trim().toLowerCase();
-    normalized = normalized.replace(/&/g, '_&_');
-    normalized = normalized.replace(/\s+/g, ' ');
-    normalized = normalized.replace(/ /g, '_');
-    normalized = normalized.replace(/_+/g, '_');
-    normalized = normalized.replace(/^_|_$/g, '');
-    
-    return normalized;
-}
-
-function generateShortcutFromName(name) {
-    if (!name) return '';
-    
-    const words = name.toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w);
-    
-    if (words.length === 0) return '';
-    
-    if (words.length === 1) {
-        return words[0].substring(0, 4);
-    } else {
-        let shortcut = words[0].substring(0, 2);
-        if (words.length > 1) {
-            shortcut += words[1].substring(0, 2);
-        }
-        return shortcut;
-    }
-}
-
-function updateCategoryDropdown() {
-    if (!formCategory) return;
-    const currentValue = formCategory.value;
-    formCategory.innerHTML = '';
-    
-    const uncategorizedOption = document.createElement('option');
-    uncategorizedOption.value = '';
-    uncategorizedOption.textContent = 'Uncategorized';
-    formCategory.appendChild(uncategorizedOption);
-    
-    const separator = document.createElement('option');
-    separator.disabled = true;
-    separator.textContent = '──────────';
-    formCategory.appendChild(separator);
-    
-    const sortedCategories = [...availableCategories].sort((a, b) => {
-        const displayA = categoryData[a]?.display || formatCategoryForDisplay(a);
-        const displayB = categoryData[b]?.display || formatCategoryForDisplay(b);
-        return displayA.localeCompare(displayB);
-    });
-    
-    sortedCategories.forEach(cat => {
-        const option = document.createElement('option');
-        option.value = cat;
-        const displayName = categoryData[cat]?.display || formatCategoryForDisplay(cat);
-        const shortcut = categoryData[cat]?.shortcut || '';
-        option.textContent = shortcut ? `${displayName} (${shortcut})` : displayName;
-        formCategory.appendChild(option);
-    });
-    
-    if (currentValue === '' || currentValue === 'uncategorized') {
-        formCategory.value = '';
-    } else if (availableCategories.includes(currentValue)) {
-        formCategory.value = currentValue;
-    } else {
-        formCategory.value = '';
-    }
-}
-
-// ============================================================
-// CATEGORY MANAGER - INLINE
-// ============================================================
-
-function toggleCategoryManager() {
-    if (!categoryManager) return;
-    
-    if (categoryManager.style.display === 'none' || categoryManager.style.display === '') {
-        categoryManager.style.display = 'block';
-        renderCategoryList();
-        if (addCategoryBtn) {
-            addCategoryBtn.textContent = '📁 Close';
-        }
-    } else {
-        categoryManager.style.display = 'none';
-        if (addCategoryBtn) {
-            addCategoryBtn.textContent = '📁 Manage';
-        }
-    }
-}
-
-function renderCategoryList() {
-    if (!categoryListContainer) return;
-    
-    categoryListContainer.innerHTML = '';
-    
-    const sortedCategories = [...availableCategories].sort((a, b) => {
-        const displayA = categoryData[a]?.display || formatCategoryForDisplay(a);
-        const displayB = categoryData[b]?.display || formatCategoryForDisplay(b);
-        return displayA.localeCompare(displayB);
-    });
-    
-    if (sortedCategories.length === 0) {
-        categoryListContainer.innerHTML = '<div style="color: var(--text-muted); padding: 1rem; text-align: center;">No categories yet. Add one below.</div>';
-        return;
-    }
-    
-    sortedCategories.forEach(cat => {
-        const displayName = categoryData[cat]?.display || formatCategoryForDisplay(cat);
-        const shortcut = categoryData[cat]?.shortcut || '';
-        
-        const row = document.createElement('div');
-        row.style.cssText = `
-            display: grid;
-            grid-template-columns: 1fr 1fr auto;
-            gap: 0.75rem;
-            align-items: center;
-            padding: 0.5rem;
-            border-bottom: 1px solid var(--border-color);
-        `;
-        
-        const nameSpan = document.createElement('span');
-        nameSpan.textContent = displayName;
-        nameSpan.style.color = 'var(--color-text)';
-        
-        const shortcutInput = document.createElement('input');
-        shortcutInput.type = 'text';
-        shortcutInput.value = shortcut;
-        shortcutInput.placeholder = 'No shortcut';
-        shortcutInput.style.cssText = `
-            padding: 0.3rem 0.6rem;
-            border-radius: 6px;
-            background: var(--color-bg);
-            border: 1px solid var(--color-border);
-            color: var(--color-text);
-            font-size: 0.85rem;
-            width: 100%;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        `;
-        shortcutInput.dataset.category = cat;
-        
-        let saveTimeout = null;
-        shortcutInput.addEventListener('input', () => {
-            if (saveTimeout) clearTimeout(saveTimeout);
-            
-            saveTimeout = setTimeout(() => {
-                const newShortcut = shortcutInput.value.trim();
-                const category = shortcutInput.dataset.category;
-                
-                if (category && categoryData[category]) {
-                    const existingShortcuts = Object.keys(categoryData)
-                        .filter(key => key !== category)
-                        .map(key => categoryData[key].shortcut)
-                        .filter(s => s);
-                    
-                    if (newShortcut && existingShortcuts.includes(newShortcut)) {
-                        showFloatingNotification(`⚠️ Shortcut "${newShortcut}" is already in use`, false);
-                        shortcutInput.style.borderColor = 'var(--color-accent)';
-                        return;
-                    }
-                    
-                    categoryData[category].shortcut = newShortcut || '';
-                    shortcutInput.style.borderColor = '';
-                    
-                    updateCategoryDropdown();
-                    updateCategoryFilterOptions();
-                    saveCategoryData();
-                    showFloatingNotification(`✓ Shortcut updated for "${displayName}"`);
-                }
-            }, 500);
-        });
-        
-        shortcutInput.addEventListener('blur', () => {
-            if (saveTimeout) clearTimeout(saveTimeout);
-            
-            const newShortcut = shortcutInput.value.trim();
-            const category = shortcutInput.dataset.category;
-            
-            if (category && categoryData[category]) {
-                const existingShortcuts = Object.keys(categoryData)
-                    .filter(key => key !== category)
-                    .map(key => categoryData[key].shortcut)
-                    .filter(s => s);
-                
-                if (newShortcut && existingShortcuts.includes(newShortcut)) {
-                    showFloatingNotification(`⚠️ Shortcut "${newShortcut}" is already in use`, false);
-                    shortcutInput.style.borderColor = 'var(--color-accent)';
-                    return;
-                }
-                
-                categoryData[category].shortcut = newShortcut || '';
-                shortcutInput.style.borderColor = '';
-                updateCategoryDropdown();
-                updateCategoryFilterOptions();
-                saveCategoryData();
-            }
-        });
-        
-        // Hover effect for better visibility
-        shortcutInput.addEventListener('mouseenter', () => {
-            if (!shortcutInput.style.borderColor || shortcutInput.style.borderColor === '') {
-                shortcutInput.style.borderColor = 'var(--color-text-muted)';
-            }
-        });
-        shortcutInput.addEventListener('mouseleave', () => {
-            if (shortcutInput.style.borderColor === 'var(--color-text-muted)') {
-                shortcutInput.style.borderColor = '';
-            }
-        });
-        
-        const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = '✕';
-        deleteBtn.style.cssText = `
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            padding: 0.2rem 0.5rem;
-            font-size: 1rem;
-            transition: color 0.2s;
-        `;
-        deleteBtn.title = `Delete "${displayName}" category`;
-        deleteBtn.addEventListener('mouseenter', () => {
-            deleteBtn.style.color = 'var(--color-accent)';
-        });
-        deleteBtn.addEventListener('mouseleave', () => {
-            deleteBtn.style.color = 'var(--text-muted)';
-        });
-        deleteBtn.addEventListener('click', () => {
-            deleteCategory(cat);
-        });
-        
-        row.appendChild(nameSpan);
-        row.appendChild(shortcutInput);
-        row.appendChild(deleteBtn);
-        categoryListContainer.appendChild(row);
-    });
-}
-
-function addCategory() {
-    if (!modalNewCategoryName) return;
-    const name = modalNewCategoryName.value.trim();
-    
-    if (!name) {
-        showFloatingNotification('⚠️ Category name is required', false);
-        return;
-    }
-    
-    const normalized = normalizeCategoryName(name);
-    
-    if (normalized === 'uncategorized') {
-        showFloatingNotification('⚠️ "Uncategorized" is reserved', false);
-        return;
-    }
-    
-    if (availableCategories.includes(normalized)) {
-        showFloatingNotification(`⚠️ Category "${name}" already exists`, false);
-        return;
-    }
-    
-    let shortcut = modalNewCategoryShortcut ? modalNewCategoryShortcut.value.trim() : '';
-    if (!shortcut) {
-        shortcut = generateShortcutFromName(name);
-    }
-    
-    const existingShortcuts = Object.values(categoryData).map(c => c.shortcut).filter(s => s);
-    if (shortcut && existingShortcuts.includes(shortcut)) {
-        showFloatingNotification(`⚠️ Shortcut "${shortcut}" is already in use`, false);
-        return;
-    }
-    
-    availableCategories.push(normalized);
-    categoryData[normalized] = {
-        display: name,
-        shortcut: shortcut || ''
-    };
-    
-    if (modalNewCategoryName) modalNewCategoryName.value = '';
-    if (modalNewCategoryShortcut) modalNewCategoryShortcut.value = '';
-    
-    // Save everything
-    updateCategoryDropdown();
-    updateCategoryFilterOptions();
-    renderCategoryList();
-    saveCategoryData();
-    
-    // Also explicitly save categories via demo-data.js
-    if (typeof saveDemoCategories === 'function') {
-        saveDemoCategories(availableCategories);
-    }
-    
-    // Save backup
-    localStorage.setItem('demo_categories_backup', JSON.stringify(availableCategories));
-    
-    let successMsg = `✅ Added category "${name}"`;
-    if (shortcut) {
-        successMsg += ` (shortcut: ${shortcut})`;
-    }
-    showFloatingNotification(successMsg);
-}
-
-function deleteCategory(categoryToDelete) {
-    const displayName = categoryData[categoryToDelete]?.display || formatCategoryForDisplay(categoryToDelete);
-    const projectsUsing = localProjectCache.filter(p => p.category === categoryToDelete).length;
-    
-    let warning = `Delete category "${displayName}"?`;
-    if (projectsUsing > 0) {
-        warning += `\n\n⚠️ ${projectsUsing} project(s) currently use this category. They will become Uncategorized.`;
-    }
-    
-    showConfirmModal(warning, () => {
-        // Remove from categories
-        availableCategories = availableCategories.filter(c => c !== categoryToDelete);
-        delete categoryData[categoryToDelete];
-        
-        // Update projects
-        let updatedCount = 0;
-        localProjectCache.forEach(project => {
-            if (project.category === categoryToDelete) {
-                project.category = '';
-                updatedCount++;
-            }
-        });
-        
-        // Update UI and auto-save
-        updateCategoryDropdown();
-        updateCategoryFilterOptions();
-        renderCategoryList();
-        renderAdminView();
-        saveToLocalStorage();
-        saveCategoryData();
-        
-        // Also explicitly save categories via demo-data.js
-        if (typeof saveDemoCategories === 'function') {
-            saveDemoCategories(availableCategories);
-        }
-        
-        // Save backup
-        localStorage.setItem('demo_categories_backup', JSON.stringify(availableCategories));
-        
-        let successMsg = `✅ Deleted category "${displayName}"`;
-        if (updatedCount > 0) {
-            successMsg += ` (${updatedCount} project(s) moved to Uncategorized)`;
-        }
-        showFloatingNotification(successMsg);
-    }, () => {});
-}
-
-// ============================================================
 // PROJECT CRUD
 // ============================================================
+
 if (addForm) {
     addForm.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -1291,7 +1364,7 @@ if (addForm) {
         
         const projectData = {
             title: formTitle.value,
-            category: formCategory.value,
+            categories: [...selectedCategories],
             media: mediaToSave,
             description: getEditorContent(),
             imageAlign: formImageAlign.value,
@@ -1317,35 +1390,44 @@ function saveToLocalStorage() {
     }
     
     const projectsToSave = localProjectCache.map(project => {
-        if (project.description) {
-            project.description = cleanupMalformedLinks(project.description);
+        const cleaned = { ...project };
+        if (!cleaned.categories || !Array.isArray(cleaned.categories)) {
+            if (cleaned.category) {
+                cleaned.categories = [cleaned.category];
+            } else {
+                cleaned.categories = [];
+            }
         }
-        if (project.selected === undefined) {
-            project.selected = false;
+        delete cleaned.category;
+        if (cleaned.description) {
+            cleaned.description = cleanupMalformedLinks(cleaned.description);
         }
-        return project;
+        if (cleaned.selected === undefined) {
+            cleaned.selected = false;
+        }
+        return cleaned;
     });
     
     if (typeof saveDemoProjects === 'function') {
         saveDemoProjects(projectsToSave);
     }
     
-    const cats = [...new Set(localProjectCache.map(p => p.category).filter(c => c && c !== ''))];
-    if (cats.length > 0) {
-        cats.forEach(cat => {
-            if (!availableCategories.includes(cat)) {
-                availableCategories.push(cat);
-            }
-            if (!categoryData[cat]) {
-                categoryData[cat] = {
-                    display: formatCategoryForDisplay(cat),
-                    shortcut: ''
-                };
-            }
-        });
-        saveCategoryData();
-        updateCategoryDropdown();
-    }
+    // Update categories from projects
+    const cats = [...new Set(projectsToSave.flatMap(p => p.categories || []).filter(c => c && c !== ''))];
+    cats.forEach(cat => {
+        if (!availableCategories.includes(cat)) {
+            availableCategories.push(cat);
+        }
+        if (!categoryData[cat]) {
+            categoryData[cat] = {
+                display: formatCategoryForDisplay(cat),
+                shortcut: ''
+            };
+        }
+    });
+    saveCategoryData();
+    renderCategoryCheckboxes();
+    updateCategoryFilterOptions();
 }
 
 function escapeHtml(text) {
@@ -1371,33 +1453,20 @@ function getMediaPreview(mediaArray) {
 }
 
 function loadData() {
-    // Load categories first - this will handle loading from storage
     loadCategoryData();
     
-    // Then load projects
     let data = getDemoData();
     localProjectCache = data.projects || [];
     
-    // If we have categories from loadCategoryData, make sure they're in sync
-    if (availableCategories.length > 0) {
-        // Ensure all project categories are in availableCategories
-        const projectCats = [...new Set(localProjectCache.map(p => p.category).filter(c => c && c !== ''))];
-        projectCats.forEach(cat => {
-            if (!availableCategories.includes(cat)) {
-                availableCategories.push(cat);
-            }
-            if (!categoryData[cat]) {
-                categoryData[cat] = {
-                    display: formatCategoryForDisplay(cat),
-                    shortcut: ''
-                };
-            }
-        });
-        // Save any new categories
-        saveCategoryData();
-    }
-    
+    // Migrate old format to new categories array
     localProjectCache = localProjectCache.map(project => {
+        if (!project.categories && project.category) {
+            project.categories = [project.category];
+            delete project.category;
+        }
+        if (!project.categories) {
+            project.categories = [];
+        }
         if (project.description) {
             project.description = cleanupMalformedLinks(project.description);
         }
@@ -1407,14 +1476,33 @@ function loadData() {
         return project;
     });
     
-    updateCategoryDropdown();
+    // Update categories from projects
+    const cats = [...new Set(localProjectCache.flatMap(p => p.categories || []).filter(c => c && c !== ''))];
+    cats.forEach(cat => {
+        if (!availableCategories.includes(cat)) {
+            availableCategories.push(cat);
+        }
+        if (!categoryData[cat]) {
+            categoryData[cat] = {
+                display: formatCategoryForDisplay(cat),
+                shortcut: ''
+            };
+        }
+    });
+    
+    if (cats.length > 0) {
+        saveCategoryData();
+    }
+    
+    renderCategoryCheckboxes();
+    updateCategoryDisplay();
     updateCategoryFilterOptions();
     renderAdminView();
     showFloatingNotification(`✓ Loaded ${localProjectCache.length} projects and ${availableCategories.length} categories`);
 }
 
 // ============================================================
-// FILTER FUNCTIONS - NONDESTRUCTIVE
+// FILTER FUNCTIONS
 // ============================================================
 
 function filterProjects(project) {
@@ -1423,6 +1511,8 @@ function filterProjects(project) {
     
     const titleMatch = project.title.toLowerCase().includes(searchTerm);
     if (!titleMatch) return false;
+    
+    const categories = project.categories || [];
     
     if (filterValue === 'all') {
         return true;
@@ -1433,10 +1523,10 @@ function filterProjects(project) {
     } else if (filterValue === 'selected') {
         return project.selected === true;
     } else if (filterValue === 'uncategorized') {
-        return !project.category || project.category === '';
+        return categories.length === 0;
     } else if (filterValue.startsWith('cat_')) {
         const category = filterValue.replace('cat_', '');
-        return project.category === category;
+        return categories.includes(category);
     }
     
     return true;
@@ -1445,7 +1535,7 @@ function filterProjects(project) {
 function updateCategoryFilterOptions() {
     if (!adminFilterSelect) return;
     
-    const categories = [...new Set(localProjectCache.map(p => p.category).filter(c => c && c !== ''))];
+    const categories = [...new Set(localProjectCache.flatMap(p => p.categories || []).filter(c => c && c !== ''))];
     
     const separatorIndex = Array.from(adminFilterSelect.options).findIndex(opt => opt.value === 'category_separator');
     if (separatorIndex !== -1) {
@@ -1468,6 +1558,7 @@ function updateCategoryFilterOptions() {
 // ============================================================
 // REAPPLY SELECTION HIGHLIGHT
 // ============================================================
+
 function reapplySelectionHighlight() {
     if (currentlySelectedIndex === null) return;
     
@@ -1506,8 +1597,9 @@ function reapplySelectionHighlight() {
 }
 
 // ============================================================
-// RENDER ADMIN VIEW - WITH WORKING DRAG & DROP
+// RENDER ADMIN VIEW
 // ============================================================
+
 function renderAdminView() {
     if (!sortableListElement) return;
     sortableListElement.innerHTML = '';
@@ -1536,13 +1628,19 @@ function renderAdminView() {
         const mediaPreview = getMediaPreview(mediaArray);
         const draftBadge = project.published === false ? ' [DRAFT]' : '';
         const selectedBadge = project.selected === true ? ' <span class="selected-star">⭐</span>' : '';
-        const category = project.category ? formatCategoryForDisplay(project.category) : 'Uncategorized';
+        
+        const categories = project.categories || [];
+        let categoryDisplay = 'Uncategorized';
+        if (categories.length > 0) {
+            const displayNames = categories.map(c => categoryData[c]?.display || formatCategoryForDisplay(c));
+            categoryDisplay = displayNames.join(', ');
+        }
         
         if (project.published === false) li.style.opacity = '0.5';
         li.innerHTML = `
             <div class="sort-content" style="flex-grow:1; cursor:pointer; min-width:0; overflow:hidden;">
                 <strong>${escapeHtml(project.title)}${draftBadge}${selectedBadge}</strong>
-                <small style="color:var(--color-text-muted); margin-left:0.5rem;">(${escapeHtml(category)})</small>
+                <small style="color:var(--color-text-muted); margin-left:0.5rem;">(${escapeHtml(categoryDisplay)})</small>
                 <div style="font-size:0.7rem; color:var(--color-accent); margin-top:0.2rem;">${mediaPreview}</div>
             </div>
             <div style="display:flex; gap:0.25rem; align-items:center; flex-shrink:0; margin-left:0.5rem;">
@@ -1598,7 +1696,7 @@ function renderAdminView() {
 }
 
 // ============================================================
-// DRAG & DROP REORDERING - WORKS WITH FILTERS
+// DRAG & DROP REORDERING
 // ============================================================
 
 function reorderFullCacheFromFilteredView() {
@@ -1669,7 +1767,7 @@ function recalculateCacheOrder() {
 function getCurrentFormData() {
     return {
         title: formTitle.value,
-        category: formCategory.value,
+        categories: [...selectedCategories],
         cardHeading: formTag ? formTag.value : '',
         media: [...currentMediaArray].filter(m => m && m.trim()),
         description: getEditorContent(),
@@ -1708,7 +1806,7 @@ function debouncedAutoSave() {
 let autoSaveListenersActive = false;
 
 function setupAutoSaveListeners(enable) {
-    const inputs = [formTitle, formCategory, formImageAlign];
+    const inputs = [formTitle, formImageAlign];
     if (formTag) inputs.push(formTag);
     
     const checkboxes = [formPublished, formSelected];
@@ -1764,7 +1862,9 @@ function startNewProject() {
     formEditIndex.value = "";
     
     formTitle.value = "";
-    formCategory.value = "";
+    selectedCategories = [];
+    updateCategoryDisplay();
+    renderCategoryCheckboxes();
     if (formTag) formTag.value = "";
     formSelected.checked = false;
     formPublished.checked = false;
@@ -1802,7 +1902,17 @@ function loadProjectIntoForm(index) {
     formEditIndex.value = index;
     
     formTitle.value = target.title;
-    formCategory.value = target.category || "";
+    
+    if (target.categories && Array.isArray(target.categories)) {
+        selectedCategories = [...target.categories];
+    } else if (target.category && typeof target.category === 'string') {
+        selectedCategories = [target.category];
+    } else {
+        selectedCategories = [];
+    }
+    updateCategoryDisplay();
+    renderCategoryCheckboxes();
+    
     if (formTag) formTag.value = target.cardHeading || target.tag || "";
     formSelected.checked = target.selected === true;
     formPublished.checked = target.published !== false;
@@ -1849,6 +1959,24 @@ if (newProjectBtn) {
     });
 }
 
+// Category dropdown toggle
+if (categoryToggle) {
+    categoryToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleCategoryDropdown();
+    });
+}
+
+// Click outside to close dropdown
+document.addEventListener('click', (e) => {
+    if (categoryDropdownOpen) {
+        const wrapper = document.getElementById('category-form-group');
+        if (wrapper && !wrapper.contains(e.target)) {
+            closeCategoryDropdown();
+        }
+    }
+});
+
 // Category button handlers
 if (addCategoryBtn) {
     addCategoryBtn.addEventListener('click', toggleCategoryManager);
@@ -1866,7 +1994,7 @@ if (modalAddCategoryBtn) {
     });
 }
 
-// Enter key support for adding category - FIXED to prevent form submission
+// Enter key support for adding category
 if (modalNewCategoryName) {
     modalNewCategoryName.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
@@ -1903,19 +2031,17 @@ if (modalNewCategoryName) {
 // ============================================================
 // RESET DATA BUTTON
 // ============================================================
+
 if (resetDataBtn) {
     resetDataBtn.addEventListener('click', () => {
         showConfirmModal(
             'Reset all demo data to the original defaults?\n\nThis will remove all your changes and restore the demo projects.',
             () => {
-                // Reset the data using demo-data.js
                 const data = resetDemoData();
                 
-                // Update the caches
                 localProjectCache = data.projects || [];
                 availableCategories = data.categories || [];
                 
-                // Rebuild categoryData from availableCategories
                 categoryData = {};
                 availableCategories.forEach(cat => {
                     const displayName = formatCategoryForDisplay(cat);
@@ -1930,14 +2056,13 @@ if (resetDataBtn) {
                     };
                 });
                 
-                // Update all UI components
-                updateCategoryDropdown();
+                renderCategoryCheckboxes();
+                updateCategoryDisplay();
                 updateCategoryFilterOptions();
                 renderCategoryList();
                 renderAdminView();
                 startNewProject();
                 
-                // Force close the category manager if open
                 if (categoryManager) {
                     categoryManager.style.display = 'none';
                 }
@@ -1955,6 +2080,7 @@ if (resetDataBtn) {
 // ============================================================
 // MEDIA FUNCTIONS
 // ============================================================
+
 function renderMediaBadges() {
     if (!mediaBadgesContainer) return;
     mediaBadgesContainer.innerHTML = '';
@@ -2170,7 +2296,7 @@ if (processPasteBtn) processPasteBtn.addEventListener('click', () => {
 });
 
 // ============================================================
-// ADMIN SEARCH AND FILTER - NONDESTRUCTIVE
+// ADMIN SEARCH AND FILTER
 // ============================================================
 
 if (adminSearchInput) {
@@ -2205,6 +2331,7 @@ if (adminFilterSelect) {
 // ============================================================
 // CLEANUP LINKS BUTTON
 // ============================================================
+
 const cleanupBtn = document.getElementById('cleanup-links-btn');
 if (cleanupBtn) {
     cleanupBtn.addEventListener('click', function() {
@@ -2263,6 +2390,7 @@ if (descTextarea) {
 // ============================================================
 // DEMO INFO MODAL
 // ============================================================
+
 function initDemoInfoModal() {
     const modal = document.getElementById('demo-info-modal');
     const closeBtn = document.getElementById('demo-info-close');
@@ -2317,6 +2445,7 @@ function initDemoInfoModal() {
 // ============================================================
 // INITIALIZATION
 // ============================================================
+
 function init() {
     renderMediaBadges();
     loadData();
@@ -2326,6 +2455,7 @@ function init() {
     }
     initDemoInfoModal();
 }
+
 const categoryManagerEl = document.getElementById('category-manager');
 const categoryFormGroup = document.getElementById('category-form-group');
 if (categoryManagerEl && categoryFormGroup) {

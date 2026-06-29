@@ -1,327 +1,365 @@
-/* demo/demo-override.css */
 /* ========================================
-   DEMO-SPECIFIC OVERRIDES
-   Only styles that differ from the main site
+   CATEGORY DROPDOWN WITH CHECKBOXES
    ======================================== */
-
-/* ========================================
-   HEADER - DEMO USES FIXED (VS STICKY IN MAIN)
-   ======================================== */
-
-#site-header {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    z-index: 1000 !important;
-}
-
-/* Add padding to body to account for fixed header */
-body {
-    padding-top: 80px !important;
-}
-
-/* Scroll padding for smooth anchor scrolling */
-html {
-    scroll-padding-top: 80px !important;
-}
-
-/* ========================================
-   DEMO HERO
-   ======================================== */
-
-:root {
-    --hero-pad-top: 0rem !important;
-    --hero-pad-bottom: 6rem !important;
-}
-
-.hero-section {
-    padding-top: 0 !important;
-    /* padding-bottom: 0 !important; */
-    margin-top: -1rem !important;
-}
-
-/* ========================================
-   DEMO-SPECIFIC UI ELEMENTS
-   ======================================== */
-
-/* Demo badge in header */
-.demo-badge {
-    font-size: 0.6rem;
-    background: var(--color-accent);
-    color: white;
-    padding: 0.1rem 0.6rem;
-    border-radius: 20px;
-    vertical-align: middle;
-    margin-left: 0.5rem;
-}
-
-/* Admin button in header */
-.admin-btn {
-    background: var(--color-accent) !important;
-    border-color: var(--color-accent) !important;
-    color: #000000 !important;
-}
-
-.admin-btn:hover {
-    background: var(--color-accent-hover) !important;
-    border-color: var(--color-accent-hover) !important;
-}
-
-/* Make the gear SVG icon black */
-.admin-btn svg {
-    color: #000000 !important;
-    stroke: #000000 !important;
-}
-
-/* Demo footer note */
-.demo-footer-note {
-    color: var(--color-text-muted);
-    font-size: 0.7rem;
-}
-
-/* Reset button in admin */
-.reset-data-btn {
-    background: var(--color-accent) !important;
-    color: white !important;
-    border-color: var(--color-accent) !important;
-}
-
-.reset-data-btn:hover {
-    background: var(--color-accent-hover) !important;
-    border-color: var(--color-accent-hover) !important;
-}
-
-/* Demo header subtitle */
-.demo-subtitle {
-    color: var(--text-muted);
-}
-
-/* Small adjustment for admin header in demo */
-.admin-demo-header {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-}
-
-@media (max-width: 640px) {
-    .admin-demo-header {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-}
-
-/* ========================================
-   DEMO INFO MODAL STYLES
-   ======================================== */
-
-.demo-info-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 50000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-}
-
-.demo-info-modal.active {
-    display: flex;
-}
-
-.demo-info-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1.5rem;
-}
-
-.demo-info-card {
-    background: var(--color-card);
-    border: 1px solid var(--color-border);
-    border-radius: 28px;
-    max-width: 600px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-    padding: 2.5rem;
+#category-form-group {
     position: relative;
-    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
 }
 
-.demo-info-close {
-    position: absolute;
-    top: 1rem;
-    right: 1.5rem;
-    background: none;
-    border: none;
-    font-size: 1.8rem;
-    color: var(--color-text-muted);
-    cursor: pointer;
-    transition: color 0.2s, transform 0.2s;
-    line-height: 1;
-    padding: 0.25rem;
-}
-
-.demo-info-close:hover {
-    color: var(--color-accent);
-    transform: rotate(90deg);
-}
-
-.demo-info-badge {
-    display: inline-block;
-    background: var(--color-accent);
-    color: white;
-    font-size: 0.65rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    padding: 0.2rem 0.8rem;
-    border-radius: 100px;
-    margin-bottom: 0.75rem;
-}
-
-.demo-info-content h2 {
-    font-size: 1.6rem;
-    font-weight: 700;
-    margin: 0 0 1.25rem 0;
-    color: var(--color-text);
-    letter-spacing: -0.02em;
-}
-
-.demo-info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin: 0 0 1.25rem 0;
-}
-
-.demo-info-column h3 {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--color-text);
-    margin: 0 0 0.5rem 0;
-}
-
-.demo-info-column p {
-    font-size: 0.85rem;
-    color: var(--color-text-secondary);
-    line-height: 1.6;
-    margin: 0 0 0.75rem 0;
-}
-
-.demo-info-column p strong {
-    color: var(--color-accent);
-}
-
-.demo-info-flow {
+.category-dropdown-wrapper {
     display: flex;
-    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: stretch;
+}
+
+.category-dropdown-container {
+    flex: 1;
+    position: relative;
+    min-width: 0;
+}
+
+.category-dropdown-toggle {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 0.25rem;
-    font-size: 0.7rem;
+    padding: 0.8rem 1rem;
     background: var(--color-bg);
-    border-radius: 10px;
-    padding: 0.5rem 0.75rem;
     border: 1px solid var(--color-border);
-}
-
-.demo-info-flow span {
-    color: var(--color-text-secondary);
-    white-space: nowrap;
-}
-
-.demo-info-flow .arrow {
-    color: var(--color-text-muted);
-    font-size: 0.6rem;
-    padding: 0 0.1rem;
-}
-
-.demo-info-note {
-    background: rgba(229, 72, 77, 0.06);
-    border: 1px solid rgba(229, 72, 77, 0.15);
     border-radius: 14px;
-    padding: 1rem 1.25rem;
-    margin: 0 0 1.25rem 0;
+    color: var(--color-text);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: border-color 0.2s, border-radius 0.2s;
+    font-family: inherit;
+    min-height: 52px;
+    position: relative;
+    z-index: 1;
 }
 
-.demo-info-note p {
+.category-dropdown-toggle:hover {
+    border-color: var(--color-text-muted);
+}
+
+.category-dropdown-toggle:focus {
+    outline: none;
+    border-color: var(--color-accent);
+}
+
+.category-dropdown-toggle.open {
+    border-color: var(--color-accent);
+    border-radius: 14px 14px 0 0;
+    z-index: 11;
+}
+
+.dropdown-arrow {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    transition: transform 0.2s;
+    margin-left: 0.5rem;
+    flex-shrink: 0;
+}
+
+.category-dropdown-toggle.open .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+#add-category-btn {
+    flex-shrink: 0;
+    align-self: stretch;
+}
+
+.category-dropdown-panel {
+    position: absolute;
+    top: calc(100% - 1px);
+    left: 0;
+    right: 0;
+    padding: 0.5rem;
+    background: var(--color-bg);
+    border: 1px solid var(--color-accent);
+    border-top: none;
+    border-radius: 0 0 14px 14px;
+    max-height: 240px;
+    overflow-y: auto;
+    z-index: 10;
+    animation: fadeIn 0.15s ease;
+    box-sizing: border-box;
+}
+
+.category-dropdown-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.category-dropdown-panel::-webkit-scrollbar-track {
+    background: var(--color-border);
+    border-radius: 3px;
+}
+
+.category-dropdown-panel::-webkit-scrollbar-thumb {
+    background: var(--color-accent);
+    border-radius: 3px;
+    transition: background 0.2s;
+}
+
+.category-dropdown-panel::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent-hover);
+}
+
+.category-dropdown-panel {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-accent) var(--color-border);
+}
+
+.category-checkbox-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.category-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
     font-size: 0.85rem;
-    color: var(--color-text-secondary);
-    line-height: 1.6;
-    margin: 0;
-}
-
-.demo-info-note p strong {
     color: var(--color-text);
 }
 
-.demo-info-btn {
+.category-checkbox-item:hover {
+    background: var(--color-filter-bg);
+}
+
+.category-checkbox-item .custom-checkbox-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.category-checkbox-item .custom-checkbox-box {
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--color-accent);
+    border-radius: 6px;
+    display: inline-block;
+    position: relative;
+    flex-shrink: 0;
+    background: var(--color-bg);
+    transition: all 0.2s ease;
+}
+
+.category-checkbox-item .custom-checkbox-input:checked + .custom-checkbox-box {
     background: var(--color-accent);
-    border: none;
-    color: white;
-    font-size: 0.95rem;
-    font-weight: 600;
-    padding: 0.8rem 2rem;
-    border-radius: 100px;
-    cursor: pointer;
-    transition: all 0.25s;
-    width: 100%;
+    border-color: var(--color-accent);
+}
+
+.category-checkbox-item .custom-checkbox-input:checked + .custom-checkbox-box::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--color-white);
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.category-checkbox-item .category-name {
+    flex: 1;
+}
+
+.category-checkbox-item .category-shortcut {
+    color: var(--color-text-muted);
+    font-size: 0.7rem;
+    font-family: monospace;
+    flex-shrink: 0;
+    padding-left: 0.5rem;
+}
+
+.category-dropdown-footer {
+    border-top: 1px solid var(--color-border);
+    padding-top: 0.5rem;
+    margin-top: 0.3rem;
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
     text-align: center;
 }
 
-.demo-info-btn:hover {
+/* Category manager styles */
+.category-manager {
+    display: none;
+    margin-top: 0.5rem;
+    padding: 1rem;
+    background: var(--color-bg);
+    border-radius: 14px;
+    border: 1px solid var(--color-border);
+    animation: fadeIn 0.2s ease;
+}
+
+.category-manager-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.category-manager-title {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.category-manager-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.2rem 0.5rem;
+    transition: color 0.2s;
+}
+
+.category-manager-close:hover {
+    color: var(--color-accent);
+}
+
+.category-list-container {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-accent) var(--color-border);
+}
+
+.category-list-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.category-list-container::-webkit-scrollbar-track {
+    background: var(--color-border);
+    border-radius: 3px;
+}
+
+.category-list-container::-webkit-scrollbar-thumb {
+    background: var(--color-accent);
+    border-radius: 3px;
+    transition: background 0.2s;
+}
+
+.category-list-container::-webkit-scrollbar-thumb:hover {
     background: var(--color-accent-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(229, 72, 77, 0.25);
 }
 
-.demo-info-btn:active {
-    transform: translateY(0);
+.category-add-form {
+    border-top: 1px solid var(--color-border);
+    padding-top: 1rem;
 }
 
-/* Category shortcut styling in dropdown */
-#form-category option {
+.category-add-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.category-add-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 0.2rem;
+}
+
+.category-input-field {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 10px;
+    background: var(--color-bg);
+    color: var(--color-text);
     font-size: 0.85rem;
-    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--color-border);
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-/* Category manager - shortcut input styling */
+.category-input-field:hover {
+    border-color: var(--color-text-muted);
+}
+
+.category-input-field:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 2px rgba(var(--color-accent-rgb), 0.15);
+}
+
+.category-add-hint {
+    color: var(--text-muted);
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.75rem;
+}
+
+.category-add-btn {
+    margin-top: 0.5rem;
+    width: 100%;
+}
+
 .category-list-container input[type="text"] {
-    font-family: 'Courier New', monospace;
-    letter-spacing: 0.5px;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: 0.85rem;
+    width: 100%;
+    border: 1px solid var(--color-border);
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-/* ========================================
-   RESPONSIVE
-   ======================================== */
+.category-list-container input[type="text"]:hover {
+    border-color: var(--color-text-muted);
+}
 
-@media (max-width: 640px) {
-    .demo-info-card {
-        padding: 1.5rem;
+.category-list-container input[type="text"]:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 2px rgba(var(--color-accent-rgb), 0.15);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .category-dropdown-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .category-dropdown-toggle {
+        font-size: 0.8rem;
+        padding: 0.6rem 0.8rem;
+        min-height: 44px;
+    }
+    
+    .category-dropdown-panel {
+        max-height: 180px;
+    }
+    
+    .category-checkbox-item {
+        font-size: 0.8rem;
+        padding: 0.3rem 0.4rem;
+        gap: 0.5rem;
     }
 
-    .demo-info-grid {
+    .category-add-grid {
         grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-
-    .demo-info-content h2 {
-        font-size: 1.3rem;
-    }
-
-    .demo-info-flow {
-        font-size: 0.65rem;
-        padding: 0.4rem 0.6rem;
+        gap: 0.5rem;
     }
 }
