@@ -91,7 +91,7 @@ Categories are defined in `categories.json`:
     }
 
 - Categories are stored as an array, allowing projects to appear in multiple filters
-- Shortcuts provide clean, user-friendly URLs (e.g., ?filter=game instead of the full category key)
+- Shortcuts provide clean, user-friendly URLs (e.g., `?filter=game` instead of the full category key)
 - Uncategorized is the default for projects with no categories assigned
 
 ---
@@ -138,7 +138,7 @@ The demo site (/demo/) mirrors the full system but uses localStorage instead of 
 
 To keep the admin panel private on GitHub Pages:
 
-- Main Admin Panel is named `_admin.html` (files starting with _ are ignored by GitHub Pages)
+- Main Admin Panel is named `_admin.html` (files starting with `_` are ignored by GitHub Pages)
 - Access it locally at _admin.html
 - The admin panel remains in your repository for version control
 
