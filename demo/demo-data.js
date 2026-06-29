@@ -27,11 +27,9 @@ function formatDemoCategory(cat) {
 // Function to get category shortcut
 function getDemoCategoryShortcut(cat) {
     if (!cat) return '';
-    // Check if we have a shortcut in the mapping
     if (DEMO_CATEGORY_SHORTCUTS[cat]) {
         return DEMO_CATEGORY_SHORTCUTS[cat];
     }
-    // Auto-generate from the category name
     const displayName = formatDemoCategory(cat);
     const words = displayName.toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w);
     if (words.length === 0) return '';
@@ -61,7 +59,7 @@ function getDemoCategoryData() {
 const DEMO_PROJECTS = [
     {
         "title": "Mountain Retreat",
-        "category": "creative_experiments",
+        "categories": ["creative_experiments", "visual_stories"],
         "cardHeading": "Website",
         "media": [
             "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&h=600&fit=crop",
@@ -75,7 +73,7 @@ const DEMO_PROJECTS = [
     },
     {
         "title": "Urban Garden App",
-        "category": "interactive_media",
+        "categories": ["interactive_media", "digital_craft"],
         "cardHeading": "Mobile App",
         "media": [
             "https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?w=800&h=600&fit=crop",
@@ -89,7 +87,7 @@ const DEMO_PROJECTS = [
     },
     {
         "title": "Deep Space Explorer",
-        "category": "digital_craft",
+        "categories": ["digital_craft", "interactive_media"],
         "cardHeading": "Game",
         "media": [
             "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&h=600&fit=crop",
@@ -103,7 +101,7 @@ const DEMO_PROJECTS = [
     },
     {
         "title": "Minimalist Brand Identity",
-        "category": "visual_stories",
+        "categories": ["visual_stories", "creative_experiments"],
         "cardHeading": "Branding",
         "media": [
             "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&h=600&fit=crop",
@@ -117,7 +115,7 @@ const DEMO_PROJECTS = [
     },
     {
         "title": "Coastal Living Magazine",
-        "category": "creative_experiments",
+        "categories": ["creative_experiments"],
         "cardHeading": "Editorial Design",
         "media": [
             "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop",
@@ -131,7 +129,7 @@ const DEMO_PROJECTS = [
     },
     {
         "title": "Motion Reel 2024",
-        "category": "interactive_media",
+        "categories": ["interactive_media", "digital_craft"],
         "cardHeading": "Motion Reel",
         "media": [
             "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&h=600&fit=crop"
@@ -143,7 +141,7 @@ const DEMO_PROJECTS = [
     },
     {
         "title": "Eco-Friendly Packaging",
-        "category": "digital_craft",
+        "categories": ["digital_craft", "visual_stories"],
         "cardHeading": "Packaging",
         "media": [
             "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&h=600&fit=crop",
@@ -157,7 +155,7 @@ const DEMO_PROJECTS = [
     },
     {
         "title": "Portfolio Website Redesign",
-        "category": "visual_stories",
+        "categories": ["visual_stories", "creative_experiments", "interactive_media"],
         "cardHeading": "Web Design",
         "media": [
             "https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=800&h=600&fit=crop",
@@ -171,7 +169,7 @@ const DEMO_PROJECTS = [
     },
     {
         "title": "User Research Platform",
-        "category": "creative_experiments",
+        "categories": ["creative_experiments", "interactive_media", "digital_craft"],
         "cardHeading": "UX Design",
         "media": [
             "https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&h=600&fit=crop"
@@ -183,7 +181,7 @@ const DEMO_PROJECTS = [
     },
     {
         "title": "Geometric Art Series",
-        "category": "digital_craft",
+        "categories": ["digital_craft"],
         "cardHeading": "Art",
         "media": [
             "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=800&h=600&fit=crop",
@@ -197,7 +195,7 @@ const DEMO_PROJECTS = [
     },
     {
         "title": "Music Visualizer",
-        "category": "interactive_media",
+        "categories": ["interactive_media", "creative_experiments"],
         "cardHeading": "Visualizer",
         "media": [
             "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&h=600&fit=crop"
@@ -209,7 +207,7 @@ const DEMO_PROJECTS = [
     },
     {
         "title": "Smart Home Dashboard",
-        "category": "visual_stories",
+        "categories": ["visual_stories", "digital_craft"],
         "cardHeading": "Dashboard",
         "media": [
             "https://images.unsplash.com/photo-1558002038-1055907df827?w=800&h=600&fit=crop",
@@ -223,7 +221,7 @@ const DEMO_PROJECTS = [
     },
     {
         "title": "Experimental Typography",
-        "category": "digital_craft",
+        "categories": ["digital_craft", "visual_stories"],
         "cardHeading": "Typography",
         "media": [
             "https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=800&h=600&fit=crop"
@@ -292,11 +290,16 @@ function saveDemoCategories(categories) {
 function getDemoCategoriesFromProjects(projects) {
     const cats = new Set();
     projects.forEach(p => {
-        if (p.category && p.category.trim()) {
+        if (p.categories && Array.isArray(p.categories)) {
+            p.categories.forEach(c => {
+                if (c && c.trim()) {
+                    cats.add(c);
+                }
+            });
+        } else if (p.category && p.category.trim()) {
             cats.add(p.category);
         }
     });
-    // If no categories found in projects, use defaults
     if (cats.size === 0) {
         DEMO_CATEGORIES.forEach(c => cats.add(c));
     }
@@ -304,12 +307,10 @@ function getDemoCategoriesFromProjects(projects) {
 }
 
 function resetDemoData() {
-    // Clear all demo-related localStorage items
     localStorage.removeItem(DEMO_STORAGE_KEY);
     localStorage.removeItem(DEMO_CATEGORIES_KEY);
     localStorage.removeItem('demo_categories_backup');
     
-    // Remove all category shortcuts
     const keysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
@@ -319,22 +320,18 @@ function resetDemoData() {
     }
     keysToRemove.forEach(key => localStorage.removeItem(key));
     
-    // Reset the "seen" modal flag so the info modal shows again
     localStorage.removeItem('demo_info_seen');
     
-    // Create fresh projects from defaults
     const freshProjects = DEMO_PROJECTS.map(project => ({
-        ...project
+        ...project,
+        categories: project.categories ? [...project.categories] : []
     }));
     
-    // Save fresh projects
     saveDemoProjects(freshProjects);
     
-    // Get categories from fresh projects
     const categories = getDemoCategoriesFromProjects(freshProjects);
     saveDemoCategories(categories);
     
-    // Reset shortcuts for all default categories
     Object.keys(DEMO_CATEGORY_SHORTCUTS).forEach(key => {
         localStorage.setItem(`category_shortcut_${key}`, DEMO_CATEGORY_SHORTCUTS[key]);
     });
@@ -349,24 +346,33 @@ function getDemoData() {
     if (!projects) {
         console.log('No demo data found, loading defaults...');
         projects = DEMO_PROJECTS.map(project => ({
-            ...project
+            ...project,
+            categories: project.categories ? [...project.categories] : []
         }));
         saveDemoProjects(projects);
     }
+    
+    // Migrate old format to new categories array
+    projects = projects.map(project => {
+        const migrated = { ...project };
+        if (!migrated.categories && migrated.category) {
+            migrated.categories = [migrated.category];
+            delete migrated.category;
+        }
+        if (!migrated.categories) {
+            migrated.categories = [];
+        }
+        if (migrated.selected === undefined) {
+            migrated.selected = false;
+        }
+        return migrated;
+    });
+    saveDemoProjects(projects);
     
     if (!categories) {
         categories = getDemoCategoriesFromProjects(projects);
         saveDemoCategories(categories);
     }
-    
-    // Ensure 'selected' field exists on all projects
-    projects = projects.map(project => {
-        if (project.selected === undefined) {
-            project.selected = false;
-        }
-        return project;
-    });
-    saveDemoProjects(projects);
     
     // Clean up categories - only keep ones that actually exist in projects
     const projectCats = getDemoCategoriesFromProjects(projects);
@@ -395,7 +401,10 @@ window.DEMO_CATEGORIES = DEMO_CATEGORIES;
     console.log(`Loaded ${data.projects.length} projects and ${data.categories.length} categories`);
     console.log('Categories:', data.categories.map(c => formatDemoCategory(c)).join(', '));
     
-    // Initialize shortcuts for any categories that don't have them
+    // Count projects with multiple categories
+    const multiCatProjects = data.projects.filter(p => p.categories && p.categories.length > 1);
+    console.log(`${multiCatProjects.length} projects have multiple categories`);
+    
     data.categories.forEach(cat => {
         const shortcut = localStorage.getItem(`category_shortcut_${cat}`);
         if (!shortcut) {
