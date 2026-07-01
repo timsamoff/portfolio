@@ -21,7 +21,8 @@
     "title": "Written & Formatted",
     "categories": [
       "app_design_&_development",
-      "user_experience"
+      "user_experience",
+      "web_design_&_development"
     ],
     "cardHeading": "",
     "media": [
@@ -32,7 +33,7 @@
     ],
     "description": "Embedded editor that converts simple plain-text markup into publication-ready, accessible HTML with sophisticated typographic features like drop caps, ligatures, footnotes, and more.\n\n<live><a href=\"https://samoff.com/written/app\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
     "imageAlign": "center",
-    "selected": false,
+    "selected": true,
     "published": true
   },
   {
@@ -108,7 +109,8 @@
     "title": "Tim Samoff | Portfolio",
     "categories": [
       "app_design_&_development",
-      "user_experience"
+      "user_experience",
+      "web_design_&_development"
     ],
     "cardHeading": "",
     "media": [
@@ -125,7 +127,8 @@
     "title": "Circuit Scout",
     "categories": [
       "app_design_&_development",
-      "user_experience"
+      "user_experience",
+      "web_design_&_development"
     ],
     "cardHeading": "",
     "media": [
@@ -242,7 +245,8 @@
     "title": "Three Dragons",
     "categories": [
       "game_design_&_development",
-      "user_experience"
+      "user_experience",
+      "web_design_&_development"
     ],
     "cardHeading": "",
     "media": [
@@ -539,7 +543,11 @@
   },
   {
     "title": "Misc. Logo Designs",
-    "cardHeading": "Miscellaneous Logos",
+    "categories": [
+      "brand_&_identity",
+      "digital_art_&_design"
+    ],
+    "cardHeading": "",
     "media": [
       "media/brand/l_D_logo_01.webp",
       "media/brand/compass_logo_01.webp",
@@ -554,17 +562,15 @@
     ],
     "description": "A variety of logos designed for clients and projects over the years.",
     "imageAlign": "center",
-    "published": true,
     "selected": false,
-    "categories": [
-      "brand_&_identity"
-    ]
+    "published": true
   },
   {
     "title": "HMLabs",
     "categories": [
       "game_design_&_development",
-      "app_design_&_development"
+      "app_design_&_development",
+      "web_design_&_development"
     ],
     "cardHeading": "",
     "media": [
