@@ -622,7 +622,11 @@
   },
   {
     "title": "Maemo Summit Event Collateral",
-    "cardHeading": "Major Event Collateral",
+    "categories": [
+      "brand_&_identity",
+      "production_&_installation"
+    ],
+    "cardHeading": "",
     "media": [
       "media/brand/maesum_01.webp",
       "media/brand/maesum_02.webp",
@@ -631,11 +635,8 @@
     ],
     "description": "Event branding, spatial identity vectors, and custom apparel design developed for the global open-source community platform summit.",
     "imageAlign": "center",
-    "published": true,
     "selected": false,
-    "categories": [
-      "brand_&_identity"
-    ]
+    "published": true
   },
   {
     "title": "Marathon Sod Rebrand",
