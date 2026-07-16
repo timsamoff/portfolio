@@ -1,5 +1,136 @@
 [
   {
+    "title": "CodePen Experiments",
+    "categories": [
+      "user_experience",
+      "web_design_&_development",
+      "game_design_&_development",
+      "motion_graphics_&_animation",
+      "app_design_&_development"
+    ],
+    "cardHeading": "",
+    "media": [
+      "media/web/cp_01.webp"
+    ],
+    "description": "A lot of web-based UI and UX experiments happened (and sometimes still happen) on CodePen.\n\n<live><a href=\"https://codepen.io/timsamoff\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
+    "imageAlign": "center",
+    "selected": false,
+    "published": true
+  },
+  {
+    "title": "LED",
+    "categories": [
+      "motion_graphics_&_animation"
+    ],
+    "cardHeading": "",
+    "media": [
+      "https://vimeo.com/179542538"
+    ],
+    "description": "A silly little story about the secret, <em>but true</em> lives of light-emitting diodes.\n\nCreated in 3ds Max.\n\n<strong>Roles:</strong> Modeling, Rigging, Texturing, Animation",
+    "imageAlign": "center",
+    "selected": false,
+    "published": true
+  },
+  {
+    "title": " Four Seasons",
+    "categories": [
+      "motion_graphics_&_animation"
+    ],
+    "cardHeading": "",
+    "media": [
+      "https://www.youtube.com/watch?v=aLez6rB7SJs"
+    ],
+    "description": "Abstract visuals and sound.\n\nCreated in After Effects.\n\n<strong>Roles:</strong> Motion Graphics, Audio Editing",
+    "imageAlign": "center",
+    "selected": false,
+    "published": true
+  },
+  {
+    "title": "Fire VFX",
+    "categories": [
+      "motion_graphics_&_animation"
+    ],
+    "cardHeading": "",
+    "media": [
+      "https://vimeo.com/1196083451"
+    ],
+    "description": "Fire VFX.\n\nCreated in After Effects.\n\n<strong>Roles:</strong> Design, VFX",
+    "imageAlign": "center",
+    "selected": false,
+    "published": true
+  },
+  {
+    "title": "Robot Arm",
+    "categories": [
+      "motion_graphics_&_animation"
+    ],
+    "cardHeading": "",
+    "media": [
+      "https://vimeo.com/176865678"
+    ],
+    "description": "Simple robot arm animtion.\n\nCreated in Cinema 4D.\n\n<strong>Roles:</strong> Modeling, Rigging, Animation, Audio",
+    "imageAlign": "center",
+    "selected": false,
+    "published": true
+  },
+  {
+    "title": "Tim Samoff - Portfolio Reel",
+    "categories": [
+      "digital_art_&_design",
+      "motion_graphics_&_animation"
+    ],
+    "cardHeading": "",
+    "media": [
+      "https://vimeo.com/2495274"
+    ],
+    "description": "Multimedia portfolio reel, circa 2008.\n\n<strong>Roles:</strong> Motion Graphics, VFX, Editing, Music",
+    "imageAlign": "center",
+    "selected": true,
+    "published": true
+  },
+  {
+    "title": "Toy Truck",
+    "categories": [
+      "motion_graphics_&_animation"
+    ],
+    "cardHeading": "",
+    "media": [
+      "https://vimeo.com/174964375"
+    ],
+    "description": "Animated toy truck with explosion dynamics.\n\nCreated in 3ds Max.\n\n<strong>Roles:</strong> Modeling, Texturing, Animation",
+    "imageAlign": "center",
+    "selected": false,
+    "published": true
+  },
+  {
+    "title": "Manufacturing Chomsky",
+    "categories": [
+      "motion_graphics_&_animation"
+    ],
+    "cardHeading": "",
+    "media": [
+      "https://vimeo.com/88509830"
+    ],
+    "description": "A “remix” of interview and lecture recordings by Noam Chomsky, intended to be a parody. In no way does this video content reflect the thoughts or opinions of Noam Chomsky.\n\nCreated in After Effects.\n\n<strong>Roles:</strong> Design, Motion Graphics, Audio",
+    "imageAlign": "center",
+    "selected": false,
+    "published": true
+  },
+  {
+    "title": "Loop Experiment",
+    "categories": [
+      "motion_graphics_&_animation"
+    ],
+    "cardHeading": "",
+    "media": [
+      "https://vimeo.com/174132903"
+    ],
+    "description": "Simple loop experiment.\n\nCreated in After Effects.\n\n<strong>Roles:</strong> Motion Graphics",
+    "imageAlign": "center",
+    "selected": false,
+    "published": true
+  },
+  {
     "title": "Nokia/Rooftop Cocreation Session",
     "cardHeading": "",
     "media": [
@@ -193,24 +324,6 @@
     "published": true
   },
   {
-    "title": "CodePen Experiments",
-    "categories": [
-      "user_experience",
-      "web_design_&_development",
-      "game_design_&_development",
-      "motion_graphics_&_animation",
-      "app_design_&_development"
-    ],
-    "cardHeading": "",
-    "media": [
-      "media/web/cp_01.webp"
-    ],
-    "description": "A lot of web-based UI and UX experiments happened (and sometimes still happen) on CodePen.\n\n<live><a href=\"https://codepen.io/timsamoff\"target=\"_blank\" rel=\"noopener noreferrer\">Try it out!</a></live>",
-    "imageAlign": "center",
-    "selected": false,
-    "published": true
-  },
-  {
     "title": "EQ Copilot",
     "categories": [
       "app_design_&_development",
@@ -351,20 +464,6 @@
     ]
   },
   {
-    "title": "LED",
-    "cardHeading": "",
-    "media": [
-      "https://vimeo.com/179542538"
-    ],
-    "description": "A silly little story about the secret, <em>but true</em> lives of light-emitting diodes.\n\nModeled, rigged, textured, and animated in 3Ds Max.",
-    "imageAlign": "center",
-    "selected": false,
-    "published": true,
-    "categories": [
-      "motion_graphics_&_animation"
-    ]
-  },
-  {
     "title": "Misc. Digital Art",
     "cardHeading": "",
     "media": [
@@ -383,20 +482,6 @@
     "published": true,
     "categories": [
       "digital_art_&_design"
-    ]
-  },
-  {
-    "title": " Four Seasons",
-    "cardHeading": "Four Seasons",
-    "media": [
-      "https://www.youtube.com/watch?v=aLez6rB7SJs"
-    ],
-    "description": "Abstract visuals and sound created in After Effects.",
-    "imageAlign": "center",
-    "published": true,
-    "selected": false,
-    "categories": [
-      "motion_graphics_&_animation"
     ]
   },
   {
@@ -514,34 +599,6 @@
     ]
   },
   {
-    "title": "Fire VFX",
-    "cardHeading": "",
-    "media": [
-      "https://vimeo.com/1196083451"
-    ],
-    "description": "Fire VFX created in After Effects.",
-    "imageAlign": "center",
-    "published": true,
-    "selected": false,
-    "categories": [
-      "motion_graphics_&_animation"
-    ]
-  },
-  {
-    "title": "Robot Arm",
-    "cardHeading": "Robot Arm",
-    "media": [
-      "https://vimeo.com/176865678"
-    ],
-    "description": "Modeling, rigging, and animation in Cinema 4D.",
-    "imageAlign": "center",
-    "published": true,
-    "selected": false,
-    "categories": [
-      "motion_graphics_&_animation"
-    ]
-  },
-  {
     "title": "Misc. Logo Designs",
     "categories": [
       "brand_&_identity",
@@ -580,35 +637,6 @@
     "imageAlign": "center",
     "selected": false,
     "published": true
-  },
-  {
-    "title": "Tim Samoff - Portfolio Reel",
-    "categories": [
-      "digital_art_&_design",
-      "motion_graphics_&_animation"
-    ],
-    "cardHeading": "",
-    "media": [
-      "https://vimeo.com/2495274"
-    ],
-    "description": "Multimedia portfolio reel, circa 2008.\n\n<strong>Roles:</strong> Graphics, VFX, Editing, Music",
-    "imageAlign": "center",
-    "selected": true,
-    "published": true
-  },
-  {
-    "title": "Toy Truck",
-    "cardHeading": "Toy Truck",
-    "media": [
-      "https://vimeo.com/174964375"
-    ],
-    "description": "3D modeling, texturing, and animation in Cinema 4D.",
-    "imageAlign": "center",
-    "published": true,
-    "selected": false,
-    "categories": [
-      "motion_graphics_&_animation"
-    ]
   },
   {
     "title": "EMBARQ Art Installation",
@@ -675,5 +703,49 @@
     "categories": [
       "production_&_installation"
     ]
+  },
+  {
+    "title": "MMOEGL Prototype, Version 1",
+    "categories": [
+      "app_design_&_development",
+      "game_design_&_development",
+      "motion_graphics_&_animation"
+    ],
+    "cardHeading": "",
+    "media": [
+      "https://vimeo.com/80129415"
+    ],
+    "description": "<strong>Animated Prototype\n</strong>\nMMOEGL (pronounced, “Mogul”) is a “Massively Multiplayer Online Education Game Layer” in which learners are provided with the means to “play” a self-appointed journey (path) towards the goal of a major and/or degree. MMOEGL is a client layer that provides enhanced access to traditional Learning Content Management Systems (LCMS) for educators and learners. Combining the current technologies of a preexisting LCMS with a state-of-the-art gameplay client, MMOEGL will increase the quality of academic user experience for Millennial and future learners.\n\n<strong>Roles:</strong> Design, UI, Animtion",
+    "imageAlign": "center",
+    "selected": false,
+    "published": true
+  },
+  {
+    "title": "Abstract Waves",
+    "categories": [
+      "motion_graphics_&_animation"
+    ],
+    "cardHeading": "",
+    "media": [
+      "https://vimeo.com/172979394"
+    ],
+    "description": "Experimenting with abstraction.\n\nCreated in After Effects.\n\n<strong>Roles:</strong> Design, Motion Graphics",
+    "imageAlign": "center",
+    "selected": false,
+    "published": true
+  },
+  {
+    "title": "Horse Loop",
+    "categories": [
+      "motion_graphics_&_animation"
+    ],
+    "cardHeading": "",
+    "media": [
+      "https://vimeo.com/174767295"
+    ],
+    "description": "Looped animation of a vector horse silhouette, à la the original Muybridge film, “Horses in Motion.”\n\nCreated in Illustrator and After Effects.\n\n<strong>Roles:</strong> Illustration, Animation",
+    "imageAlign": "center",
+    "selected": false,
+    "published": true
   }
 ]
