@@ -32,6 +32,8 @@
     <link rel="stylesheet" href="style.css">
     <!-- Swiper CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     
     <!-- ======================================== -->
     <!-- META TAG INJECTION FOR SOCIAL CRAWLERS -->
@@ -256,6 +258,15 @@
     <div id="media-modal" class="media-modal">
         <div class="modal-content">
             <span class="modal-close">&times;</span>
+            <div id="modal-description-overlay" class="modal-description-overlay collapsed">
+                <div class="overlay-header">
+                    <h3 id="overlay-title"></h3>
+                    <button id="overlay-toggle-btn" aria-label="Toggle Info">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
+                </div>
+                <div id="overlay-desc" class="overlay-body"></div>
+            </div>
             <div class="modal-swiper-container">
                 <div class="swiper modal-swiper">
                     <div class="swiper-wrapper" id="modal-swiper-wrapper"></div>

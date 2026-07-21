@@ -16,6 +16,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
+    // DOM REFERENCES
+    // ========================================
+    const modal = document.getElementById('media-modal');
+    const modalClose = document.querySelector('.modal-close');
+    const overlayElement = document.getElementById('modal-description-overlay');
+    const overlayToggleBtn = document.getElementById('overlay-toggle-btn');
+    const overlayTitle = document.getElementById('overlay-title');
+    const overlayDesc = document.getElementById('overlay-desc');
+    const overlayHeader = document.querySelector('.overlay-header');
+    const grid = document.getElementById('portfolio-grid');
+    
+    let currentModalSwiper = null;
+    let currentVideoElements = new Map();
+    let modalManuallyClosed = false;
+    let currentFilterValue = 'selected';
+    let allPortfolioItems = [];
+
+    // ========================================
     // STICKY HEADER SHADOW ON SCROLL
     // ========================================
     function handleHeaderScroll() {
@@ -35,21 +53,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================
     // MODAL SYSTEM
     // ========================================
-    const modal = document.getElementById('media-modal');
-    const modalClose = document.querySelector('.modal-close');
-    let currentModalSwiper = null;
-    let currentVideoElements = new Map();
-    let modalManuallyClosed = false;
-
     function closeModal() {
         if (!modal) return;
         modal.style.display = 'none';
         modalManuallyClosed = true;
+
+        hideModalOverlay();
         saveAllVideoProgress();
+        
         if (currentModalSwiper) {
             currentModalSwiper.destroy(true, true);
             currentModalSwiper = null;
         }
+        
         if (window.location.hash) {
             window.history.replaceState({}, '', window.location.pathname);
         }
@@ -68,9 +84,63 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
+    // MODAL OVERLAY
+    // ========================================
+    function showModalOverlay(title, descriptionHTML) {
+        if (!overlayElement) return;
+        if (overlayTitle) overlayTitle.textContent = title || 'Untitled';
+        
+        if (descriptionHTML) {
+            overlayDesc.innerHTML = renderDescription(descriptionHTML);
+        } else {
+            overlayDesc.innerHTML = 'No description available.';
+        }
+        
+        // Always start collapsed when showing
+        overlayElement.classList.add('collapsed');
+        overlayElement.classList.add('active');
+        
+        // Set correct icon state
+        updateToggleIcon();
+    }
+
+    function hideModalOverlay() {
+        if (overlayElement) overlayElement.classList.remove('active');
+    }
+
+    function updateToggleIcon() {
+        if (!overlayToggleBtn) return;
+        const icon = overlayToggleBtn.querySelector('i');
+        if (!icon) return;
+        
+        if (overlayElement.classList.contains('collapsed')) {
+            icon.className = 'fas fa-info-circle icon-info';
+        } else {
+            icon.className = 'fas fa-chevron-down icon-chevron';
+        }
+    }
+
+    // Toggle button click handler
+    if (overlayToggleBtn) {
+        overlayToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            overlayElement.classList.toggle('collapsed');
+            updateToggleIcon();
+        });
+    }
+
+    // Make the header clickable to toggle as well
+    if (overlayHeader) {
+        overlayHeader.addEventListener('click', (e) => {
+            if (e.target.closest('#overlay-toggle-btn')) return;
+            overlayElement.classList.toggle('collapsed');
+            updateToggleIcon();
+        });
+    }
+
+    // ========================================
     // MODAL MEDIA HTML GENERATION
     // ========================================
-
     function generateModalMediaHtml(mediaUrl, mediaIndex) {
         const isVideo = isVideoUrl(mediaUrl);
         const youtubeEmbed = getYouTubeEmbedUrl(mediaUrl);
@@ -137,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: ${isError ? 'var(--accent-red)' : '#10b981'};
+            background: ${isError ? 'var(--color-error)' : 'var(--color-success)'};
             color: white;
             padding: 8px 16px;
             border-radius: 24px;
@@ -145,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
             font-weight: 500;
             z-index: 20;
             white-space: nowrap;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-shadow: var(--shadow-sm);
             pointer-events: none;
             animation: fadeInOut 1.5s ease forwards;
         `;
@@ -170,6 +240,53 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             if (notification.parentNode) notification.remove();
         }, 1500);
+    }
+
+    function showFloatingNotification(message, isSuccess = true) {
+        const existing = document.querySelector('.floating-notification');
+        if (existing) existing.remove();
+
+        const notification = document.createElement('div');
+        notification.className = 'floating-notification';
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: ${isSuccess ? 'var(--color-success)' : 'var(--color-error)'};
+            color: white;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            z-index: 10000;
+            box-shadow: var(--shadow-sm);
+            pointer-events: none;
+            animation: slideInRight 0.3s ease;
+        `;
+
+        if (!document.querySelector('#notification-style')) {
+            const style = document.createElement('style');
+            style.id = 'notification-style';
+            style.textContent = `
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateX(100%)';
+            notification.style.transition = 'opacity 0.3s, transform 0.3s';
+            setTimeout(() => {
+                if (notification.parentNode) notification.remove();
+            }, 300);
+        }, 2500);
     }
 
     // ========================================
@@ -220,10 +337,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             tmp.querySelectorAll('live').forEach(el => {
-                const badge = document.createElement('span');
-                badge.className = 'live-badge';
-                
-                // Check if there's an <a> tag inside
                 const innerLink = el.querySelector('a');
                 let url = el.getAttribute('href') || '';
                 let text = el.textContent || 'Live';
@@ -231,17 +344,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (innerLink) {
                     url = innerLink.getAttribute('href') || '';
                     text = innerLink.textContent || 'Live';
-                    // Remove the inner <a> from the live element
                     while (innerLink.firstChild) {
                         el.insertBefore(innerLink.firstChild, innerLink);
                     }
                     el.removeChild(innerLink);
                 }
                 
-                // Clean up any remaining text
                 text = el.textContent.trim() || 'Live';
                 
-                // If there's a valid URL, wrap the badge in an <a>
                 if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
                     const link = document.createElement('a');
                     link.href = url;
@@ -249,7 +359,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     link.rel = 'noopener noreferrer';
                     link.className = 'live-badge-link';
                     
-                    // Build the badge content inside the link
                     const dot = document.createElement('span');
                     dot.className = 'live-dot';
                     const label = document.createTextNode(text);
@@ -259,7 +368,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     el.parentNode.replaceChild(link, el);
                 } else {
-                    // No URL — just show the badge as a non-interactive element
+                    const badge = document.createElement('span');
+                    badge.className = 'live-badge';
+                    
                     const dot = document.createElement('span');
                     dot.className = 'live-dot';
                     const label = document.createTextNode(text);
@@ -281,56 +392,6 @@ document.addEventListener('DOMContentLoaded', () => {
         );
         escaped = escaped.replace(/\n/g, '<br>');
         return escaped;
-    }
-
-    // ========================================
-    // FLOATING NOTIFICATION
-    // ========================================
-    function showFloatingNotification(message, isSuccess = true) {
-        const existing = document.querySelector('.floating-notification');
-        if (existing) existing.remove();
-
-        const notification = document.createElement('div');
-        notification.className = 'floating-notification';
-        notification.textContent = message;
-        notification.style.cssText = `
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background: ${isSuccess ? '#10b981' : '#ef4444'};
-            color: white;
-            padding: 10px 20px;
-            border-radius: 40px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            z-index: 10000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-            pointer-events: none;
-            animation: slideInRight 0.3s ease;
-        `;
-
-        if (!document.querySelector('#notification-style')) {
-            const style = document.createElement('style');
-            style.id = 'notification-style';
-            style.textContent = `
-                @keyframes slideInRight {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-            `;
-            document.head.appendChild(style);
-        }
-
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            notification.style.opacity = '0';
-            notification.style.transform = 'translateX(100%)';
-            notification.style.transition = 'opacity 0.3s, transform 0.3s';
-            setTimeout(() => {
-                if (notification.parentNode) notification.remove();
-            }, 300);
-        }, 2500);
     }
 
     // ========================================
@@ -372,22 +433,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function supportsWebP() {
-        const canvas = document.createElement('canvas');
-        canvas.width = 1;
-        canvas.height = 1;
-        return canvas.toDataURL('image/webp').indexOf('image/webp') === 5;
-    }
-
-    function getPlaceholderSVG() {
-        return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23f0f0f0'/%3E%3C/svg%3E`;
-    }
-
     function generateThumbnailHtml(mediaUrl, alignSetting = 'center') {
         const isVideo = isVideoUrl(mediaUrl);
         const objectPosition = getObjectPosition(alignSetting);
 
-        // Handle YouTube videos
         if (mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be')) {
             const videoId = getYouTubeVideoId(mediaUrl);
             if (videoId) {
@@ -403,7 +452,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Handle Vimeo videos
         if (mediaUrl.includes('vimeo.com')) {
             const vimeoId = (mediaUrl.match(/vimeo\.com\/(\d+)/) || [])[1];
             if (vimeoId) {
@@ -420,7 +468,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Handle regular images
         if (!isVideo) {
             return `<div class="thumb-shimmer">
                 <img
@@ -433,7 +480,6 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>`;
         }
 
-        // Handle direct video files
         return `<div class="thumb-shimmer">
             <video class="thumb-media" muted playsinline preload="metadata">
                 <source src="${mediaUrl}#t=0.1" type="video/mp4">
@@ -442,10 +488,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // LAZY LOADING - SIMPLIFIED
+    // LAZY LOADING
     // ========================================
     function setupLazyLoading() {
-        // Fallback for browsers without IntersectionObserver
         if (!('IntersectionObserver' in window)) {
             document.querySelectorAll('.thumb-shimmer').forEach(wrapper => {
                 const img = wrapper.querySelector('img.thumb-media[data-src]');
@@ -493,11 +538,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         img.src = img.dataset.src;
                         img.removeAttribute('data-src');
                     } else if (img.complete && img.naturalWidth > 0) {
-                        // Already loaded (e.g. cached)
                         onLoad();
                     }
                 } else if (video) {
-                    // For video thumbnails: show first frame once metadata loads
                     const finish = () => {
                         wrapper.classList.remove('loading');
                         wrapper.classList.add('loaded');
@@ -507,7 +550,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         wrapper.classList.remove('loading');
                         wrapper.classList.add('error');
                     }, { once: true });
-                    // Trigger load if not already started
                     if (video.readyState >= 2) {
                         finish();
                     } else {
@@ -528,8 +570,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================
     // SHARE URL GENERATION
     // ========================================
-
-    function generateShareUrl(projectIndex, mediaIndex = 0, mediaArray = []) {
+    function generateShareUrl(projectIndex, mediaIndex = 0) {
         const shareData = {
             p: projectIndex,
             m: mediaIndex
@@ -541,7 +582,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================
     // DYNAMIC OPEN GRAPH / SOCIAL SHARING
     // ========================================
-
     function updateSocialMetaTags(project, mediaArray, mediaIndex) {
         let previewImage = '';
         if (mediaArray && mediaArray.length > 0) {
@@ -637,11 +677,37 @@ document.addEventListener('DOMContentLoaded', () => {
         return shareData;
     }
 
+    // ========================================
+    // OPEN MEDIA MODAL
+    // ========================================
     function openMediaModal(mediaArray, startIndex = 0, projectId = null) {
         const modalWrapper = document.getElementById('modal-swiper-wrapper');
+        
         if (!modalWrapper) return;
 
         modalManuallyClosed = false;
+
+        let project = null;
+        if (projectId !== null && window.__projectsData) {
+            project = window.__projectsData[projectId];
+        }
+        
+        if (project) {
+            showModalOverlay(project.title, project.description);
+        } else {
+            if (window.__projectsData) {
+                for (const p of window.__projectsData) {
+                    if (p.media && arraysEqual(p.media, mediaArray)) {
+                        project = p;
+                        showModalOverlay(p.title, p.description);
+                        break;
+                    }
+                }
+            }
+            if (!project) {
+                showModalOverlay('', '');
+            }
+        }
 
         let slidesHtml = '';
         mediaArray.forEach((mediaUrl, idx) => {
@@ -695,7 +761,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentModalSwiper.on('slideChange', () => {
                     if (!modalManuallyClosed) {
                         const newIndex = currentModalSwiper.realIndex;
-                        const shareUrl = generateShareUrl(projectId, newIndex, mediaArray);
+                        const shareUrl = generateShareUrl(projectId, newIndex);
                         window.history.replaceState({}, '', shareUrl);
                     }
                 });
@@ -704,8 +770,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // FORMATTING HELPERS
+    // UTILITY FUNCTIONS
     // ========================================
+    function arraysEqual(a, b) {
+        if (a === b) return true;
+        if (!a || !b) return false;
+        if (a.length !== b.length) return false;
+        for (let i = 0; i < a.length; i++) {
+            if (a[i] !== b[i]) return false;
+        }
+        return true;
+    }
+
     function formatCategoryForDisplay(cat) {
         if (!cat) return '';
         return cat.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ').replace(/&/g, '&');
@@ -720,10 +796,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================
     // FILTERING SYSTEM WITH URL SYNC
     // ========================================
-    let currentFilterValue = 'selected';
-    let allPortfolioItems = [];
-
-    // Define short aliases for categories (for URL mapping)
     const filterAliases = {
         'game': 'game_design_&_development',
         'brand': 'brand_&_identity',
@@ -758,10 +830,7 @@ document.addEventListener('DOMContentLoaded', () => {
             button.classList.add('active');
 
             currentFilterValue = button.getAttribute('data-filter');
-            
-            // Update URL with filter parameter
             updateURLWithFilter(currentFilterValue);
-            
             applyFilter();
         }
     }
@@ -770,11 +839,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.history && window.history.pushState) {
             const url = new URL(window.location);
             
-            // If filter is 'all' or 'selected', remove the parameter (clean URL)
             if (filterValue === 'all' || filterValue === 'selected') {
                 url.searchParams.delete('filter');
             } else {
-                // Check if there's an alias for this filter
                 let alias = null;
                 for (const [key, value] of Object.entries(filterAliases)) {
                     if (value === filterValue) {
@@ -782,7 +849,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         break;
                     }
                 }
-                // Use alias if found, otherwise use the full category name
                 url.searchParams.set('filter', alias || filterValue);
             }
             
@@ -841,7 +907,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 50 + (index * 40));
         });
         
-        // Re-setup swipers
         const projects = window.__projectsData || [];
         projects.forEach((project, idx) => {
             if (project.published === false) return;
@@ -868,70 +933,49 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         
-        // Re-initialize lazy loading
         setTimeout(setupLazyLoading, 100);
     }
 
-    // ========================================
-    // URL FILTER PARAMETER SUPPORT (for page load)
-    // ========================================
-
     function applyFilterFromURL() {
-        // Get filter from URL query parameter
         const params = new URLSearchParams(window.location.search);
         let filterValue = params.get('filter');
         
-        // If no filter parameter, return (use default)
         if (!filterValue) return;
         
-        // Check if it's an alias
         if (filterAliases[filterValue]) {
             filterValue = filterAliases[filterValue];
         }
         
-        // Find the filter button with matching data-filter attribute
         const buttons = document.querySelectorAll('.filter-nav .filter-btn');
         let found = false;
         
         buttons.forEach(btn => {
             const btnFilter = btn.getAttribute('data-filter');
             if (btnFilter === filterValue) {
-                // Click the button to apply the filter (this will also update the URL)
                 btn.click();
                 found = true;
             }
         });
         
-        // If filter not found, show all
         if (!found) {
             const allBtn = document.querySelector('.filter-btn[data-filter="all"]');
             if (allBtn) allBtn.click();
         }
         
-        // Auto-scroll to filter pills
         scrollToFilterPills();
     }
 
-    // ========================================
-    // SCROLL TO FILTER PILLS - FIXED
-    // ========================================
     function scrollToFilterPills() {
         const filterNav = document.getElementById('filter-nav');
         if (!filterNav) {
-            // If filter nav doesn't exist, try again after a delay
             setTimeout(scrollToFilterPills, 200);
             return;
         }
 
-        // Get header height
         const header = document.getElementById('site-header');
         const headerHeight = header ? header.offsetHeight : 0;
-
-        // Get filter nav's position relative to the document
         const filterRect = filterNav.getBoundingClientRect();
         const filterTop = filterRect.top + window.pageYOffset;
-
-        // Target: filter nav should be positioned just below the header
         const targetScrollY = filterTop - headerHeight;
 
         const startPosition = window.pageYOffset;
@@ -939,7 +983,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const duration = 800;
         let startTime = null;
 
-        // If we're already at the target or very close, no need to scroll
         if (Math.abs(distance) < 10) return;
 
         function smoothScroll(currentTime) {
@@ -958,15 +1001,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Wait for the filter to be applied and cards to render
         setTimeout(() => {
             requestAnimationFrame(smoothScroll);
         }, 400);
     }
 
-    // ========================================
-    // SCROLL BUTTON
-    // ========================================
     function setupScrollButton() {
         const scrollBtn = document.querySelector('.scroll-btn');
         const filterNav = document.getElementById('filter-nav');
@@ -1014,7 +1053,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Projects loaded:', projects.length);
         window.__projectsData = projects;
 
-        const grid = document.getElementById('portfolio-grid');
         if (!grid) return;
 
         grid.innerHTML = '';
@@ -1028,8 +1066,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const hasSelectedWorks = visibleProjects.some(p => p.selected === true);
-
         visibleProjects.forEach((project, visibleIdx) => {
             const originalIndex = projects.findIndex(p => p === project);
             let mediaArray = project.media;
@@ -1039,8 +1075,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const imageAlign = project.imageAlign || 'center';
             const isSelected = project.selected === true;
-            
-            // Get categories array (or empty array if not set)
             const categories = project.categories || [];
             const categoryAttr = categories.length > 0 ? categories.join(',') : 'uncategorized';
 
@@ -1049,7 +1083,6 @@ document.addEventListener('DOMContentLoaded', () => {
             article.setAttribute('data-category', categoryAttr);
             article.setAttribute('data-project-id', originalIndex);
             article.setAttribute('data-selected', isSelected ? 'true' : 'false');
-            // Store categories for filtering
             article.__categories = categories;
 
             let thumbnailHtml = '';
@@ -1074,7 +1107,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 thumbnailHtml = `<div class="item-image"><div class="no-media">No media</div></div>`;
             }
 
-            // We're removing category tags from cards - just show title and description
             article.innerHTML = `
                 ${thumbnailHtml}
                 <div class="item-content">
@@ -1107,7 +1139,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     
                     openMediaModal(mediaArray, startIndex, originalIndex);
-                    const shareUrl = generateShareUrl(originalIndex, startIndex, mediaArray);
+                    const shareUrl = generateShareUrl(originalIndex, startIndex);
                     window.history.pushState({}, '', shareUrl);
                 }
             });
@@ -1117,7 +1149,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 shareHint.addEventListener('click', async (e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    const shareUrl = generateShareUrl(originalIndex, 0, mediaArray);
+                    const shareUrl = generateShareUrl(originalIndex, 0);
                     const copied = await copyToClipboard(shareUrl);
 
                     if (copied) {
@@ -1140,8 +1172,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 50 + (index * 30));
         });
 
-        // Build filter navigation
-        // Get all unique categories from projects
         const allCategories = new Set();
         visibleProjects.forEach(p => {
             const cats = p.categories || [];
@@ -1211,7 +1241,6 @@ document.addEventListener('DOMContentLoaded', () => {
             applyFilter();
         }, 100);
 
-        // Setup swipers
         projects.forEach((project, idx) => {
             if (project.published === false) return;
             const mediaArray = project.media || (project.image ? [project.image] : []);
@@ -1234,13 +1263,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Initial lazy loading
         setTimeout(setupLazyLoading, 200);
-
         setupFiltering();
         setupScrollButton();
 
-        // Apply filter from URL after everything is set up
         setTimeout(() => {
             applyFilterFromURL();
         }, 150);
@@ -1262,13 +1288,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================
     // INITIALIZATION
     // ========================================
-    const grid = document.getElementById('portfolio-grid');
     if (!grid) return;
 
     fetch('projects.json')
         .then(response => response.json())
         .then(data => {
-            // Migrate data if needed (convert old category string to categories array)
             const migratedData = data.map(project => {
                 if (!project.categories && project.category) {
                     project.categories = [project.category];
@@ -1283,6 +1307,6 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(error => {
             console.error('Error loading projects:', error);
-            grid.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--accent-red);">Error loading projects. Make sure projects.json exists.</div>';
+            grid.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--color-error);">Error loading projects. Make sure projects.json exists.</div>';
         });
 });
