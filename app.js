@@ -568,15 +568,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // SHARE URL GENERATION
+    // SHARE URL GENERATION - FIXED
     // ========================================
     function generateShareUrl(projectIndex, mediaIndex = 0) {
         const shareData = {
             p: projectIndex,
             m: mediaIndex
         };
-        const data = btoa(JSON.stringify(shareData));
-        return `${window.location.origin}${window.location.pathname}share.html?share=${data}`;
+        const encoded = btoa(JSON.stringify(shareData));
+        // Always use the base URL (index.html) with the share parameter
+        return `${window.location.origin}${window.location.pathname.replace(/share\.html$/, '')}index.html?share=${encoded}`;
     }
 
     // ========================================
@@ -1289,6 +1290,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // INITIALIZATION
     // ========================================
     if (!grid) return;
+
+    // If we're on share.html, redirect to index.html with the share param
+    if (window.location.pathname.includes('share.html')) {
+        const params = new URLSearchParams(window.location.search);
+        const shareParam = params.get('share');
+        if (shareParam) {
+            window.location.href = `index.html?share=${shareParam}`;
+            return;
+        }
+    }
 
     fetch('projects.json')
         .then(response => response.json())
