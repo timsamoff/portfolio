@@ -34,6 +34,24 @@ document.addEventListener('DOMContentLoaded', () => {
     let allPortfolioItems = [];
 
     // ========================================
+    // SHARE.HTML REDIRECT - MUST RUN FIRST
+    // ========================================
+    // If we're on share.html, immediately redirect to index.html with the share param
+    if (window.location.pathname.includes('share.html')) {
+        const params = new URLSearchParams(window.location.search);
+        const shareParam = params.get('share');
+        if (shareParam) {
+            // Use the current origin and replace share.html with index.html
+            const baseUrl = window.location.origin + window.location.pathname.replace(/share\.html.*$/, '');
+            window.location.replace(baseUrl + 'index.html?share=' + shareParam);
+            return; // Stop execution
+        } else {
+            window.location.replace(window.location.origin + window.location.pathname.replace(/share\.html.*$/, '') + 'index.html');
+            return;
+        }
+    }
+
+    // ========================================
     // STICKY HEADER SHADOW ON SCROLL
     // ========================================
     function handleHeaderScroll() {
@@ -577,7 +595,9 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         const encoded = btoa(JSON.stringify(shareData));
         // Always use the base URL (index.html) with the share parameter
-        return `${window.location.origin}${window.location.pathname.replace(/share\.html$/, '')}index.html?share=${encoded}`;
+        // Use the origin and the base path, removing any share.html references
+        const basePath = window.location.pathname.split('/').slice(0, -1).join('/') + '/';
+        return window.location.origin + basePath + 'index.html?share=' + encoded;
     }
 
     // ========================================
@@ -1290,16 +1310,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // INITIALIZATION
     // ========================================
     if (!grid) return;
-
-    // If we're on share.html, redirect to index.html with the share param
-    if (window.location.pathname.includes('share.html')) {
-        const params = new URLSearchParams(window.location.search);
-        const shareParam = params.get('share');
-        if (shareParam) {
-            window.location.href = `index.html?share=${shareParam}`;
-            return;
-        }
-    }
 
     fetch('projects.json')
         .then(response => response.json())
