@@ -9,7 +9,6 @@ const config = require('./config.js');
 
 const execPromise = util.promisify(exec);
 
-// Configuration with defaults from shared config
 const CONFIG = {
     inputDir: process.argv[2] || config.rootDir,
     outputDir: process.argv[3] || null,
@@ -26,7 +25,6 @@ const CONFIG = {
 // WINDOWS TOOL DETECTION
 // ========================================
 
-// Common installation paths on Windows
 const windowsPaths = {
     cwebp: [
         'C:\\Program Files\\webp\\bin',
@@ -53,28 +51,24 @@ const windowsPaths = {
     ]
 };
 
-// Windows executable names
 const windowsExecutables = {
     cwebp: 'cwebp.exe',
-    imagemagick: 'magick.exe',  // Newer versions use magick.exe
-    imagemagick_legacy: 'convert.exe', // Older versions use convert.exe
+    imagemagick: 'magick.exe', // newer versions
+    imagemagick_legacy: 'convert.exe', // older versions
     ffmpeg: 'ffmpeg.exe'
 };
 
 async function findToolOnWindows(toolName) {
-    // First check if it's in PATH
     try {
         const cmd = toolName === 'imagemagick' ? 'magick -version' : `${toolName} -version`;
         await execPromise(cmd);
-        return toolName; // Found in PATH
+        return toolName; // found in PATH
     } catch (err) {
-        // Not in PATH, check common installation locations
+        // not in PATH, fall through to common install locations
     }
-    
-    // Check common installation paths
+
     const paths = windowsPaths[toolName] || [];
     for (const basePath of paths) {
-        // Handle wildcard paths
         if (basePath.includes('*')) {
             const baseDir = basePath.substring(0, basePath.lastIndexOf('\\'));
             if (fs.existsSync(baseDir)) {
@@ -88,8 +82,7 @@ async function findToolOnWindows(toolName) {
                     if (fs.existsSync(exePath)) {
                         return exePath;
                     }
-                    
-                    // Also check bin subfolder
+
                     const binPath = path.join(fullPath, 'bin');
                     const exeInBin = toolName === 'imagemagick'
                         ? path.join(binPath, windowsExecutables.imagemagick)
@@ -101,16 +94,14 @@ async function findToolOnWindows(toolName) {
                 }
             }
         } else {
-            // Check direct path
             const exePath = toolName === 'imagemagick'
                 ? path.join(basePath, windowsExecutables.imagemagick)
                 : path.join(basePath, windowsExecutables[toolName]);
-            
+
             if (fs.existsSync(exePath)) {
                 return exePath;
             }
-            
-            // Check for legacy ImageMagick
+
             if (toolName === 'imagemagick') {
                 const legacyPath = path.join(basePath, windowsExecutables.imagemagick_legacy);
                 if (fs.existsSync(legacyPath)) {
@@ -125,23 +116,22 @@ async function findToolOnWindows(toolName) {
 
 async function detectAvailableTool() {
     const isWindows = process.platform === 'win32';
-    
-    // Tool detection order: cwebp (best), imagemagick, ffmpeg
+
+    // cwebp preferred, then imagemagick, then ffmpeg
     const tools = ['cwebp', 'imagemagick', 'ffmpeg'];
-    
+
     for (const tool of tools) {
         let toolPath = null;
-        
+
         if (isWindows) {
             toolPath = await findToolOnWindows(tool);
         } else {
-            // Unix-like systems
             try {
                 const cmd = tool === 'imagemagick' ? 'convert -version' : `${tool} -version`;
                 await execPromise(cmd);
                 toolPath = tool;
             } catch (err) {
-                // Not found
+                // not found
             }
         }
         
@@ -158,18 +148,16 @@ async function detectAvailableTool() {
 function getToolCommand(tool, inputPath, outputPath, quality) {
     const isWindows = process.platform === 'win32';
     const toolPath = tool.path;
-    
-    // If toolPath is just the name (found in PATH), use it directly
-    // Otherwise use the full path
+
+    // toolPath is just the tool name when found via PATH, else the full resolved path
     const cmdName = isWindows && toolPath !== tool.name
-        ? `"${toolPath}"` // Wrap in quotes for Windows paths with spaces
+        ? `"${toolPath}"` // quoted for Windows paths with spaces
         : tool.name;
-    
+
     switch (tool.name) {
         case 'cwebp':
             return `${cmdName} -q ${quality} "${inputPath}" -o "${outputPath}"`;
         case 'imagemagick': {
-            // On Windows with new ImageMagick, use magick convert
             const isWindowsNew = isWindows && toolPath && toolPath.includes('magick.exe');
             const convertCmd = isWindowsNew ? 'magick convert' : 'convert';
             const cmd = toolPath !== tool.name ? `"${toolPath}"` : convertCmd;
@@ -413,7 +401,6 @@ async function main() {
     printSummary(results);
 }
 
-// Parse command line arguments
 function parseArgs() {
     const args = process.argv.slice(2);
     

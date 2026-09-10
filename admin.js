@@ -1,11 +1,12 @@
 // Admin panel functionality - with save-server.js backend
+const API_BASE = 'http://localhost:3001';
+
 let localProjectCache = [];
 let currentMediaArray = [];
 let draggedMediaIndexForReorder = null;
 let currentSearchTerm = '';
 let availableCategories = ['brand_&_identity', 'production_&_installation', 'game_design', 'web_&_interactive'];
 
-// Category data with display names and shortcuts
 let categoryData = {};
 
 // Auto-save tracking
@@ -29,7 +30,6 @@ const charCounter   = document.getElementById('char-counter');
 const richTextEditor  = descTextarea;
 const hiddenDescription = descTextarea;
 
-// Get DOM elements
 const sortableListElement = document.getElementById('sortable-list');
 const addForm = document.getElementById('add-project-form');
 const formActionTitle = document.getElementById('form-action-title');
@@ -37,7 +37,6 @@ const formEditIndex = document.getElementById('form-edit-index');
 const submitBtn = document.getElementById('submit-btn');
 const newProjectBtn = document.getElementById('new-project-btn');
 
-// Media elements
 const mediaInput = document.getElementById('media-input');
 const addMediaBtn = document.getElementById('add-media-btn');
 const mediaBadgesContainer = document.getElementById('media-badges');
@@ -47,7 +46,6 @@ const pasteUrls = document.getElementById('paste-urls');
 const processPasteBtn = document.getElementById('process-paste-btn');
 const multiFileInput = document.getElementById('multi-file-input');
 
-// Form elements
 const adminSearchInput = document.getElementById('admin-search-input');
 const adminFilterSelect = document.getElementById('admin-filter-select');
 const formTitle = document.getElementById('form-title');
@@ -57,13 +55,11 @@ const formPublished = document.getElementById('form-published');
 const formImageAlign = document.getElementById('form-image-align');
 const categoryHelpText = document.getElementById('category-help-text');
 
-// Category dropdown elements
 const categoryToggle = document.getElementById('category-dropdown-toggle');
 const categoryDisplay = document.getElementById('category-display');
 const categoryPanel = document.getElementById('category-dropdown-panel');
 const categoryCheckboxList = document.getElementById('category-checkbox-list');
 
-// Category management elements
 const addCategoryBtn = document.getElementById('add-category-btn');
 const categoryManager = document.getElementById('category-manager');
 const categoryManagerClose = document.getElementById('category-manager-close');
@@ -72,7 +68,6 @@ const modalNewCategoryName = document.getElementById('modal-new-category-name');
 const modalNewCategoryShortcut = document.getElementById('modal-new-category-shortcut');
 const modalAddCategoryBtn = document.getElementById('modal-add-category-btn');
 
-// Toolbar buttons
 const toolbarBold = document.getElementById('toolbar-bold');
 const toolbarItalic = document.getElementById('toolbar-italic');
 const toolbarUl = document.getElementById('toolbar-ul');
@@ -80,14 +75,11 @@ const toolbarLink = document.getElementById('toolbar-link');
 const toolbarAward = document.getElementById('toolbar-award');
 const toolbarLive = document.getElementById('toolbar-live');
 
-// Floating notification
 let floatingNotification = null;
 let notificationTimeout = null;
 
-// Track the currently selected/editing project index
 let currentlySelectedIndex = null;
 
-// Selected categories for the current project
 let selectedCategories = [];
 let categoryDropdownOpen = false;
 
@@ -266,7 +258,7 @@ function saveCategoryData() {
         };
     });
     
-    fetch('http://localhost:3001/api/save-categories', {
+    fetch(`${API_BASE}/api/save-categories`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToSave)
@@ -281,7 +273,7 @@ function saveCategoryData() {
 }
 
 // ========================
-// SMART QUOTES - FIXED TO PRESERVE HTML
+// SMART QUOTES (preserves HTML tags/attributes)
 // ========================
 function convertToSmartQuotes(text) {
     if (!text) return '';
@@ -1113,7 +1105,6 @@ function saveToServer() {
     
     const projectsToSave = localProjectCache.map(project => {
         const cleaned = { ...project };
-        // Ensure categories is always an array
         if (!cleaned.categories || !Array.isArray(cleaned.categories)) {
             if (cleaned.category) {
                 cleaned.categories = [cleaned.category];
@@ -1121,14 +1112,14 @@ function saveToServer() {
                 cleaned.categories = [];
             }
         }
-        delete cleaned.category; // Remove old field
+        delete cleaned.category;
         if (cleaned.description) {
             cleaned.description = cleanupMalformedLinks(cleaned.description);
         }
         return cleaned;
     });
     
-    fetch('http://localhost:3001/api/save-projects', {
+    fetch(`${API_BASE}/api/save-projects`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(projectsToSave)
@@ -1171,7 +1162,6 @@ function loadData() {
         .then(res => res.json())
         .then(data => {
             data = data.map(project => {
-                // Migrate from old category string to categories array
                 if (!project.categories && project.category) {
                     project.categories = [project.category];
                     delete project.category;
@@ -1218,7 +1208,7 @@ function loadData() {
 }
 
 // ========================
-// FILTER FUNCTIONS - NONDESTRUCTIVE
+// FILTER FUNCTIONS (nondestructive - doesn't mutate the cache)
 // ========================
 
 function filterProjects(project) {
@@ -1312,7 +1302,7 @@ function reapplySelectionHighlight() {
 }
 
 // ========================
-// RENDER ADMIN VIEW - WITH WORKING DRAG & DROP
+// RENDER ADMIN VIEW (with drag & drop)
 // ========================
 function renderAdminView() {
     if (!sortableListElement) return;
@@ -1411,7 +1401,7 @@ function renderAdminView() {
 }
 
 // ========================
-// DRAG & DROP REORDERING - WORKS WITH FILTERS
+// DRAG & DROP REORDERING (works across active filters)
 // ========================
 
 function reorderFullCacheFromFilteredView() {
@@ -1618,11 +1608,9 @@ function loadProjectIntoForm(index) {
     
     formTitle.value = target.title;
     
-    // Handle categories
     if (target.categories && Array.isArray(target.categories)) {
         selectedCategories = [...target.categories];
     } else if (target.category && typeof target.category === 'string') {
-        // Backward compatibility: convert old string to array
         selectedCategories = [target.category];
     } else {
         selectedCategories = [];
@@ -1676,7 +1664,6 @@ if (newProjectBtn) {
     });
 }
 
-// Category dropdown toggle
 if (categoryToggle) {
     categoryToggle.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1684,7 +1671,6 @@ if (categoryToggle) {
     });
 }
 
-// Click outside to close dropdown
 document.addEventListener('click', (e) => {
     if (categoryDropdownOpen) {
         const wrapper = document.getElementById('category-form-group');
@@ -1694,7 +1680,6 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Category button handlers
 if (addCategoryBtn) {
     addCategoryBtn.addEventListener('click', toggleCategoryManager);
 }
@@ -1707,7 +1692,7 @@ if (modalAddCategoryBtn) {
     modalAddCategoryBtn.addEventListener('click', addCategory);
 }
 
-// Enter key support for adding category - FIXED to prevent form submission
+// Enter key adds category without submitting the form
 if (modalNewCategoryName) {
     modalNewCategoryName.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
@@ -1727,7 +1712,6 @@ if (modalNewCategoryShortcut) {
     });
 }
 
-// Auto-generate shortcut when category name is typed
 if (modalNewCategoryName) {
     modalNewCategoryName.addEventListener('input', () => {
         const name = modalNewCategoryName.value.trim();

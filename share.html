@@ -165,10 +165,9 @@
 
     <script>
         (function() {
-            // Parse share data from URL
             const params = new URLSearchParams(window.location.search);
             const shareData = params.get('share');
-            
+
             if (!shareData) {
                 window.location.href = 'https://samoff.com/portfolio/';
                 return;
@@ -183,10 +182,8 @@
                 return;
             }
             
-            // Update loading text
             const loadingText = document.getElementById('loading-text');
-            
-            // Fetch projects and update meta tags
+
             fetch('https://samoff.com/portfolio/projects.json')
                 .then(r => r.json())
                 .then(projects => {
@@ -196,16 +193,13 @@
                         return;
                     }
                     
-                    // Update loading text
                     if (loadingText) {
                         loadingText.textContent = `Loading ${project.title}...`;
                     }
-                    
-                    // Update page title
+
                     const title = `Tim Samoff | Portfolio - ${project.title}`;
                     document.title = title;
-                    
-                    // Helper to update or create meta tags
+
                     function setMeta(selector, content) {
                         let el = document.querySelector(selector);
                         if (!el) {
@@ -223,7 +217,6 @@
                         el.setAttribute('content', content);
                     }
                     
-                    // Update all meta tags
                     setMeta('[property="og:title"]', title);
                     setMeta('[name="twitter:title"]', title);
                     
@@ -247,8 +240,7 @@
                     setMeta('[name="twitter:image"]', media);
                     
                     setMeta('[property="og:url"]', 'https://samoff.com/portfolio/');
-                    
-                    // Redirect to the main page
+
                     setTimeout(function() {
                         window.location.href = 'https://samoff.com/portfolio/index.html?share=' + shareData;
                     }, 1500);

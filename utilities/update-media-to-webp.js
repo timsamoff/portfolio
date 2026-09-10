@@ -6,21 +6,13 @@ const fs = require('fs');
 const path = require('path');
 const config = require('./config.js');
 
-// Configuration with defaults from shared config
 const CONFIG = {
-    // Path to your projects.json file
     projectsFile: config.findProjectsFile() || config.projectsFile,
-    // Create a backup of the original file
     createBackup: true,
-    // Backup directory
     backupDir: config.backupsDir,
-    // Log changes to console
     verbose: true,
-    // File extensions to convert to webp
     imageExtensions: config.defaults.imageExtensions,
-    // Only convert if the webp file actually exists
-    checkFileExists: false,
-    // Directories to scan for webp files (relative to script location)
+    checkFileExists: false, // only convert if the webp file actually exists on disk
     mediaDirectories: [config.mediaDir]
 };
 
@@ -58,38 +50,31 @@ function log(message, type = 'info') {
 }
 
 function getWebpPath(mediaPath) {
-    // Check if it's a URL (starts with http:// or https://)
     if (mediaPath.match(/^https?:\/\//)) {
-        return null; // Don't convert URLs
+        return null; // don't convert URLs
     }
-    
-    // Check if it's a video file
+
     if (mediaPath.match(/\.(mp4|webm|mov|ogg|avi)$/i)) {
-        return null; // Don't convert videos
+        return null; // don't convert videos
     }
-    
-    // Check if it's already a webp
+
     if (mediaPath.match(/\.webp$/i)) {
-        return null; // Already webp
+        return null; // already webp
     }
-    
-    // Check if it has an image extension
+
     const ext = path.extname(mediaPath).toLowerCase();
     if (!CONFIG.imageExtensions.includes(ext)) {
-        return null; // Not an image we convert
+        return null; // not an image we convert
     }
-    
-    // Replace extension with .webp
+
     return mediaPath.replace(/\.[^.]+$/, '.webp');
 }
 
 function findWebpFile(webpPath) {
-    // Check if the webp file exists relative to the script
     if (fs.existsSync(webpPath)) {
         return true;
     }
-    
-    // Check in each media directory
+
     for (const dir of CONFIG.mediaDirectories) {
         const fullPath = path.join(dir, webpPath);
         if (fs.existsSync(fullPath)) {
@@ -112,7 +97,6 @@ function updateMediaArray(mediaArray, stats) {
         const webpPath = getWebpPath(mediaPath);
         
         if (webpPath) {
-            // Check if webp file exists (if enabled)
             if (CONFIG.checkFileExists) {
                 const exists = findWebpFile(webpPath);
                 if (!exists) {
@@ -121,14 +105,12 @@ function updateMediaArray(mediaArray, stats) {
                     continue;
                 }
             }
-            
-            // Update to webp
+
             updated.push(webpPath);
             hasChanges = true;
             stats.converted++;
             log(`Converted: ${mediaPath} → ${webpPath}`, 'success');
         } else {
-            // Keep as is
             updated.push(mediaPath);
         }
     }
@@ -141,8 +123,7 @@ function processProjects(projects, stats) {
     
     for (const project of projects) {
         const updatedProject = { ...project };
-        
-        // Process media array
+
         if (project.media && Array.isArray(project.media)) {
             const result = updateMediaArray(project.media, stats);
             updatedProject.media = result.updated;
@@ -151,7 +132,7 @@ function processProjects(projects, stats) {
             }
         }
         
-        // Also check for single image field (legacy)
+        // legacy single-image field
         if (project.image) {
             const webpPath = getWebpPath(project.image);
             if (webpPath) {
@@ -178,11 +159,9 @@ function processProjects(projects, stats) {
 
 function createBackup(projects) {
     if (!CONFIG.createBackup) return null;
-    
-    // Ensure backup directory exists
+
     ensureDirectoryExists(CONFIG.backupDir);
-    
-    // Create backup filename with timestamp
+
     const timestamp = config.getTimestamp();
     const backupFile = path.join(CONFIG.backupDir, `projects-${timestamp}.json`);
     
@@ -202,14 +181,12 @@ function createBackup(projects) {
 
 async function main() {
     console.log('\n=== Update Media to WebP ===\n');
-    
-    // Check if projects.json exists
+
     if (!fs.existsSync(CONFIG.projectsFile)) {
         log(`Projects file "${CONFIG.projectsFile}" not found!`, 'error');
         process.exit(1);
     }
-    
-    // Read projects.json
+
     let projects;
     try {
         const data = fs.readFileSync(CONFIG.projectsFile, 'utf8');
@@ -220,17 +197,14 @@ async function main() {
         process.exit(1);
     }
     
-    // Create backup
     const backupFile = createBackup(projects);
-    
-    // Process projects
+
     const stats = {
         converted: 0,
         projectsUpdated: 0,
         totalMediaItems: 0
     };
-    
-    // Count total media items first
+
     for (const project of projects) {
         if (project.media && Array.isArray(project.media)) {
             stats.totalMediaItems += project.media.length;
@@ -241,8 +215,7 @@ async function main() {
     console.log('');
     
     const updatedProjects = processProjects(projects, stats);
-    
-    // Write updated projects back to file
+
     try {
         fs.writeFileSync(CONFIG.projectsFile, JSON.stringify(updatedProjects, null, 2));
         log(`\n✅ Updated ${CONFIG.projectsFile}`, 'success');
@@ -251,7 +224,6 @@ async function main() {
         process.exit(1);
     }
     
-    // Print summary
     console.log('\n=== Summary ===');
     console.log(`Total projects: ${projects.length}`);
     console.log(`Projects updated: ${stats.projectsUpdated}`);
@@ -276,10 +248,6 @@ async function main() {
         console.log('\n💡 Tip: Set "checkFileExists": false in CONFIG to convert without checking if .webp files exist.');
     }
 }
-
-// ========================================
-// COMMAND LINE ARGUMENTS
-// ========================================
 
 function parseArgs() {
     const args = process.argv.slice(2);

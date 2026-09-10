@@ -5,7 +5,6 @@ let draggedMediaIndexForReorder = null;
 let currentSearchTerm = '';
 let availableCategories = [];
 
-// Category data with display names and shortcuts
 let categoryData = {};
 
 // Auto-save tracking
@@ -21,15 +20,13 @@ let inlineErrorTimeout = null;
 // Selection captured on toolbar mousedown
 let capturedSel = null;
 
-// Description textarea
 const descTextarea = document.getElementById('form-description');
 const charCounter = document.getElementById('char-counter');
 
-// Legacy aliases
+// Legacy aliases so unchanged call-sites keep working
 const richTextEditor = descTextarea;
 const hiddenDescription = descTextarea;
 
-// Get DOM elements
 const sortableListElement = document.getElementById('sortable-list');
 const addForm = document.getElementById('add-project-form');
 const formActionTitle = document.getElementById('form-action-title');
@@ -37,7 +34,6 @@ const formEditIndex = document.getElementById('form-edit-index');
 const submitBtn = document.getElementById('submit-btn');
 const newProjectBtn = document.getElementById('new-project-btn');
 
-// Media elements
 const mediaInput = document.getElementById('media-input');
 const addMediaBtn = document.getElementById('add-media-btn');
 const mediaBadgesContainer = document.getElementById('media-badges');
@@ -47,7 +43,6 @@ const pasteUrls = document.getElementById('paste-urls');
 const processPasteBtn = document.getElementById('process-paste-btn');
 const multiFileInput = document.getElementById('multi-file-input');
 
-// Form elements
 const adminSearchInput = document.getElementById('admin-search-input');
 const adminFilterSelect = document.getElementById('admin-filter-select');
 const formTitle = document.getElementById('form-title');
@@ -56,13 +51,11 @@ const formSelected = document.getElementById('form-selected');
 const formPublished = document.getElementById('form-published');
 const formImageAlign = document.getElementById('form-image-align');
 
-// Category dropdown elements
 const categoryToggle = document.getElementById('category-dropdown-toggle');
 const categoryDisplay = document.getElementById('category-display');
 const categoryPanel = document.getElementById('category-dropdown-panel');
 const categoryCheckboxList = document.getElementById('category-checkbox-list');
 
-// Category management elements
 const addCategoryBtn = document.getElementById('add-category-btn');
 const categoryManager = document.getElementById('category-manager');
 const categoryManagerClose = document.getElementById('category-manager-close');
@@ -71,10 +64,8 @@ const modalNewCategoryName = document.getElementById('modal-new-category-name');
 const modalNewCategoryShortcut = document.getElementById('modal-new-category-shortcut');
 const modalAddCategoryBtn = document.getElementById('modal-add-category-btn');
 
-// Reset data button
 const resetDataBtn = document.getElementById('reset-data-btn');
 
-// Toolbar buttons
 const toolbarBold = document.getElementById('toolbar-bold');
 const toolbarItalic = document.getElementById('toolbar-italic');
 const toolbarUl = document.getElementById('toolbar-ul');
@@ -82,14 +73,11 @@ const toolbarLink = document.getElementById('toolbar-link');
 const toolbarAward = document.getElementById('toolbar-award');
 const toolbarLive = document.getElementById('toolbar-live');
 
-// Floating notification
 let floatingNotification = null;
 let notificationTimeout = null;
 
-// Track the currently selected/editing project index
 let currentlySelectedIndex = null;
 
-// Selected categories for the current project
 let selectedCategories = [];
 let categoryDropdownOpen = false;
 
@@ -1412,7 +1400,6 @@ function saveToLocalStorage() {
         saveDemoProjects(projectsToSave);
     }
     
-    // Update categories from projects
     const cats = [...new Set(projectsToSave.flatMap(p => p.categories || []).filter(c => c && c !== ''))];
     cats.forEach(cat => {
         if (!availableCategories.includes(cat)) {
@@ -1457,8 +1444,7 @@ function loadData() {
     
     let data = getDemoData();
     localProjectCache = data.projects || [];
-    
-    // Migrate old format to new categories array
+
     localProjectCache = localProjectCache.map(project => {
         if (!project.categories && project.category) {
             project.categories = [project.category];
@@ -1476,7 +1462,6 @@ function loadData() {
         return project;
     });
     
-    // Update categories from projects
     const cats = [...new Set(localProjectCache.flatMap(p => p.categories || []).filter(c => c && c !== ''))];
     cats.forEach(cat => {
         if (!availableCategories.includes(cat)) {
@@ -1959,7 +1944,6 @@ if (newProjectBtn) {
     });
 }
 
-// Category dropdown toggle
 if (categoryToggle) {
     categoryToggle.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1967,7 +1951,6 @@ if (categoryToggle) {
     });
 }
 
-// Click outside to close dropdown
 document.addEventListener('click', (e) => {
     if (categoryDropdownOpen) {
         const wrapper = document.getElementById('category-form-group');
@@ -1977,7 +1960,6 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Category button handlers
 if (addCategoryBtn) {
     addCategoryBtn.addEventListener('click', toggleCategoryManager);
 }
@@ -1994,7 +1976,6 @@ if (modalAddCategoryBtn) {
     });
 }
 
-// Enter key support for adding category
 if (modalNewCategoryName) {
     modalNewCategoryName.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
@@ -2014,7 +1995,6 @@ if (modalNewCategoryShortcut) {
     });
 }
 
-// Auto-generate shortcut when category name is typed
 if (modalNewCategoryName) {
     modalNewCategoryName.addEventListener('input', () => {
         const name = modalNewCategoryName.value.trim();

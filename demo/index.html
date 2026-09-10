@@ -39,17 +39,14 @@
     <!-- ======================================== -->
     <script>
         (function() {
-            // Check for share query parameter
             const params = new URLSearchParams(window.location.search);
             const shareData = params.get('share');
-            
+
             if (shareData) {
                 try {
                     const data = JSON.parse(atob(shareData));
-                    // Store project data for later use
                     window.__shareData = data;
-                    
-                    // Get demo data from localStorage or fallback
+
                     let projects = [];
                     const stored = localStorage.getItem('demo_portfolio_projects');
                     if (stored) {
@@ -57,22 +54,19 @@
                             projects = JSON.parse(stored);
                         } catch(e) {}
                     }
-                    
-                    // If no projects in localStorage, use the injected DEMO_PROJECTS
+
+                    // Falls back to demo-data.js's DEMO_PROJECTS if localStorage is empty
                     if (!projects || projects.length === 0) {
-                        // DEMO_PROJECTS should be available from demo-data.js
                         if (window.DEMO_PROJECTS) {
                             projects = window.DEMO_PROJECTS;
                         }
                     }
-                    
+
                     const project = projects[data.p];
                     if (project) {
-                        // Update title
                         const title = `Demo Jones | Portfolio - ${project.title}`;
                         document.title = title;
-                        
-                        // Update or create og:title
+
                         let ogTitle = document.querySelector('meta[property="og:title"]');
                         if (!ogTitle) {
                             ogTitle = document.createElement('meta');
@@ -80,15 +74,14 @@
                             document.head.appendChild(ogTitle);
                         }
                         ogTitle.content = title;
-                        
-                        // Update or create og:description
+
                         let description = project.description || '';
                         description = description.replace(/<[^>]*>/g, '');
                         if (description.length > 150) description = description.substring(0, 147) + '...';
                         if (!description) {
                             description = 'A fully functional demo of the portfolio management system. All project data is stored locally in your browser using localStorage.';
                         }
-                        
+
                         let ogDesc = document.querySelector('meta[property="og:description"]');
                         if (!ogDesc) {
                             ogDesc = document.createElement('meta');
@@ -96,14 +89,13 @@
                             document.head.appendChild(ogDesc);
                         }
                         ogDesc.content = description;
-                        
-                        // Update or create og:image
+
                         let media = 'tsp_social.png';
                         if (project.media && project.media.length > 0) {
                             media = project.media[0];
                         }
                         const imageUrl = new URL(media, window.location.href).href;
-                        
+
                         let ogImage = document.querySelector('meta[property="og:image"]');
                         if (!ogImage) {
                             ogImage = document.createElement('meta');
@@ -111,8 +103,7 @@
                             document.head.appendChild(ogImage);
                         }
                         ogImage.content = imageUrl;
-                        
-                        // Update Twitter cards
+
                         let twTitle = document.querySelector('meta[name="twitter:title"]');
                         if (!twTitle) {
                             twTitle = document.createElement('meta');
@@ -120,7 +111,7 @@
                             document.head.appendChild(twTitle);
                         }
                         twTitle.content = title;
-                        
+
                         let twDesc = document.querySelector('meta[name="twitter:description"]');
                         if (!twDesc) {
                             twDesc = document.createElement('meta');

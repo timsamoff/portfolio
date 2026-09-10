@@ -4,10 +4,8 @@
 const path = require('path');
 const fs = require('fs');
 
-// Root directory (parent of Utilities folder)
 const rootDir = path.join(__dirname, '..');
 
-// File paths
 const config = {
     rootDir: rootDir,
     projectsFile: path.join(rootDir, 'projects.json'),
@@ -23,12 +21,10 @@ const config = {
     }
 };
 
-// Check if a file exists
 config.fileExists = function(filePath) {
     return fs.existsSync(filePath);
 };
 
-// Ensure directory exists
 config.ensureDir = function(dirPath) {
     if (!fs.existsSync(dirPath)) {
         fs.mkdirSync(dirPath, { recursive: true });
@@ -37,12 +33,11 @@ config.ensureDir = function(dirPath) {
     return false;
 };
 
-// Get timestamp for backups
 config.getTimestamp = function() {
     return new Date().toISOString().replace(/[:.]/g, '-');
 };
 
-// Find projects.json (checks both locations)
+// Checks both the utilities/ and project-root locations
 config.findProjectsFile = function() {
     const localPath = path.join(__dirname, 'projects.json');
     const parentPath = path.join(rootDir, 'projects.json');

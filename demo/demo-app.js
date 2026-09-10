@@ -463,7 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // LAZY LOADING - SIMPLIFIED
+    // LAZY LOADING
     // ========================================
     function setupLazyLoading() {
         if (!('IntersectionObserver' in window)) {
@@ -893,7 +893,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const visibleItems = [];
         
         items.forEach((item) => {
-            // Get categories from the item's data attribute (comma-separated)
             const itemCategoriesAttr = item.getAttribute('data-categories') || '';
             const itemCategories = itemCategoriesAttr ? itemCategoriesAttr.split(',') : [];
             const isSelected = item.getAttribute('data-selected') === 'true';
@@ -906,15 +905,13 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (currentFilterValue === 'uncategorized') {
                 shouldShow = itemCategories.length === 0;
             } else {
-                // Check if the filter value matches any of the item's categories
                 let categoryMatch = false;
-                
-                // Direct category match
+
                 if (itemCategories.includes(currentFilterValue)) {
                     categoryMatch = true;
                 }
-                
-                // Check if currentFilterValue is a shortcut that maps to a category
+
+                // currentFilterValue may be a shortcut rather than the raw category key
                 if (!categoryMatch) {
                     Object.keys(categoryData).forEach(cat => {
                         if (categoryData[cat].shortcut === currentFilterValue && itemCategories.includes(cat)) {
@@ -1024,7 +1021,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // PROJECT LOADING - FULL MULTI-CATEGORY SUPPORT
+    // PROJECT LOADING
     // ========================================
 
     function loadProjects(projects) {
@@ -1057,16 +1054,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const imageAlign = project.imageAlign || 'center';
             const isSelected = project.selected === true;
-            
-            // Get categories array (support both old 'category' and new 'categories')
+
             let categories = [];
             if (project.categories && Array.isArray(project.categories)) {
                 categories = project.categories;
             } else if (project.category) {
                 categories = [project.category];
             }
-            
-            // Store categories as comma-separated string for filtering
+
             const categoriesAttr = categories.join(',');
 
             const article = document.createElement('article');
@@ -1074,8 +1069,7 @@ document.addEventListener('DOMContentLoaded', () => {
             article.setAttribute('data-categories', categoriesAttr);
             article.setAttribute('data-project-id', originalIndex);
             article.setAttribute('data-selected', isSelected ? 'true' : 'false');
-            // Also keep data-category for backward compatibility
-            article.setAttribute('data-category', categories.length > 0 ? categories[0] : 'uncategorized');
+            article.setAttribute('data-category', categories.length > 0 ? categories[0] : 'uncategorized'); // backward compat
 
             let thumbnailHtml = '';
             if (mediaArray.length === 1) {
@@ -1099,7 +1093,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 thumbnailHtml = `<div class="item-image"><div class="no-media">No media</div></div>`;
             }
 
-            // Display all categories or "Uncategorized"
             let displayCategories = 'Uncategorized';
             if (categories.length > 0) {
                 displayCategories = categories.map(cat => getCategoryDisplayName(cat, categoryData)).join(', ');
@@ -1171,7 +1164,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 50 + (index * 30));
         });
 
-        // Build categories from all projects (using the new categories array)
         const allCategories = new Set();
         visibleProjects.forEach(p => {
             let cats = [];
@@ -1285,8 +1277,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.stopPropagation();
                 const categoryAttr = newTag.getAttribute('data-category-filter');
                 if (categoryAttr) {
-                    // If multiple categories, use the first one for filtering
-                    const categories = categoryAttr.split(',');
+                    const categories = categoryAttr.split(','); // multi-category tags filter by the first
                     const category = categories[0] || '';
                     if (category) {
                         const filterButtons = document.querySelectorAll('.filter-nav .filter-btn');
@@ -1326,7 +1317,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // SCROLL TO FILTER PILLS - IMPROVED
+    // SCROLL TO FILTER PILLS
     // ========================================
     function scrollToFilterPills() {
         const filterNav = document.getElementById('filter-nav');
@@ -1377,7 +1368,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // SCROLL BUTTON - IMPROVED
+    // SCROLL BUTTON
     // ========================================
     function setupScrollButton() {
         const scrollBtn = document.querySelector('.scroll-btn');
@@ -1427,8 +1418,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!grid) return;
 
     const data = getDemoData();
-    
-    // Migrate old projects to new categories array format
+
     if (data.projects) {
         data.projects = data.projects.map(project => {
             if (!project.categories && project.category) {
@@ -1440,7 +1430,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             return project;
         });
-        // Save migrated data back
         if (typeof saveDemoProjects === 'function') {
             saveDemoProjects(data.projects);
         }
@@ -1451,7 +1440,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('storage', (e) => {
         if (e.key === DEMO_STORAGE_KEY) {
             const newData = getDemoData();
-            // Migrate on storage change too
             if (newData.projects) {
                 newData.projects = newData.projects.map(project => {
                     if (!project.categories && project.category) {

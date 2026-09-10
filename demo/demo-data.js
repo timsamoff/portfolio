@@ -10,7 +10,6 @@ const DEMO_CATEGORIES = [
     'visual_stories'
 ];
 
-// Category shortcuts mapping
 const DEMO_CATEGORY_SHORTCUTS = {
     'creative_experiments': 'experiments',
     'interactive_media': 'interactive',
@@ -18,13 +17,11 @@ const DEMO_CATEGORY_SHORTCUTS = {
     'visual_stories': 'visual'
 };
 
-// Function to format category for display
 function formatDemoCategory(cat) {
     if (!cat) return '';
     return cat.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 }
 
-// Function to get category shortcut
 function getDemoCategoryShortcut(cat) {
     if (!cat) return '';
     if (DEMO_CATEGORY_SHORTCUTS[cat]) {
@@ -44,7 +41,6 @@ function getDemoCategoryShortcut(cat) {
     }
 }
 
-// Function to get all category data with shortcuts
 function getDemoCategoryData() {
     const data = {};
     DEMO_CATEGORIES.forEach(cat => {
@@ -240,7 +236,6 @@ const DEMO_PROJECTS = [
 const DEMO_STORAGE_KEY = 'demo_portfolio_projects';
 const DEMO_CATEGORIES_KEY = 'demo_portfolio_categories';
 
-// Make these globally available
 window.DEMO_STORAGE_KEY = DEMO_STORAGE_KEY;
 window.DEMO_CATEGORIES_KEY = DEMO_CATEGORIES_KEY;
 window.DEMO_PROJECTS = DEMO_PROJECTS;
@@ -352,7 +347,6 @@ function getDemoData() {
         saveDemoProjects(projects);
     }
     
-    // Migrate old format to new categories array
     projects = projects.map(project => {
         const migrated = { ...project };
         if (!migrated.categories && migrated.category) {
@@ -374,7 +368,7 @@ function getDemoData() {
         saveDemoCategories(categories);
     }
     
-    // Clean up categories - only keep ones that actually exist in projects
+    // Drop categories with no projects using them
     const projectCats = getDemoCategoriesFromProjects(projects);
     categories = categories.filter(c => projectCats.includes(c));
     if (categories.length !== projectCats.length) {
@@ -385,7 +379,6 @@ function getDemoData() {
     return { projects, categories };
 }
 
-// Make functions globally available
 window.getDemoData = getDemoData;
 window.resetDemoData = resetDemoData;
 window.saveDemoProjects = saveDemoProjects;
@@ -400,8 +393,7 @@ window.DEMO_CATEGORIES = DEMO_CATEGORIES;
     const data = getDemoData();
     console.log(`Loaded ${data.projects.length} projects and ${data.categories.length} categories`);
     console.log('Categories:', data.categories.map(c => formatDemoCategory(c)).join(', '));
-    
-    // Count projects with multiple categories
+
     const multiCatProjects = data.projects.filter(p => p.categories && p.categories.length > 1);
     console.log(`${multiCatProjects.length} projects have multiple categories`);
     

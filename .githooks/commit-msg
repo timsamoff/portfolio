@@ -1,0 +1,10 @@
+#!/bin/sh
+# Commit-msg gate check: enforces commit conventions and strips/blocks
+# AI-attribution trailers. Thin shim -> real logic in .githooks/lib (Node).
+#
+# Enable once per clone with:
+#   git config core.hooksPath .githooks
+
+HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+node "$HOOK_DIR/lib/commit-msg-checks.js" "$1"
+exit $?

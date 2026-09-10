@@ -36,15 +36,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================
     // SHARE.HTML REDIRECT - MUST RUN FIRST
     // ========================================
-    // If we're on share.html, immediately redirect to index.html with the share param
     if (window.location.pathname.includes('share.html')) {
         const params = new URLSearchParams(window.location.search);
         const shareParam = params.get('share');
         if (shareParam) {
-            // Use the current origin and replace share.html with index.html
             const baseUrl = window.location.origin + window.location.pathname.replace(/share\.html.*$/, '');
             window.location.replace(baseUrl + 'index.html?share=' + shareParam);
-            return; // Stop execution
+            return;
         } else {
             window.location.replace(window.location.origin + window.location.pathname.replace(/share\.html.*$/, '') + 'index.html');
             return;
@@ -113,12 +111,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             overlayDesc.innerHTML = 'No description available.';
         }
-        
-        // Always start collapsed when showing
+
         overlayElement.classList.add('collapsed');
         overlayElement.classList.add('active');
-        
-        // Set correct icon state
+
         updateToggleIcon();
     }
 
@@ -138,7 +134,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Toggle button click handler
     if (overlayToggleBtn) {
         overlayToggleBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -147,7 +142,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Make the header clickable to toggle as well
     if (overlayHeader) {
         overlayHeader.addEventListener('click', (e) => {
             if (e.target.closest('#overlay-toggle-btn')) return;
@@ -586,7 +580,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // SHARE URL GENERATION - FIXED
+    // SHARE URL GENERATION
     // ========================================
     function generateShareUrl(projectIndex, mediaIndex = 0) {
         const shareData = {
@@ -594,8 +588,6 @@ document.addEventListener('DOMContentLoaded', () => {
             m: mediaIndex
         };
         const encoded = btoa(JSON.stringify(shareData));
-        // Always use the base URL (index.html) with the share parameter
-        // Use the origin and the base path, removing any share.html references
         const basePath = window.location.pathname.split('/').slice(0, -1).join('/') + '/';
         return window.location.origin + basePath + 'index.html?share=' + encoded;
     }
@@ -817,19 +809,28 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================
     // FILTERING SYSTEM WITH URL SYNC
     // ========================================
-    const filterAliases = {
-        'game': 'game_design_&_development',
-        'brand': 'brand_&_identity',
-        'web': 'web_design_&_development',
-        'production': 'production_&_installation',
-        'digital': 'digital_art_&_design',
-        'motion': 'motion_graphics_&_animation',
-        'app': 'app_design_&_development',
-        'ux': 'user_experience',
+    let filterAliases = {
         'selected': 'selected',
         'all': 'all',
         'uncategorized': 'uncategorized'
     };
+
+    function buildFilterAliases(categoryData) {
+        const aliases = {
+            'selected': 'selected',
+            'all': 'all',
+            'uncategorized': 'uncategorized'
+        };
+
+        Object.keys(categoryData).forEach(cat => {
+            const shortcut = categoryData[cat].shortcut;
+            if (shortcut) {
+                aliases[shortcut] = cat;
+            }
+        });
+
+        return aliases;
+    }
 
     function setupFiltering() {
         const filterButtons = document.querySelectorAll('.filter-nav .filter-btn');
@@ -1311,9 +1312,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================
     if (!grid) return;
 
-    fetch('projects.json')
-        .then(response => response.json())
-        .then(data => {
+    Promise.all([
+        fetch('projects.json').then(response => response.json()),
+        fetch('categories.json').then(response => response.json()).catch(() => ({}))
+    ])
+        .then(([data, categoryData]) => {
+            filterAliases = buildFilterAliases(categoryData);
+
             const migratedData = data.map(project => {
                 if (!project.categories && project.category) {
                     project.categories = [project.category];
