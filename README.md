@@ -31,9 +31,11 @@ This portfolio system is designed for static site hosting (GitHub Pages, Netlify
 ## Setup
 
 1. Clone the repository
-2. Start the local server (required for the admin panel):
+2. Enable the repo's gate-check hooks (pre-commit/commit-msg checks in `.githooks/`) — this is local git config and doesn't apply automatically on a fresh clone:
+   git config core.hooksPath .githooks
+3. Start the local server (required for the admin panel):
    node save-server.js
-3. Open index.html in your browser to view the site, or _admin.html to manage projects.
+4. Open index.html in your browser to view the site, or _admin.html to manage projects.
 
 ---
 
