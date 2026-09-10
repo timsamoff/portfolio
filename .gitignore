@@ -46,3 +46,6 @@ node_modules/
 # Local project docs / audit notes (not for public repo)
 production_notes/
 CLAUDE.md
+
+# Throwaway verification/debug scripts
+scratch/
