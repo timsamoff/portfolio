@@ -49,3 +49,6 @@ CLAUDE.md
 
 # Throwaway verification/debug scripts
 scratch/
+
+# Reference copy of a prior working version (local use only)
+portfolio-old/

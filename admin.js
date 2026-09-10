@@ -852,7 +852,7 @@ function renderCategoryList() {
             gap: 0.75rem;
             align-items: center;
             padding: 0.5rem;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--color-border);
         `;
         
         const nameSpan = document.createElement('span');
