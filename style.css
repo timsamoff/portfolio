@@ -35,7 +35,11 @@
     /* Hero Height */
     --hero-pad-top: 3rem;
     --hero-pad-bottom: 6rem;
-    
+
+    /* Layout rhythm */
+    --section-gap: 2rem;
+    --header-height: 80px;
+
     /* Animations */
     --shimmer-duration: 2s;
     --shimmer-pulse-duration: 1.5s;
@@ -79,13 +83,12 @@
 }
 
 html {
-    scroll-padding-top: 80px;
+    scroll-padding-top: var(--header-height);
 }
 
 html,
 body {
     height: 100%;
-    padding-top: 80px;
 }
 
 body {
@@ -290,6 +293,7 @@ header.scrolled {
    HERO SECTION
    ======================================== */
 .hero-section {
+    margin-top: var(--header-height);
     padding: var(--hero-pad-top) 0 var(--hero-pad-bottom) 0;
     text-align: center;
     margin-bottom: 0;
@@ -676,7 +680,7 @@ header.scrolled {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
     gap: 2rem;
-    margin: 2rem 0;
+    margin: var(--section-gap) 0;
 }
 
 .portfolio-item {

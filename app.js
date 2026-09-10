@@ -16,6 +16,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
+    // HEADER HEIGHT MANAGEMENT FOR SCROLLING
+    // ========================================
+
+    let headerHeight = 0;
+
+    function updateHeaderHeight() {
+        const header = document.getElementById('site-header');
+        if (header) {
+            headerHeight = header.offsetHeight;
+            document.documentElement.style.setProperty('--header-height', headerHeight + 'px');
+            document.documentElement.style.scrollPaddingTop = headerHeight + 'px';
+        }
+    }
+
+    window.addEventListener('load', updateHeaderHeight);
+    window.addEventListener('resize', updateHeaderHeight);
+    window.addEventListener('orientationchange', () => {
+        setTimeout(updateHeaderHeight, 300);
+    });
+
+    if (window.MutationObserver) {
+        const observer = new MutationObserver(updateHeaderHeight);
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['style', 'class']
+        });
+    }
+
+    updateHeaderHeight();
+
+    // ========================================
     // DOM REFERENCES
     // ========================================
     const modal = document.getElementById('media-modal');
@@ -987,6 +1018,12 @@ document.addEventListener('DOMContentLoaded', () => {
         scrollToFilterPills();
     }
 
+    function getSectionGap() {
+        const value = getComputedStyle(document.documentElement).getPropertyValue('--section-gap');
+        const parsed = parseFloat(value);
+        return Number.isNaN(parsed) ? 32 : parsed * (value.trim().endsWith('rem') ? 16 : 1);
+    }
+
     function scrollToFilterPills() {
         const filterNav = document.getElementById('filter-nav');
         if (!filterNav) {
@@ -998,7 +1035,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const headerHeight = header ? header.offsetHeight : 0;
         const filterRect = filterNav.getBoundingClientRect();
         const filterTop = filterRect.top + window.pageYOffset;
-        const targetScrollY = filterTop - headerHeight;
+        const targetScrollY = filterTop - headerHeight - getSectionGap();
 
         const startPosition = window.pageYOffset;
         const distance = targetScrollY - startPosition;
@@ -1041,7 +1078,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const headerHeight = header ? header.offsetHeight : 0;
             const filterRect = filterNav.getBoundingClientRect();
             const filterTop = filterRect.top + window.pageYOffset;
-            const targetScrollY = filterTop - headerHeight;
+            const targetScrollY = filterTop - headerHeight - getSectionGap();
 
             const startPosition = window.pageYOffset;
             const distance = targetScrollY - startPosition;

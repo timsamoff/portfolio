@@ -49,6 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    updateHeaderHeight();
+
     // ========================================
     // STICKY HEADER SHADOW ON SCROLL
     // ========================================
@@ -1319,6 +1321,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================
     // SCROLL TO FILTER PILLS
     // ========================================
+    function getSectionGap() {
+        const value = getComputedStyle(document.documentElement).getPropertyValue('--section-gap');
+        const parsed = parseFloat(value);
+        return Number.isNaN(parsed) ? 32 : parsed * (value.trim().endsWith('rem') ? 16 : 1);
+    }
+
     function scrollToFilterPills() {
         const filterNav = document.getElementById('filter-nav');
         if (!filterNav) {
@@ -1332,7 +1340,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const filterRect = filterNav.getBoundingClientRect();
         const filterTop = filterRect.top + window.pageYOffset;
 
-        const targetScrollY = filterTop - headerH;
+        const targetScrollY = filterTop - headerH - getSectionGap();
 
         const startPosition = window.pageYOffset;
         const distance = targetScrollY - startPosition;
@@ -1381,10 +1389,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const header = document.getElementById('site-header');
             const headerH = header ? header.offsetHeight : headerHeight || 80;
-            
+
             const filterRect = filterNav.getBoundingClientRect();
             const filterTop = filterRect.top + window.pageYOffset;
-            const targetScrollY = filterTop - headerH;
+            const targetScrollY = filterTop - headerH - getSectionGap();
 
             const startPosition = window.pageYOffset;
             const distance = targetScrollY - startPosition;
