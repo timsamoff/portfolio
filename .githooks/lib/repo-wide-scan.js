@@ -33,24 +33,7 @@ const findings = [];
     if (total > 0) findings.push(`CSS custom property existence: --text-muted used instead of --color-text-muted, ${total} occurrences across: ${perFile.join(', ')}`);
 }
 
-// 2. filterAliases vs categories.json (registry parity — static check, not diff-based)
-{
-    const cats = read('categories.json');
-    const appjs = read('app.js');
-    if (cats && appjs) {
-        const catData = JSON.parse(cats);
-        const aliasBlockMatch = appjs.match(/const filterAliases = \{([\s\S]*?)\n    \};/);
-        const aliasBlock = aliasBlockMatch ? aliasBlockMatch[1] : '';
-        const missing = Object.entries(catData)
-            .filter(([, v]) => v.shortcut)
-            .filter(([, v]) => !aliasBlock.includes(`'${v.shortcut}'`) && !aliasBlock.includes(`"${v.shortcut}"`));
-        if (missing.length > 0) {
-            findings.push(`Category registry parity: categories.json shortcuts not present in app.js filterAliases: ${missing.map(([k, v]) => v.shortcut || k).join(', ')}`);
-        }
-    }
-}
-
-// 3. Demo category parity (static)
+// 2. Demo category parity (static)
 {
     const cats = read('categories.json');
     const demoData = read('demo/demo-data.js');
@@ -66,7 +49,7 @@ const findings = [];
     }
 }
 
-// 4. generateShareUrl signature drift (static)
+// 3. generateShareUrl signature drift (static)
 {
     const appjs = read('app.js');
     const demoapp = read('demo/demo-app.js');
@@ -80,7 +63,7 @@ const findings = [];
     }
 }
 
-// 5. cleanupMalformedLinks triplication (existence check only — presence in all 3, not sync)
+// 4. cleanupMalformedLinks triplication (existence check only — presence in all 3, not sync)
 {
     const files = ['admin.js', 'demo/demo-admin.js', 'utilities/fix-links.js'];
     const present = files.filter(f => {

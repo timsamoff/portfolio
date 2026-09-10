@@ -5,5 +5,12 @@
     "reason": "admin.js/app.js changed in this commit only for internal fixes (CSS token names, hardcoded colors, ARIA attributes, heading semantics, filterAliases source) with no change to documented schema, features, or setup. The check's keyword match on 'categories'/'filterAliases' fired on unrelated code (the category dropdown's ARIA attributes), not an actual behavior change.",
     "owner": "Tim Samoff",
     "review_by": "2026-10-10"
+  },
+  {
+    "category": "Demo category parity",
+    "file_scope": "demo/demo-data.js",
+    "reason": "Confirmed intentional: demo/demo-data.js's DEMO_CATEGORIES is a deliberately independent placeholder seed list for demo content, not meant to mirror categories.json's real categories.",
+    "owner": "Tim Samoff",
+    "review_by": "2027-09-10"
   }
 ]

@@ -550,7 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // SHARE URL GENERATION
     // ========================================
 
-    function generateShareUrl(projectIndex, mediaIndex = 0, mediaArray = []) {
+    function generateShareUrl(projectIndex, mediaIndex = 0) {
         const shareData = {
             p: projectIndex,
             m: mediaIndex
@@ -721,7 +721,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentModalSwiper.on('slideChange', () => {
                     if (!modalManuallyClosed) {
                         const newIndex = currentModalSwiper.realIndex;
-                        const shareUrl = generateShareUrl(projectId, newIndex, mediaArray);
+                        const shareUrl = generateShareUrl(projectId, newIndex);
                         window.history.replaceState({}, '', shareUrl);
                     }
                 });
@@ -1140,7 +1140,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     
                     openMediaModal(mediaArray, startIndex, originalIndex);
-                    const shareUrl = generateShareUrl(originalIndex, startIndex, mediaArray);
+                    const shareUrl = generateShareUrl(originalIndex, startIndex);
                     window.history.pushState({}, '', shareUrl);
                 }
             });
@@ -1150,7 +1150,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 shareHint.addEventListener('click', async (e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    const shareUrl = generateShareUrl(originalIndex, 0, mediaArray);
+                    const shareUrl = generateShareUrl(originalIndex, 0);
                     const copied = await copyToClipboard(shareUrl);
 
                     if (copied) {

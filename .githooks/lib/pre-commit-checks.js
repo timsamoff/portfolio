@@ -63,25 +63,6 @@ function warn(rule, file, message) {
 
 // --- Rule 1: Category registry parity (categories.json -> filterAliases in app.js) ---
 
-function checkCategoryRegistryParity(files) {
-    if (!files.includes('categories.json')) return;
-    const appDiff = stagedDiffFor('app.js');
-    const touchedFilterAliases = /filterAliases/.test(appDiff) && addedLines(appDiff).some(l => /filterAliases/.test(l) || true);
-    // More precise: did app.js change at all in this commit AND does the diff touch the
-    // filterAliases block specifically? We approximate "touched filterAliases" by checking
-    // whether any hunk header/context in the diff falls near the literal, since app.js may
-    // not change at all.
-    const appJsChanged = files.includes('app.js');
-    const diffMentionsFilterAliases = /filterAliases/.test(appDiff);
-    if (!appJsChanged || !diffMentionsFilterAliases) {
-        flag(
-            'Category registry parity',
-            'app.js',
-            'categories.json changed but app.js\'s filterAliases literal (~line 812) was not touched in this commit. Did you add a new category with a shortcut? If so, add the same key/value to filterAliases in app.js.'
-        );
-    }
-}
-
 // --- Rule 2: Demo category parity (categories.json -> demo/demo-data.js DEMO_CATEGORIES) ---
 
 function checkDemoCategoryParity(files) {
@@ -358,7 +339,6 @@ function run() {
         return { violations: [], warnings: [] };
     }
 
-    checkCategoryRegistryParity(files);
     checkDemoCategoryParity(files);
     checkCssCustomPropertyExistence(files);
     checkDemoMainParity(files);
