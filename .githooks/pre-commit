@@ -1,0 +1,10 @@
+#!/bin/sh
+# Pre-commit gate checks. Thin shim -> real logic lives in .githooks/lib (Node),
+# committed so it survives a fresh clone. See INTEGRATION_CHECKLIST.md Part 3.2.
+#
+# Enable once per clone with:
+#   git config core.hooksPath .githooks
+
+HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+node "$HOOK_DIR/lib/pre-commit-checks.js"
+exit $?
