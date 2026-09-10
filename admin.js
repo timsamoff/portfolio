@@ -1,4 +1,6 @@
 // Admin panel functionality - with save-server.js backend
+const API_BASE = 'http://localhost:3001';
+
 let localProjectCache = [];
 let currentMediaArray = [];
 let draggedMediaIndexForReorder = null;
@@ -256,7 +258,7 @@ function saveCategoryData() {
         };
     });
     
-    fetch('http://localhost:3001/api/save-categories', {
+    fetch(`${API_BASE}/api/save-categories`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToSave)
@@ -1117,7 +1119,7 @@ function saveToServer() {
         return cleaned;
     });
     
-    fetch('http://localhost:3001/api/save-projects', {
+    fetch(`${API_BASE}/api/save-projects`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(projectsToSave)
