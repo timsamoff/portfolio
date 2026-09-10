@@ -1046,7 +1046,7 @@ function showFloatingNotification(message, isSuccess = true) {
         font-size: 0.85rem;
         font-weight: 500;
         z-index: 10000;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        box-shadow: var(--shadow-sm);
         pointer-events: none;
         animation: slideInRight 0.3s ease;
     `;
