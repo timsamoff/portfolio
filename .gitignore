@@ -1,7 +1,6 @@
 # Admin files - keep private
 ./admin.html
 # ./admin.js
-test.html
 
 # Backup files
 backups/
@@ -43,3 +42,7 @@ node_modules/
 *.tmp
 *.temp
 .cache/
+
+# Local project docs / audit notes (not for public repo)
+production_notes/
+CLAUDE.md
