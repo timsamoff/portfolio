@@ -809,19 +809,28 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================
     // FILTERING SYSTEM WITH URL SYNC
     // ========================================
-    const filterAliases = {
-        'game': 'game_design_&_development',
-        'brand': 'brand_&_identity',
-        'web': 'web_design_&_development',
-        'production': 'production_&_installation',
-        'digital': 'digital_art_&_design',
-        'motion': 'motion_graphics_&_animation',
-        'app': 'app_design_&_development',
-        'ux': 'user_experience',
+    let filterAliases = {
         'selected': 'selected',
         'all': 'all',
         'uncategorized': 'uncategorized'
     };
+
+    function buildFilterAliases(categoryData) {
+        const aliases = {
+            'selected': 'selected',
+            'all': 'all',
+            'uncategorized': 'uncategorized'
+        };
+
+        Object.keys(categoryData).forEach(cat => {
+            const shortcut = categoryData[cat].shortcut;
+            if (shortcut) {
+                aliases[shortcut] = cat;
+            }
+        });
+
+        return aliases;
+    }
 
     function setupFiltering() {
         const filterButtons = document.querySelectorAll('.filter-nav .filter-btn');
@@ -1303,9 +1312,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================
     if (!grid) return;
 
-    fetch('projects.json')
-        .then(response => response.json())
-        .then(data => {
+    Promise.all([
+        fetch('projects.json').then(response => response.json()),
+        fetch('categories.json').then(response => response.json()).catch(() => ({}))
+    ])
+        .then(([data, categoryData]) => {
+            filterAliases = buildFilterAliases(categoryData);
+
             const migratedData = data.map(project => {
                 if (!project.categories && project.category) {
                     project.categories = [project.category];

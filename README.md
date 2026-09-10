@@ -91,7 +91,7 @@ Categories are defined in `categories.json`:
     }
 
 - Categories are stored as an array, allowing projects to appear in multiple filters
-- Shortcuts provide clean, user-friendly URLs (e.g., `?filter=game` instead of the full category key)
+- Shortcuts provide clean, user-friendly URLs (e.g., `?filter=game` instead of the full category key) — the shortcut set in the admin panel is read directly from `categories.json` on page load, on both the main site and the demo site, so it applies automatically without any other code changes
 - Uncategorized is the default for projects with no categories assigned
 
 ---
