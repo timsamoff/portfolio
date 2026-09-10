@@ -119,7 +119,6 @@ function checkCssCustomPropertyExistence(files) {
 
     for (const file of files) {
         if (!/\.(css|html|js)$/.test(file)) continue;
-        if (file === 'style.css') continue; // definitions live here; skip self-reference noise
         const diff = stagedDiffFor(file);
         const added = addedLines(diff);
         for (const line of added) {
