@@ -215,7 +215,7 @@
     background: none;
     border: none;
     font-size: 1.2rem;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     cursor: pointer;
     padding: 0.2rem 0.5rem;
     transition: color 0.2s;
@@ -265,7 +265,7 @@
 
 .category-add-label {
     font-size: 0.75rem;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     display: block;
     margin-bottom: 0.2rem;
 }
@@ -292,7 +292,7 @@
 }
 
 .category-add-hint {
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     display: block;
     margin-top: 0.3rem;
     font-size: 0.75rem;

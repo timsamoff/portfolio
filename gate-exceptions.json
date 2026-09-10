@@ -1,0 +1,9 @@
+[
+  {
+    "category": "README currency",
+    "file_scope": "README.md",
+    "reason": "admin.js/app.js changed in this commit only for internal fixes (CSS token names, hardcoded colors, ARIA attributes, heading semantics, filterAliases source) with no change to documented schema, features, or setup. The check's keyword match on 'categories'/'filterAliases' fired on unrelated code (the category dropdown's ARIA attributes), not an actual behavior change.",
+    "owner": "Tim Samoff",
+    "review_by": "2026-10-10"
+  }
+]

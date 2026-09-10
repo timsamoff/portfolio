@@ -184,10 +184,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================
     // MODAL MEDIA HTML GENERATION
     // ========================================
-    function generateModalMediaHtml(mediaUrl, mediaIndex) {
+    function generateModalMediaHtml(mediaUrl, mediaIndex, projectTitle) {
         const isVideo = isVideoUrl(mediaUrl);
         const youtubeEmbed = getYouTubeEmbedUrl(mediaUrl);
         const vimeoEmbed = getVimeoEmbedUrl(mediaUrl);
+        const altText = escapeHtml(projectTitle ? `${projectTitle} — media ${mediaIndex + 1}` : 'Portfolio image');
 
         if (isVideo) {
             if (youtubeEmbed) {
@@ -199,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return `<video controls data-url="${mediaUrl}" data-media-index="${mediaIndex}" data-saved-time="${savedProgress}" style="width:100%; height:100%;"><source src="${mediaUrl}" type="video/mp4">Your browser does not support video.</video>`;
             }
         } else {
-            return `<img src="${mediaUrl}" alt="Portfolio image" style="max-width:100%; max-height:100%; object-fit:contain;">`;
+            return `<img src="${mediaUrl}" alt="${altText}" style="max-width:100%; max-height:100%; object-fit:contain;">`;
         }
     }
 
@@ -476,9 +477,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function generateThumbnailHtml(mediaUrl, alignSetting = 'center') {
+    function generateThumbnailHtml(mediaUrl, alignSetting = 'center', projectTitle = '') {
         const isVideo = isVideoUrl(mediaUrl);
         const objectPosition = getObjectPosition(alignSetting);
+        const altText = escapeHtml(projectTitle || 'Portfolio project');
 
         if (mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be')) {
             const videoId = getYouTubeVideoId(mediaUrl);
@@ -486,7 +488,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return `<div class="thumb-shimmer">
                     <img
                         data-src="https://img.youtube.com/vi/${videoId}/mqdefault.jpg"
-                        alt="YouTube thumbnail"
+                        alt="${altText}"
                         style="object-position: ${objectPosition};"
                         class="thumb-media"
                         width="400"
@@ -502,7 +504,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <img
                         data-src="https://vumbnail.com/${vimeoId}.jpg"
                         data-vimeo-fallback="https://i.vimeocdn.com/video/${vimeoId}_640.jpg"
-                        alt="Vimeo thumbnail"
+                        alt="${altText}"
                         style="object-position: ${objectPosition};"
                         class="thumb-media"
                         width="400"
@@ -515,7 +517,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return `<div class="thumb-shimmer">
                 <img
                     data-src="${mediaUrl}"
-                    alt="Portfolio media"
+                    alt="${altText}"
                     style="object-position: ${objectPosition};"
                     class="thumb-media"
                     width="400"
@@ -755,7 +757,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let slidesHtml = '';
         mediaArray.forEach((mediaUrl, idx) => {
-            const mediaHtml = generateModalMediaHtml(mediaUrl, idx);
+            const mediaHtml = generateModalMediaHtml(mediaUrl, idx, project ? project.title : '');
             slidesHtml += `<div class="swiper-slide"><div class="modal-media-container">${mediaHtml}</div></div>`;
         });
 
@@ -1119,7 +1121,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const visibleProjects = projects.filter(project => project.published !== false);
 
         if (visibleProjects.length === 0) {
-            grid.innerHTML = `<div style="text-align: center; padding: 3rem; color: var(--text-muted); grid-column: 1 / -1; width: 100%;">
+            grid.innerHTML = `<div style="text-align: center; padding: 3rem; color: var(--color-text-muted); grid-column: 1 / -1; width: 100%;">
                 📭 No published projects yet.
             </div>`;
             return;
@@ -1146,11 +1148,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let thumbnailHtml = '';
             if (mediaArray.length === 1) {
-                thumbnailHtml = `<div class="item-image">${generateThumbnailHtml(mediaArray[0], imageAlign)}</div>`;
+                thumbnailHtml = `<div class="item-image">${generateThumbnailHtml(mediaArray[0], imageAlign, project.title)}</div>`;
             } else if (mediaArray.length > 1) {
                 let swiperSlides = '';
                 mediaArray.forEach((mediaUrl) => {
-                    swiperSlides += `<div class="swiper-slide">${generateThumbnailHtml(mediaUrl, imageAlign)}</div>`;
+                    swiperSlides += `<div class="swiper-slide">${generateThumbnailHtml(mediaUrl, imageAlign, project.title)}</div>`;
                 });
                 thumbnailHtml = `
                     <div class="item-image card-swiper-container">

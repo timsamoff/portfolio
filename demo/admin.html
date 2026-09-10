@@ -10,14 +10,14 @@
 </head>
 <body data-theme="dark">
     <!-- DEMO INFO MODAL -->
-    <div id="demo-info-modal" style="display:none;">
+    <div id="demo-info-modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="demo-info-title">
         <div style="background: var(--color-card); border: 1px solid var(--color-border); border-radius: 24px; padding: 2rem; max-width: 560px; width: 90%; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
                 <div>
                     <span style="background: var(--color-accent); color: white; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.2rem 0.8rem; border-radius: 100px; display: inline-block; margin-bottom: 0.5rem;">DEMO MODE</span>
-                    <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0; color: var(--color-text);">How This Works</h2>
+                    <h2 id="demo-info-title" style="font-size: 1.5rem; font-weight: 700; margin: 0; color: var(--color-text);">How This Works</h2>
                 </div>
-                <button id="demo-info-close" style="background: none; border: none; font-size: 1.8rem; color: var(--color-text-muted); cursor: pointer; transition: color 0.2s; line-height: 1; padding: 0.25rem;">&times;</button>
+                <button id="demo-info-close" aria-label="Close" style="background: none; border: none; font-size: 1.8rem; color: var(--color-text-muted); cursor: pointer; transition: color 0.2s; line-height: 1; padding: 0.25rem;">&times;</button>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.25rem 0;">
@@ -48,7 +48,7 @@
                 </div>
             </div>
 
-            <div style="background: rgba(229, 72, 77, 0.06); border: 1px solid rgba(229, 72, 77, 0.15); border-radius: 14px; padding: 1rem 1.25rem; margin: 0 0 1.25rem 0;">
+            <div style="background: rgba(var(--color-accent-rgb), 0.06); border: 1px solid rgba(var(--color-accent-rgb), 0.15); border-radius: 14px; padding: 1rem 1.25rem; margin: 0 0 1.25rem 0;">
                 <p style="font-size: 0.85rem; color: var(--color-text-secondary); line-height: 1.6; margin: 0;"><strong style="color: var(--color-text);">Try it out:</strong> Add a project, publish it, then click "View Live Site" to see your changes instantly. Everything is saved automatically. Refresh the page and your work persists.</p>
             </div>
 
@@ -60,7 +60,7 @@
         <div class="header-container">
             <div class="logo-zone">
                 <h1>Portfolio Management Panel <span class="demo-badge">DEMO</span></h1>
-                <p class="subtitle" style="color: var(--text-muted);">localStorage mode. Data stored in your browser.</p>
+                <p class="subtitle" style="color: var(--color-text-muted);">localStorage mode. Data stored in your browser.</p>
             </div>
             <div class="admin-demo-header">
                 <a href="index.html" target="_blank" class="filter-btn" style="text-decoration: none; line-height: 20px; white-space: nowrap;">👁️ View Live Site</a>
@@ -88,11 +88,11 @@
                     <label>Categories</label>
                     <div class="category-dropdown-wrapper">
                         <div class="category-dropdown-container">
-                            <button type="button" id="category-dropdown-toggle" class="category-dropdown-toggle">
+                            <button type="button" id="category-dropdown-toggle" class="category-dropdown-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="category-dropdown-panel">
                                 <span id="category-display">Uncategorized</span>
                                 <span class="dropdown-arrow">▾</span>
                             </button>
-                            <div id="category-dropdown-panel" class="category-dropdown-panel" style="display:none;">
+                            <div id="category-dropdown-panel" class="category-dropdown-panel" style="display:none;" role="group" aria-label="Categories">
                                 <div id="category-checkbox-list" class="category-checkbox-list">
                                     <!-- Checkboxes generated here -->
                                 </div>
@@ -103,7 +103,7 @@
                         </div>
                         <button type="button" id="add-category-btn" class="filter-btn" style="padding: 0 1rem; white-space: nowrap;">📁 Manage</button>
                     </div>
-                    <small id="category-help-text" style="color: var(--text-muted); display: block; margin-top: 0.3rem;">
+                    <small id="category-help-text" style="color: var(--color-text-muted); display: block; margin-top: 0.3rem;">
                         📁 Click to select multiple categories. Click "Manage" to add/edit categories.
                     </small>
                 </div>
@@ -112,7 +112,7 @@
                 <div id="category-manager" class="category-manager" style="display: none;">
                     <div class="category-manager-header">
                         <h4 class="category-manager-title">📁 Manage Categories</h4>
-                        <button type="button" id="category-manager-close" class="category-manager-close">✕</button>
+                        <button type="button" id="category-manager-close" class="category-manager-close" aria-label="Close category manager">✕</button>
                     </div>
                     
                     <!-- Category List -->
@@ -143,7 +143,7 @@
                         <span class="custom-checkbox-box"></span>
                         <span style="font-weight: 500;">⭐ Selected Work (featured on live site)</span>
                     </label>
-                    <small style="color: var(--text-muted); display: block; margin-top: 0.5rem; margin-left: 0.25rem;">🌟 Check to feature this project as a "Selected Work" on the live site</small>
+                    <small style="color: var(--color-text-muted); display: block; margin-top: 0.5rem; margin-left: 0.25rem;">🌟 Check to feature this project as a "Selected Work" on the live site</small>
                 </div>
 
                 <div class="form-group publish-group">
@@ -152,7 +152,7 @@
                         <span class="custom-checkbox-box"></span>
                         <span style="font-weight: 500;">📢 Publish Project (visible on live site)</span>
                     </label>
-                    <small style="color: var(--text-muted); display: block; margin-top: 0.5rem; margin-left: 0.25rem;">🔒 Check to publish. Uncheck to save as draft (only visible in admin panel)</small>
+                    <small style="color: var(--color-text-muted); display: block; margin-top: 0.5rem; margin-left: 0.25rem;">🔒 Check to publish. Uncheck to save as draft (only visible in admin panel)</small>
                 </div>
                 
                 <div class="form-group">
@@ -162,7 +162,7 @@
                         <option value="top">Top</option>
                         <option value="bottom">Bottom</option>
                     </select>
-                    <small style="color: var(--text-muted); display: block; margin-top: 0.3rem;">🎨 Controls how portrait/landscape images are cropped in the card preview</small>
+                    <small style="color: var(--color-text-muted); display: block; margin-top: 0.3rem;">🎨 Controls how portrait/landscape images are cropped in the card preview</small>
                 </div>
                 
                 <div class="form-group">
@@ -185,7 +185,7 @@
                         </div>
                     </div>
 
-                    <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">
+                    <small style="color: var(--color-text-muted); display: block; margin-top: 0.5rem;">
                         💡 Type a relative path or URL and click Add, or click the Add button to select files from your computer (multi-select supported). 
                         Drag ⋮⋮ to reorder media items.
                     </small>
@@ -205,8 +205,8 @@
                         <textarea id="form-description" class="rich-text-description tag-editor" rows="7"
                             placeholder="Type description here. Use toolbar to insert tags, or type them directly.&#10;e.g. &lt;strong&gt;bold&lt;/strong&gt;, &lt;em&gt;italic&lt;/em&gt;, &lt;a href=&quot;https://...&quot; target=&quot;_blank&quot;&gt;link text&lt;/a&gt;"></textarea>
                     </div>
-                    <div id="char-counter" style="text-align: right; font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;"></div>
-                    <small style="color: var(--text-muted); display: block; margin-top: 0.3rem;">
+                    <div id="char-counter" style="text-align: right; font-size: 0.7rem; color: var(--color-text-muted); margin-top: 0.25rem;"></div>
+                    <small style="color: var(--color-text-muted); display: block; margin-top: 0.3rem;">
                         📝 Type HTML tags directly or use the toolbar. Select text then click a button to wrap it.
                     </small>
                 </div>
@@ -216,13 +216,13 @@
             </div><!-- /.admin-form-sticky -->
 
             <div class="sorting-zone">
-                <h3>Arrange Project Priority <span style="font-size:0.75rem; text-transform:none; color:var(--text-muted); font-weight:normal;">(Click a row to edit, drag rows to reorder)</span></h3>
+                <h3>Arrange Project Priority <span style="font-size:0.75rem; text-transform:none; color:var(--color-text-muted); font-weight:normal;">(Click a row to edit, drag rows to reorder)</span></h3>
                 <div class="admin-search">
                     <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
                         <div style="position:relative; display:flex; align-items:center; flex: 1; min-width: 200px;">
                             <input type="text" id="admin-search-input" placeholder="🔍 Filter projects by title..." class="admin-search-input" style="padding-right:2.2rem; width:100%;">
                             <button type="button" id="admin-search-clear" title="Clear search"
-                                style="display:none; position:absolute; right:0.5rem; width:1.5rem; height:1.5rem; align-items:center; justify-content:center; background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:1rem; border-radius:50%;">×</button>
+                                style="display:none; position:absolute; right:0.5rem; width:1.5rem; height:1.5rem; align-items:center; justify-content:center; background:none; border:none; cursor:pointer; color:var(--color-text-muted); font-size:1rem; border-radius:50%;">×</button>
                         </div>
                         <div style="min-width: 180px;">
                             <select id="admin-filter-select" class="admin-search-input" style="width:100%; padding-right: 2.2rem; appearance: auto; cursor: pointer;">

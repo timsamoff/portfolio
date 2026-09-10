@@ -104,10 +104,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // MODAL MEDIA HTML GENERATION
     // ========================================
 
-    function generateModalMediaHtml(mediaUrl, mediaIndex) {
+    function generateModalMediaHtml(mediaUrl, mediaIndex, projectTitle) {
         const isVideo = isVideoUrl(mediaUrl);
         const youtubeEmbed = getYouTubeEmbedUrl(mediaUrl);
         const vimeoEmbed = getVimeoEmbedUrl(mediaUrl);
+        const altText = escapeHtml(projectTitle ? `${projectTitle} — media ${mediaIndex + 1}` : 'Portfolio image');
 
         if (isVideo) {
             if (youtubeEmbed) {
@@ -119,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return `<video controls data-url="${mediaUrl}" data-media-index="${mediaIndex}" data-saved-time="${savedProgress}" style="width:100%; height:100%;"><source src="${mediaUrl}" type="video/mp4">Your browser does not support video.</video>`;
             }
         } else {
-            return `<img src="${mediaUrl}" alt="Portfolio image" style="max-width:100%; max-height:100%; object-fit:contain;">`;
+            return `<img src="${mediaUrl}" alt="${altText}" style="max-width:100%; max-height:100%; object-fit:contain;">`;
         }
     }
 
@@ -170,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: ${isError ? 'var(--accent-red)' : '#10b981'};
+            background: ${isError ? 'var(--color-error)' : 'var(--color-success)'};
             color: white;
             padding: 8px 16px;
             border-radius: 24px;
@@ -324,7 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
             position: fixed;
             bottom: 24px;
             right: 24px;
-            background: ${isSuccess ? '#10b981' : '#ef4444'};
+            background: ${isSuccess ? 'var(--color-success)' : 'var(--color-error)'};
             color: white;
             padding: 10px 20px;
             border-radius: 40px;
@@ -410,9 +411,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23f0f0f0'/%3E%3C/svg%3E`;
     }
 
-    function generateThumbnailHtml(mediaUrl, alignSetting = 'center') {
+    function generateThumbnailHtml(mediaUrl, alignSetting = 'center', projectTitle = '') {
         const isVideo = isVideoUrl(mediaUrl);
         const objectPosition = getObjectPosition(alignSetting);
+        const altText = escapeHtml(projectTitle || 'Portfolio project');
 
         if (mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be')) {
             const videoId = getYouTubeVideoId(mediaUrl);
@@ -420,7 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return `<div class="thumb-shimmer">
                     <img
                         data-src="https://img.youtube.com/vi/${videoId}/mqdefault.jpg"
-                        alt="YouTube thumbnail"
+                        alt="${altText}"
                         style="object-position: ${objectPosition};"
                         class="thumb-media"
                         width="400"
@@ -436,7 +438,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <img
                         data-src="https://vumbnail.com/${vimeoId}.jpg"
                         data-vimeo-fallback="https://i.vimeocdn.com/video/${vimeoId}_640.jpg"
-                        alt="Vimeo thumbnail"
+                        alt="${altText}"
                         style="object-position: ${objectPosition};"
                         class="thumb-media"
                         width="400"
@@ -449,7 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return `<div class="thumb-shimmer">
                 <img
                     data-src="${mediaUrl}"
-                    alt="Portfolio media"
+                    alt="${altText}"
                     style="object-position: ${objectPosition};"
                     class="thumb-media"
                     width="400"
@@ -662,9 +664,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         modalManuallyClosed = false;
 
+        let projectTitle = '';
+        if (projectId !== null && window.__projectsData && window.__projectsData[projectId]) {
+            projectTitle = window.__projectsData[projectId].title || '';
+        }
+
         let slidesHtml = '';
         mediaArray.forEach((mediaUrl, idx) => {
-            const mediaHtml = generateModalMediaHtml(mediaUrl, idx);
+            const mediaHtml = generateModalMediaHtml(mediaUrl, idx, projectTitle);
             slidesHtml += `<div class="swiper-slide"><div class="modal-media-container">${mediaHtml}</div></div>`;
         });
 
@@ -1038,7 +1045,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const visibleProjects = projects.filter(project => project.published !== false);
 
         if (visibleProjects.length === 0) {
-            grid.innerHTML = `<div style="text-align: center; padding: 3rem; color: var(--text-muted); grid-column: 1 / -1; width: 100%;">
+            grid.innerHTML = `<div style="text-align: center; padding: 3rem; color: var(--color-text-muted); grid-column: 1 / -1; width: 100%;">
                 📭 No published projects yet. <a href="admin.html" style="color:var(--color-accent);">Add some in the admin panel</a>.
             </div>`;
             return;
@@ -1075,11 +1082,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let thumbnailHtml = '';
             if (mediaArray.length === 1) {
-                thumbnailHtml = `<div class="item-image">${generateThumbnailHtml(mediaArray[0], imageAlign)}</div>`;
+                thumbnailHtml = `<div class="item-image">${generateThumbnailHtml(mediaArray[0], imageAlign, project.title)}</div>`;
             } else if (mediaArray.length > 1) {
                 let swiperSlides = '';
                 mediaArray.forEach((mediaUrl) => {
-                    swiperSlides += `<div class="swiper-slide">${generateThumbnailHtml(mediaUrl, imageAlign)}</div>`;
+                    swiperSlides += `<div class="swiper-slide">${generateThumbnailHtml(mediaUrl, imageAlign, project.title)}</div>`;
                 });
                 thumbnailHtml = `
                     <div class="item-image card-swiper-container">

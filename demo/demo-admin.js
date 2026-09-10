@@ -182,8 +182,9 @@ function toggleCategoryDropdown() {
     categoryPanel.style.display = categoryDropdownOpen ? 'block' : 'none';
     if (categoryToggle) {
         categoryToggle.classList.toggle('open', categoryDropdownOpen);
+        categoryToggle.setAttribute('aria-expanded', categoryDropdownOpen ? 'true' : 'false');
     }
-    
+
     if (categoryDropdownOpen) {
         renderCategoryCheckboxes();
         if (categoryPanel) {
@@ -199,6 +200,7 @@ function closeCategoryDropdown() {
     }
     if (categoryToggle) {
         categoryToggle.classList.remove('open');
+        categoryToggle.setAttribute('aria-expanded', 'false');
     }
 }
 
@@ -344,7 +346,7 @@ function renderCategoryList() {
     });
     
     if (sortedCategories.length === 0) {
-        categoryListContainer.innerHTML = '<div style="color: var(--text-muted); padding: 1rem; text-align: center;">No categories yet. Add one below.</div>';
+        categoryListContainer.innerHTML = '<div style="color: var(--color-text-muted); padding: 1rem; text-align: center;">No categories yet. Add one below.</div>';
         return;
     }
     
@@ -455,7 +457,7 @@ function renderCategoryList() {
         deleteBtn.style.cssText = `
             background: none;
             border: none;
-            color: var(--text-muted);
+            color: var(--color-text-muted);
             cursor: pointer;
             padding: 0.2rem 0.5rem;
             font-size: 1rem;
@@ -466,7 +468,7 @@ function renderCategoryList() {
             deleteBtn.style.color = 'var(--color-accent)';
         });
         deleteBtn.addEventListener('mouseleave', () => {
-            deleteBtn.style.color = 'var(--text-muted)';
+            deleteBtn.style.color = 'var(--color-text-muted)';
         });
         deleteBtn.addEventListener('click', () => {
             deleteCategory(cat);
@@ -1037,7 +1039,7 @@ function showFloatingNotification(message, isSuccess = true) {
         position: fixed;
         bottom: 24px;
         right: 24px;
-        background: ${isSuccess ? '#10b981' : '#ef4444'};
+        background: ${isSuccess ? 'var(--color-success)' : 'var(--color-error)'};
         color: white;
         padding: 10px 20px;
         border-radius: 40px;
@@ -1562,7 +1564,7 @@ function reapplySelectionHighlight() {
         selectedRow.style.borderColor = 'var(--color-accent)';
         selectedRow.style.borderWidth = '2px';
         selectedRow.style.borderStyle = 'solid';
-        selectedRow.style.boxShadow = '0 0 0 2px rgba(229, 72, 77, 0.3)';
+        selectedRow.style.boxShadow = '0 0 0 2px rgba(var(--color-accent-rgb), 0.3)';
         selectedRow.style.backgroundColor = 'var(--color-bg-secondary)';
         
         setTimeout(() => {
@@ -1926,7 +1928,7 @@ function loadProjectIntoForm(index) {
         selectedRow.style.borderColor = 'var(--color-accent)';
         selectedRow.style.borderWidth = '2px';
         selectedRow.style.borderStyle = 'solid';
-        selectedRow.style.boxShadow = '0 0 0 2px rgba(229, 72, 77, 0.3)';
+        selectedRow.style.boxShadow = '0 0 0 2px rgba(var(--color-accent-rgb), 0.3)';
         selectedRow.style.backgroundColor = 'var(--color-bg-secondary)';
         
         setTimeout(() => {

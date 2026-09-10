@@ -162,6 +162,17 @@ header.scrolled {
     flex: 1;
 }
 
+.logo-heading {
+    font-size: 1.8rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin: 0;
+    background: linear-gradient(135deg, var(--color-text) 0%, var(--color-accent) 33%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
 .logo-zone .subtitle {
     display: block !important;
     font-size: 0.85rem;
