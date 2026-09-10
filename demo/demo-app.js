@@ -1328,10 +1328,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================
     // SCROLL TO FILTER PILLS
     // ========================================
-    function getSectionGap() {
-        const value = getComputedStyle(document.documentElement).getPropertyValue('--section-gap');
-        const parsed = parseFloat(value);
-        return Number.isNaN(parsed) ? 32 : parsed * (value.trim().endsWith('rem') ? 16 : 1);
+    function getFilterNavTopGap(filterNav) {
+        const paddingTop = parseFloat(getComputedStyle(filterNav).paddingTop);
+        return Number.isNaN(paddingTop) ? 12 : paddingTop;
     }
 
     function scrollToFilterPills() {
@@ -1347,7 +1346,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const filterRect = filterNav.getBoundingClientRect();
         const filterTop = filterRect.top + window.pageYOffset;
 
-        const targetScrollY = filterTop - headerH - getSectionGap();
+        const targetScrollY = filterTop - headerH - getFilterNavTopGap(filterNav);
 
         const startPosition = window.pageYOffset;
         const distance = targetScrollY - startPosition;
@@ -1399,7 +1398,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const filterRect = filterNav.getBoundingClientRect();
             const filterTop = filterRect.top + window.pageYOffset;
-            const targetScrollY = filterTop - headerH - getSectionGap();
+            const targetScrollY = filterTop - headerH - getFilterNavTopGap(filterNav);
 
             const startPosition = window.pageYOffset;
             const distance = targetScrollY - startPosition;
