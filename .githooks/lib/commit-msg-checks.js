@@ -68,21 +68,20 @@ function run(msgFilePath) {
     const subject = subjectIdx >= 0 ? filtered[subjectIdx] : '';
     const bodyLines = subjectIdx >= 0 ? filtered.slice(subjectIdx + 1).filter(l => l.trim() !== '') : [];
 
-    // Subject line: single line, no wrapping — i.e. the subject itself must not
-    // contain characters implying it was meant to wrap (we can't detect terminal
-    // wrapping after the fact, so this checks the subject is one logical line and
-    // not absurdly long, which is the mechanical proxy for "single-line summary").
-    if (subject.length > 100) {
-        errors.push(`Subject line is ${subject.length} chars — keep commit summaries to a single concise line (soft cap ~72-100 chars).`);
+    // Subject line: a short theme, not a list of everything the commit touched.
+    // Detail belongs in body bullets, not jammed into the subject — so this cap is
+    // intentionally tight (the classic git 50/72 convention), not just "not absurd".
+    if (subject.length > 72) {
+        errors.push(`Subject line is ${subject.length} chars — keep it to a short theme (~72 chars max). If there's more to say, put it in body bullets instead of lengthening the subject.`);
     }
 
-    // Body: if present, each line should look like a short bullet, not a narrative
-    // paragraph. Heuristic: flag body lines over ~150 chars (a paragraph-length line)
-    // that don't look like a bullet (-, *, or similar leading marker is fine either way,
-    // the length is really the tell for "narrative").
+    // Body: if present, each line should be a short, high-level bullet — not a
+    // narrative sentence describing everything that changed. Cap is intentionally
+    // tight; a line needing more room is a sign it's describing implementation
+    // detail rather than a one-line summary of what changed.
     for (const line of bodyLines) {
-        if (line.length > 150) {
-            errors.push(`Body line looks like a narrative paragraph (${line.length} chars): "${line.slice(0, 60)}...". Keep body lines to short, single-sentence bullets.`);
+        if (line.length > 80) {
+            errors.push(`Body line is too long/narrative (${line.length} chars): "${line.slice(0, 60)}...". Body bullets should be simple, high-level one-liners, not a description of everything that changed.`);
         }
     }
 
