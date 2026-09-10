@@ -199,8 +199,7 @@
             }
             
             const loadingText = document.getElementById('loading-text');
-            
-            // Get projects from localStorage or fallback
+
             let projects = [];
             const stored = localStorage.getItem('demo_portfolio_projects');
             if (stored) {
@@ -218,7 +217,6 @@
                 return;
             }
             
-            // Update loading text
             if (loadingText) {
                 loadingText.textContent = `Loading ${project.title}...`;
             }

@@ -36,15 +36,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================
     // SHARE.HTML REDIRECT - MUST RUN FIRST
     // ========================================
-    // If we're on share.html, immediately redirect to index.html with the share param
     if (window.location.pathname.includes('share.html')) {
         const params = new URLSearchParams(window.location.search);
         const shareParam = params.get('share');
         if (shareParam) {
-            // Use the current origin and replace share.html with index.html
             const baseUrl = window.location.origin + window.location.pathname.replace(/share\.html.*$/, '');
             window.location.replace(baseUrl + 'index.html?share=' + shareParam);
-            return; // Stop execution
+            return;
         } else {
             window.location.replace(window.location.origin + window.location.pathname.replace(/share\.html.*$/, '') + 'index.html');
             return;
@@ -113,12 +111,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             overlayDesc.innerHTML = 'No description available.';
         }
-        
-        // Always start collapsed when showing
+
         overlayElement.classList.add('collapsed');
         overlayElement.classList.add('active');
-        
-        // Set correct icon state
+
         updateToggleIcon();
     }
 
@@ -138,7 +134,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Toggle button click handler
     if (overlayToggleBtn) {
         overlayToggleBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -147,7 +142,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Make the header clickable to toggle as well
     if (overlayHeader) {
         overlayHeader.addEventListener('click', (e) => {
             if (e.target.closest('#overlay-toggle-btn')) return;
@@ -586,7 +580,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // SHARE URL GENERATION - FIXED
+    // SHARE URL GENERATION
     // ========================================
     function generateShareUrl(projectIndex, mediaIndex = 0) {
         const shareData = {
@@ -594,8 +588,6 @@ document.addEventListener('DOMContentLoaded', () => {
             m: mediaIndex
         };
         const encoded = btoa(JSON.stringify(shareData));
-        // Always use the base URL (index.html) with the share parameter
-        // Use the origin and the base path, removing any share.html references
         const basePath = window.location.pathname.split('/').slice(0, -1).join('/') + '/';
         return window.location.origin + basePath + 'index.html?share=' + encoded;
     }

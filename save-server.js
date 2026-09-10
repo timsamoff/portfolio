@@ -31,7 +31,6 @@ function createBackup(filename, data) {
 }
 
 function createInitialBackup() {
-    // Backup projects.json on startup if it exists
     const projectsPath = path.join(__dirname, 'projects.json');
     if (fs.existsSync(projectsPath)) {
         try {
@@ -46,7 +45,6 @@ function createInitialBackup() {
         }
     }
     
-    // Backup categories.json on startup if it exists
     const categoriesPath = path.join(__dirname, 'categories.json');
     if (fs.existsSync(categoriesPath)) {
         try {
@@ -77,7 +75,7 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // Save projects to projects.json (no automatic backup on every save)
+    // Saves to projects.json directly, no backup per-save (see createInitialBackup for startup backups)
     if (req.method === 'POST' && req.url === '/api/save-projects') {
         let body = '';
         req.on('data', chunk => { body += chunk.toString(); });
@@ -85,8 +83,7 @@ const server = http.createServer((req, res) => {
             try {
                 const projectsData = JSON.parse(body);
                 const projectsPath = path.join(__dirname, 'projects.json');
-                
-                // Write the new data (no backup on every save)
+
                 const formattedJson = JSON.stringify(projectsData, null, 2);
                 fs.writeFileSync(projectsPath, formattedJson, 'utf8');
                 
@@ -100,7 +97,6 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // Save categories to categories.json (no automatic backup on every save)
     if (req.method === 'POST' && req.url === '/api/save-categories') {
         let body = '';
         req.on('data', chunk => { body += chunk.toString(); });
@@ -129,7 +125,6 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, () => {
     console.log(`\x1b[35m%s\x1b[0m`, `[Active] Data write-back handler listening on port ${PORT}`);
     console.log(`📁 Backups will be saved to: ${BACKUP_DIR}`);
-    
-    // Create initial backups on startup (one-time)
+
     createInitialBackup();
 });
