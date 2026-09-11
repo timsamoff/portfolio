@@ -14,15 +14,38 @@ if (!fs.existsSync(BACKUP_DIR)) {
 // BACKUP FUNCTIONS
 // ========================================
 
+const BACKUPS_TO_KEEP = 5;
+
+function pruneOldBackups(baseName) {
+    try {
+        const prefix = `${baseName}_`;
+        const matching = fs.readdirSync(BACKUP_DIR)
+            .filter(f => f.startsWith(prefix) && f.endsWith('.json'))
+            .sort();
+
+        const toDelete = matching.slice(0, Math.max(0, matching.length - BACKUPS_TO_KEEP));
+        for (const file of toDelete) {
+            fs.unlinkSync(path.join(BACKUP_DIR, file));
+        }
+        if (toDelete.length > 0) {
+            console.log(`🧹 Pruned ${toDelete.length} old ${baseName} backup(s), kept last ${BACKUPS_TO_KEEP}`);
+        }
+    } catch (err) {
+        console.warn(`⚠️ Could not prune old backups for ${baseName}:`, err.message);
+    }
+}
+
 function createBackup(filename, data) {
+    const baseName = path.basename(filename, '.json');
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const backupFilename = `${path.basename(filename, '.json')}_${timestamp}.json`;
+    const backupFilename = `${baseName}_${timestamp}.json`;
     const backupPath = path.join(BACKUP_DIR, backupFilename);
-    
+
     try {
         const jsonData = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
         fs.writeFileSync(backupPath, jsonData, 'utf8');
         console.log(`📁 Backup created: ${backupFilename}`);
+        pruneOldBackups(baseName);
         return true;
     } catch (err) {
         console.error(`❌ Failed to create backup: ${err.message}`);

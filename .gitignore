@@ -52,3 +52,6 @@ scratch/
 
 # Reference copy of a prior working version (local use only)
 portfolio-old/
+
+# Personal Claude Code settings (not shared/team config)
+.claude/settings.local.json
