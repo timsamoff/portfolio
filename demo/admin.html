@@ -63,8 +63,8 @@
                 <p class="subtitle" style="color: var(--color-text-muted);">localStorage mode. Data stored in your browser.</p>
             </div>
             <div class="admin-demo-header">
-                <a href="index.html" target="_blank" class="filter-btn" style="text-decoration: none; line-height: 20px; white-space: nowrap;">👁️ View Live Site</a>
-                <button id="reset-data-btn" class="filter-btn reset-data-btn" style="padding:0.4rem 1rem;">🔄 Reset Demo Data</button>
+                <a href="index.html" target="_blank" class="filter-btn" style="text-decoration: none; line-height: 20px; white-space: nowrap; display: inline-flex; align-items: center; gap: 0.4rem;"><span data-icon="eye"></span> View Live Site</a>
+                <button id="reset-data-btn" class="filter-btn reset-data-btn" style="padding:0.4rem 1rem; display: inline-flex; align-items: center; gap: 0.4rem;"><span data-icon="refresh" data-icon-width="15" data-icon-height="15"></span> Reset Demo Data</button>
             </div>
         </div>
     </header>
@@ -75,7 +75,7 @@
             <form id="add-project-form" class="admin-form">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h3 id="form-action-title" style="margin-bottom: 0;">New Portfolio Project</h3>
-                    <button type="button" id="new-project-btn" class="filter-btn" style="padding: 0.4rem 1rem; display: none;">✨ New Project</button>
+                    <button type="button" id="new-project-btn" class="filter-btn" style="padding: 0.4rem 1rem; display: none; align-items: center; gap: 0.4rem;"><span data-icon="sparkle"></span>New Project</button>
                 </div>
                 <input type="hidden" id="form-edit-index" value="">
                 
@@ -101,18 +101,19 @@
                                 </div>
                             </div>
                         </div>
-                        <button type="button" id="add-category-btn" class="filter-btn" style="padding: 0 1rem; white-space: nowrap;">📁 Manage</button>
+                        <button type="button" id="add-category-btn" class="filter-btn" style="padding: 0 1rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 0.4rem;"><span data-icon="folder"></span>Manage</button>
                     </div>
-                    <small id="category-help-text" style="color: var(--color-text-muted); display: block; margin-top: 0.3rem;">
-                        📁 Click to select multiple categories. Click "Manage" to add/edit categories.
+                    <small id="category-help-text" style="color: var(--color-text-muted); display: flex; align-items: center; gap: 0.35rem; margin-top: 0.3rem;">
+                        <span data-icon="folder" data-icon-width="13" data-icon-height="13" style="flex-shrink:0;"></span>
+                        Click to select multiple categories. Click "Manage" to add/edit categories.
                     </small>
                 </div>
-                
+
                 <!-- Category Manager - Inline -->
                 <div id="category-manager" class="category-manager" style="display: none;">
                     <div class="category-manager-header">
-                        <h4 class="category-manager-title">📁 Manage Categories</h4>
-                        <button type="button" id="category-manager-close" class="category-manager-close" aria-label="Close category manager">✕</button>
+                        <h4 class="category-manager-title" style="display: flex; align-items: center; gap: 0.4rem;"><span data-icon="folder" data-icon-width="15" data-icon-height="15"></span>Manage Categories</h4>
+                        <button type="button" id="category-manager-close" class="category-manager-close" aria-label="Close category manager"><span data-icon="close"></span></button>
                     </div>
                     
                     <!-- Category List -->
@@ -132,7 +133,7 @@
                                 <input type="text" id="modal-new-category-shortcut" placeholder="Auto-generated" class="category-input-field">
                             </div>
                         </div>
-                        <small class="category-add-hint">💡 Leave shortcut blank to auto-generate from category name</small>
+                        <small class="category-add-hint" style="display: flex; align-items: center; gap: 0.35rem;"><span data-icon="lightbulb" data-icon-width="13" data-icon-height="13" style="flex-shrink:0;"></span>Leave shortcut blank to auto-generate from category name</small>
                         <button type="button" id="modal-add-category-btn" class="filter-btn category-add-btn">+ Add Category</button>
                     </div>
                 </div>
@@ -141,20 +142,20 @@
                     <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 0.75rem; background: var(--color-filter-bg); border-radius: 14px; border: 1px solid var(--color-border); transition: all 0.2s;">
                         <input type="checkbox" id="form-selected" class="custom-checkbox-input">
                         <span class="custom-checkbox-box"></span>
-                        <span style="font-weight: 500;">⭐ Selected Work (featured on live site)</span>
+                        <span style="font-weight: 500; display: inline-flex; align-items: center; gap: 0.4rem;"><span data-icon="star" data-icon-width="15" data-icon-height="15"></span>Selected Work (featured on live site)</span>
                     </label>
-                    <small style="color: var(--color-text-muted); display: block; margin-top: 0.5rem; margin-left: 0.25rem;">🌟 Check to feature this project as a "Selected Work" on the live site</small>
+                    <small style="color: var(--color-text-muted); display: flex; align-items: center; gap: 0.35rem; margin-top: 0.5rem; margin-left: 0.25rem;"><span data-icon="starOutline" data-icon-width="13" data-icon-height="13" style="flex-shrink:0;"></span>Check to feature this project as a "Selected Work" on the live site</small>
                 </div>
 
                 <div class="form-group publish-group">
                     <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 0.75rem; background: var(--color-filter-bg); border-radius: 14px; border: 1px solid var(--color-border); transition: all 0.2s;">
                         <input type="checkbox" id="form-published" class="custom-checkbox-input">
                         <span class="custom-checkbox-box"></span>
-                        <span style="font-weight: 500;">📢 Publish Project (visible on live site)</span>
+                        <span style="font-weight: 500; display: inline-flex; align-items: center; gap: 0.4rem;"><span data-icon="megaphone" data-icon-width="15" data-icon-height="15"></span>Publish Project (visible on live site)</span>
                     </label>
-                    <small style="color: var(--color-text-muted); display: block; margin-top: 0.5rem; margin-left: 0.25rem;">🔒 Check to publish. Uncheck to save as draft (only visible in admin panel)</small>
+                    <small style="color: var(--color-text-muted); display: flex; align-items: center; gap: 0.35rem; margin-top: 0.5rem; margin-left: 0.25rem;"><span data-icon="lock" data-icon-width="13" data-icon-height="13" style="flex-shrink:0;"></span>Check to publish. Uncheck to save as draft (only visible in admin panel)</small>
                 </div>
-                
+
                 <div class="form-group">
                     <label>Image Crop Alignment</label>
                     <select id="form-image-align">
@@ -162,7 +163,7 @@
                         <option value="top">Top</option>
                         <option value="bottom">Bottom</option>
                     </select>
-                    <small style="color: var(--color-text-muted); display: block; margin-top: 0.3rem;">🎨 Controls how portrait/landscape images are cropped in the card preview</small>
+                    <small style="color: var(--color-text-muted); display: flex; align-items: center; gap: 0.35rem; margin-top: 0.3rem;"><span data-icon="palette" data-icon-width="13" data-icon-height="13" style="flex-shrink:0;"></span>Controls how portrait/landscape images are cropped in the card preview</small>
                 </div>
                 
                 <div class="form-group">
@@ -178,16 +179,17 @@
                     <div id="media-badges" class="media-badges-container"></div>
                     
                     <div class="media-paste-area">
-                        <button type="button" id="toggle-paste-btn" class="btn-small">📋 Paste Multiple URLs</button>
+                        <button type="button" id="toggle-paste-btn" class="btn-small" style="display: inline-flex; align-items: center; gap: 0.4rem;"><span data-icon="clipboard"></span>Paste Multiple URLs</button>
                         <div id="paste-area" style="display: none; margin-top: 0.5rem;">
                             <textarea id="paste-urls" class="media-paste-textarea" rows="3" placeholder="Paste URLs here (one per line):&#10;media/image1.jpg&#10;https://youtu.be/abc123&#10;media/video.mp4"></textarea>
                             <button type="button" id="process-paste-btn" class="btn-small" style="margin-top: 0.3rem;">Add All</button>
                         </div>
                     </div>
 
-                    <small style="color: var(--color-text-muted); display: block; margin-top: 0.5rem;">
-                        💡 Type a relative path or URL and click Add, or click the Add button to select files from your computer (multi-select supported). 
-                        Drag ⋮⋮ to reorder media items.
+                    <small style="color: var(--color-text-muted); display: flex; align-items: flex-start; gap: 0.35rem; margin-top: 0.5rem;">
+                        <span data-icon="lightbulb" data-icon-width="13" data-icon-height="13" style="flex-shrink:0; margin-top:0.15rem;"></span>
+                        <span>Type a relative path or URL and click Add, or click the Add button to select files from your computer (multi-select supported).
+                        Drag ⋮⋮ to reorder media items.</span>
                     </small>
                 </div>
                 
@@ -198,16 +200,17 @@
                             <button type="button" id="toolbar-bold"   title="Wrap in &lt;strong&gt;"><strong>B</strong></button>
                             <button type="button" id="toolbar-italic" title="Wrap in &lt;em&gt;"><em>I</em></button>
                             <button type="button" id="toolbar-ul"     title="Wrap lines in &lt;ul&gt;&lt;li&gt;">• List</button>
-                            <button type="button" id="toolbar-link"   title="Wrap in &lt;a href&gt;">🔗 Link</button>
-                            <button type="button" id="toolbar-award"  title="Wrap in &lt;award&gt; (displays as award badge)">🏆 Award</button>
-                            <button type="button" id="toolbar-live"   title="Wrap in &lt;live&gt;  (displays as live link badge)">🔴 Live</button>
+                            <button type="button" id="toolbar-link"   title="Wrap in &lt;a href&gt;" style="display: inline-flex; align-items: center; gap: 0.3rem;"><span data-icon="link" data-icon-width="13" data-icon-height="13"></span>Link</button>
+                            <button type="button" id="toolbar-award"  title="Wrap in &lt;award&gt; (displays as award badge)" style="display: inline-flex; align-items: center; gap: 0.3rem;"><span data-icon="award" data-icon-width="13" data-icon-height="13"></span>Award</button>
+                            <button type="button" id="toolbar-live"   title="Wrap in &lt;live&gt;  (displays as live link badge)" style="display: inline-flex; align-items: center; gap: 0.3rem;"><span data-icon="live" data-icon-width="13" data-icon-height="13"></span>Live</button>
                         </div>
                         <textarea id="form-description" class="rich-text-description tag-editor" rows="7"
                             placeholder="Type description here. Use toolbar to insert tags, or type them directly.&#10;e.g. &lt;strong&gt;bold&lt;/strong&gt;, &lt;em&gt;italic&lt;/em&gt;, &lt;a href=&quot;https://...&quot; target=&quot;_blank&quot;&gt;link text&lt;/a&gt;"></textarea>
                     </div>
                     <div id="char-counter" style="text-align: right; font-size: 0.7rem; color: var(--color-text-muted); margin-top: 0.25rem;"></div>
-                    <small style="color: var(--color-text-muted); display: block; margin-top: 0.3rem;">
-                        📝 Type HTML tags directly or use the toolbar. Select text then click a button to wrap it.
+                    <small style="color: var(--color-text-muted); display: flex; align-items: center; gap: 0.35rem; margin-top: 0.3rem;">
+                        <span data-icon="note" data-icon-width="13" data-icon-height="13" style="flex-shrink:0;"></span>
+                        Type HTML tags directly or use the toolbar. Select text then click a button to wrap it.
                     </small>
                 </div>
                 
@@ -220,9 +223,10 @@
                 <div class="admin-search">
                     <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
                         <div style="position:relative; display:flex; align-items:center; flex: 1; min-width: 200px;">
-                            <input type="text" id="admin-search-input" placeholder="🔍 Filter projects by title..." class="admin-search-input" style="padding-right:2.2rem; width:100%;">
-                            <button type="button" id="admin-search-clear" title="Clear search"
-                                style="display:none; position:absolute; right:0.5rem; width:1.5rem; height:1.5rem; align-items:center; justify-content:center; background:none; border:none; cursor:pointer; color:var(--color-text-muted); font-size:1rem; border-radius:50%;">×</button>
+                            <span data-icon="search" data-icon-width="14" data-icon-height="14" style="position:absolute; left:0.75rem; color:var(--color-text-muted); pointer-events:none;"></span>
+                            <input type="text" id="admin-search-input" placeholder="Filter projects by title..." class="admin-search-input" style="padding-left:2.1rem; padding-right:2.2rem; width:100%;">
+                            <button type="button" id="admin-search-clear" title="Clear search" aria-label="Clear search"
+                                style="display:none; position:absolute; right:0.5rem; width:1.5rem; height:1.5rem; align-items:center; justify-content:center; background:none; border:none; cursor:pointer; color:var(--color-text-muted); border-radius:50%;"><span data-icon="close" data-icon-width="13" data-icon-height="13"></span></button>
                         </div>
                         <div style="min-width: 180px;">
                             <select id="admin-filter-select" class="admin-search-input" style="width:100%; padding-right: 2.2rem; appearance: auto; cursor: pointer;">
@@ -242,6 +246,7 @@
         </div>
     </main>
 
+    <script src="../icons.js"></script>
     <script src="demo-data.js"></script>
     <script src="demo-admin.js"></script>
 </body>

@@ -19,10 +19,10 @@
     --color-transparent: transparent;
     --color-success: #10b981;
     --color-error: #ef4444;
-    --color-award: #b8860b;
-    --color-award-bg: rgba(184, 134, 11, 0.12);
-    --color-award-border: rgba(184, 134, 11, 0.35);
-    
+    --color-award: #f0c040;
+    --color-award-bg: rgba(240, 192, 64, 0.1);
+    --color-award-border: rgba(240, 192, 64, 0.3);
+
     /* Shimmer - Dark Theme */
     --shimmer-mid: rgba(255, 255, 255, 0.25);
     --shimmer-bg-pulse: var(--color-bg-secondary);
@@ -1080,12 +1080,6 @@ header.scrolled {
     line-height: 1.4;
 }
 
-[data-theme="dark"] .award-badge {
-    color: #f0c040;
-    background: rgba(240, 192, 64, 0.1);
-    border-color: rgba(240, 192, 64, 0.3);
-}
-
 /* ========================================
    LIVE BADGE
    ======================================== */
@@ -1492,11 +1486,6 @@ header.scrolled {
     line-height: 1.4;
 }
 
-[data-theme="dark"] .overlay-body .award-badge {
-    color: #f0c040;
-    background: rgba(240, 192, 64, 0.1);
-    border-color: rgba(240, 192, 64, 0.3);
-}
 
 .overlay-body .live-badge-link {
     display: inline-flex;
@@ -1885,10 +1874,16 @@ header.scrolled {
 }
 
 .sort-item .selected-star {
-    font-size: 0.5rem;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    color: var(--color-accent);
     margin-left: 0.1rem;
     vertical-align: middle;
+}
+
+.sort-item .selected-star svg {
+    width: 12px;
+    height: 12px;
 }
 
 /* ========================================
@@ -2108,7 +2103,8 @@ header.scrolled {
 }
 
 .media-badge-icon {
-    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
 }
 
 .media-badge-text {
@@ -2122,6 +2118,8 @@ header.scrolled {
 .media-badge-preview,
 .media-badge-edit,
 .media-badge-delete {
+    display: inline-flex;
+    align-items: center;
     cursor: pointer;
     opacity: 0.6;
     transition: opacity 0.2s;
@@ -2393,9 +2391,10 @@ header.scrolled {
 }
 
 .category-manager-close {
+    display: inline-flex;
+    align-items: center;
     background: none;
     border: none;
-    font-size: 1.2rem;
     color: var(--color-text-muted);
     cursor: pointer;
     padding: 0.2rem 0.5rem;

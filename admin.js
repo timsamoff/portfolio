@@ -1,6 +1,10 @@
 // Admin panel functionality - with save-server.js backend
 const API_BASE = 'http://localhost:3001';
 
+// ========================
+// ICONS — provided globally by icons.js (loaded before this file)
+// ========================
+
 let localProjectCache = [];
 let currentMediaArray = [];
 let draggedMediaIndexForReorder = null;
@@ -717,11 +721,13 @@ function showFloatingNotification(message, isSuccess = true) {
     }
     
     floatingNotification = document.createElement('div');
-    floatingNotification.textContent = message;
     floatingNotification.style.cssText = `
         position: fixed;
         bottom: 24px;
         right: 24px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
         background: ${isSuccess ? 'var(--color-success)' : 'var(--color-error)'};
         color: white;
         padding: 10px 20px;
@@ -733,6 +739,13 @@ function showFloatingNotification(message, isSuccess = true) {
         pointer-events: none;
         animation: slideInRight 0.3s ease;
     `;
+    const notifIcon = document.createElement('span');
+    notifIcon.style.cssText = 'display:inline-flex; flex-shrink:0;';
+    notifIcon.innerHTML = isSuccess ? ICONS.check : ICONS.warning;
+    const notifText = document.createElement('span');
+    notifText.textContent = message;
+    floatingNotification.appendChild(notifIcon);
+    floatingNotification.appendChild(notifText);
     
     if (!document.querySelector('#notification-style')) {
         const style = document.createElement('style');
@@ -763,7 +776,7 @@ function showFloatingNotification(message, isSuccess = true) {
 }
 
 function showAutoSaveNotification() {
-    showFloatingNotification("✓ Auto-saved");
+    showFloatingNotification("Auto-saved");
 }
 
 // ========================
@@ -816,7 +829,7 @@ function toggleCategoryManager() {
         categoryManager.style.display = 'block';
         renderCategoryList();
         if (addCategoryBtn) {
-            addCategoryBtn.textContent = '📁 Close';
+            addCategoryBtn.innerHTML = `${ICONS.folder} Close`;
         }
         if (categoryDropdownOpen) {
             closeCategoryDropdown();
@@ -824,7 +837,7 @@ function toggleCategoryManager() {
     } else {
         categoryManager.style.display = 'none';
         if (addCategoryBtn) {
-            addCategoryBtn.textContent = '📁 Manage';
+            addCategoryBtn.innerHTML = `${ICONS.folder} Manage`;
         }
     }
 }
@@ -894,7 +907,7 @@ function renderCategoryList() {
                         .filter(s => s);
                     
                     if (newShortcut && existingShortcuts.includes(newShortcut)) {
-                        showFloatingNotification(`⚠️ Shortcut "${newShortcut}" is already in use`, false);
+                        showFloatingNotification(`Shortcut "${newShortcut}" is already in use`, false);
                         shortcutInput.style.borderColor = 'var(--color-accent)';
                         return;
                     }
@@ -905,7 +918,7 @@ function renderCategoryList() {
                     renderCategoryCheckboxes();
                     updateCategoryFilterOptions();
                     saveCategoryData();
-                    showFloatingNotification(`✓ Shortcut updated for "${displayName}"`);
+                    showFloatingNotification(`Shortcut updated for "${displayName}"`);
                 }
             }, 500);
         });
@@ -923,7 +936,7 @@ function renderCategoryList() {
                     .filter(s => s);
                 
                 if (newShortcut && existingShortcuts.includes(newShortcut)) {
-                    showFloatingNotification(`⚠️ Shortcut "${newShortcut}" is already in use`, false);
+                    showFloatingNotification(`Shortcut "${newShortcut}" is already in use`, false);
                     shortcutInput.style.borderColor = 'var(--color-accent)';
                     return;
                 }
@@ -948,8 +961,10 @@ function renderCategoryList() {
         });
         
         const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = '✕';
+        deleteBtn.innerHTML = ICONS.close;
         deleteBtn.style.cssText = `
+            display: inline-flex;
+            align-items: center;
             background: none;
             border: none;
             color: var(--color-text-muted);
@@ -981,19 +996,19 @@ function addCategory() {
     const name = modalNewCategoryName.value.trim();
     
     if (!name) {
-        showFloatingNotification('⚠️ Category name is required', false);
+        showFloatingNotification('Category name is required', false);
         return;
     }
     
     const normalized = normalizeCategoryName(name);
     
     if (normalized === 'uncategorized') {
-        showFloatingNotification('⚠️ "Uncategorized" is reserved', false);
+        showFloatingNotification('"Uncategorized" is reserved', false);
         return;
     }
     
     if (availableCategories.includes(normalized)) {
-        showFloatingNotification(`⚠️ Category "${name}" already exists`, false);
+        showFloatingNotification(`Category "${name}" already exists`, false);
         return;
     }
     
@@ -1004,7 +1019,7 @@ function addCategory() {
     
     const existingShortcuts = Object.values(categoryData).map(c => c.shortcut).filter(s => s);
     if (shortcut && existingShortcuts.includes(shortcut)) {
-        showFloatingNotification(`⚠️ Shortcut "${shortcut}" is already in use`, false);
+        showFloatingNotification(`Shortcut "${shortcut}" is already in use`, false);
         return;
     }
     
@@ -1022,7 +1037,7 @@ function addCategory() {
     renderCategoryList();
     saveCategoryData();
     
-    let successMsg = `✅ Added category "${name}"`;
+    let successMsg = `Added category "${name}"`;
     if (shortcut) {
         successMsg += ` (shortcut: ${shortcut})`;
     }
@@ -1065,7 +1080,7 @@ function deleteCategory(categoryToDelete) {
         saveToServer();
         saveCategoryData();
         
-        let successMsg = `✅ Deleted category "${displayName}"`;
+        let successMsg = `Deleted category "${displayName}"`;
         if (updatedCount > 0) {
             successMsg += ` (removed from ${updatedCount} project(s))`;
         }
@@ -1096,7 +1111,7 @@ if (addForm) {
         renderAdminView();
         saveToServer();
         startNewProject();
-        showFloatingNotification("✓ Project added with " + mediaToSave.length + " media resources(s)!");
+        showFloatingNotification("Project added with " + mediaToSave.length + " media resources(s)!");
         
         return false;
     });
@@ -1146,18 +1161,18 @@ function escapeHtml(text) {
 }
 
 function getMediaIcon(url) {
-    if (!url) return '📄';
+    if (!url) return ICONS.doc;
     const lowerUrl = url.toLowerCase();
-    if (lowerUrl.match(/\.(jpg|jpeg|png|gif|webp|svg)$/)) return '🖼️';
-    if (lowerUrl.match(/\.(mp4|webm|mov|ogg)$/)) return '🎥';
-    if (lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be')) return '📺';
-    if (lowerUrl.includes('vimeo.com')) return '🎬';
-    return '🔗';
+    if (lowerUrl.match(/\.(jpg|jpeg|png|gif|webp|svg)$/)) return ICONS.image;
+    if (lowerUrl.match(/\.(mp4|webm|mov|ogg)$/)) return ICONS.video;
+    if (lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be')) return ICONS.tv;
+    if (lowerUrl.includes('vimeo.com')) return ICONS.film;
+    return ICONS.link;
 }
 
 function getMediaPreview(mediaArray) {
     if (!mediaArray || mediaArray.length === 0) return "No media";
-    const icons = mediaArray.map(m => getMediaIcon(m)).join(' ');
+    const icons = mediaArray.map(m => `<span style="display:inline-flex; vertical-align:middle;">${getMediaIcon(m)}</span>`).join(' ');
     return `${icons} ${mediaArray.length} media item(s)`;
 }
 
@@ -1204,12 +1219,12 @@ function loadData() {
             updateCategoryFilterOptions();
             
             renderAdminView();
-            showFloatingNotification(`✓ Loaded ${localProjectCache.length} projects`);
+            showFloatingNotification(`Loaded ${localProjectCache.length} projects`);
         })
         .catch(() => {
             localProjectCache = [];
             renderAdminView();
-            showFloatingNotification("✨ No projects found. Add your first one!");
+            showFloatingNotification("No projects found. Add your first one!");
         });
 }
 
@@ -1322,7 +1337,7 @@ function renderAdminView() {
         const mediaArray = project.media || [];
         const mediaPreview = getMediaPreview(mediaArray);
         const draftBadge = project.published === false ? ' [DRAFT]' : '';
-        const selectedBadge = project.selected === true ? ' <span class="selected-star">⭐</span>' : '';
+        const selectedBadge = project.selected === true ? ` <span class="selected-star">${ICONS.star}</span>` : '';
         
         const categories = project.categories || [];
         let categoryDisplay = 'Uncategorized';
@@ -1343,11 +1358,11 @@ function renderAdminView() {
                 <span class="row-btn move-up-btn"     title="Move up">↑</span>
                 <span class="row-btn move-down-btn"   title="Move down">↓</span>
                 <span class="row-btn move-bottom-btn" title="Move to bottom">⇊</span>
-                <span class="row-btn delete-item-btn" data-index="${originalIndex}" title="Delete">✕</span>
-                <span class="sort-handle row-btn" style="cursor:grab;" title="Drag to reorder">☰</span>
+                <span class="row-btn delete-item-btn" data-index="${originalIndex}" title="Delete">${ICONS.close}</span>
+                <span class="sort-handle row-btn" style="cursor:grab;" title="Drag to reorder">${ICONS.dragHandle}</span>
             </div>
         `;
-        
+
         li.querySelector('.sort-content').addEventListener('click', () => loadProjectIntoForm(originalIndex));
 
         const moveProject = (fromIdx, toIdx) => {
@@ -1370,7 +1385,7 @@ function renderAdminView() {
                 renderAdminView();
                 saveToServer();
                 if (isEditingMode && currentEditIndex === originalIndex) startNewProject();
-                showFloatingNotification(`✅ Deleted project "${project.title}"`);
+                showFloatingNotification(`Deleted project "${project.title}"`);
             }
         });
 
@@ -1422,7 +1437,7 @@ function reorderFullCacheFromFilteredView() {
             row.setAttribute('data-index', newIndex);
         });
         saveToServer();
-        showFloatingNotification('✓ Reordered projects');
+        showFloatingNotification('Reordered projects');
     }
     
     renderAdminView();
@@ -1625,7 +1640,7 @@ function loadProjectIntoForm(index) {
         }, 100);
     }
     
-    if (newProjectBtn) newProjectBtn.style.display = 'inline-block';
+    if (newProjectBtn) newProjectBtn.style.display = 'inline-flex';
     if (submitBtn) submitBtn.style.display = 'none';
 }
 
@@ -1715,8 +1730,8 @@ function renderMediaBadges() {
             <span class="drag-handle" style="cursor: grab; opacity: 0.5; margin-right: 4px;">⋮⋮</span>
             <span class="media-badge-icon">${getMediaIcon(media)}</span>
             <span class="media-badge-text" title="${escapeHtml(media)}">${media.length > 45 ? media.substring(0, 42) + '...' : media}</span>
-            <span class="media-badge-edit" data-index="${index}" title="Edit">✏️</span>
-            <span class="media-badge-delete" data-index="${index}" title="Delete">✕</span>
+            <span class="media-badge-edit" data-index="${index}" title="Edit" aria-label="Edit">${ICONS.edit}</span>
+            <span class="media-badge-delete" data-index="${index}" title="Delete" aria-label="Delete">${ICONS.close}</span>
         `;
         
         badge.querySelector('.media-badge-edit').addEventListener('click', (e) => {
@@ -2006,7 +2021,7 @@ function showDirectoryPrompt(files) {
             if (isEditingMode) {
                 debouncedAutoSave();
             }
-            let message = '✓ Added ' + added + ' file(s) to ' + prefix;
+            let message = 'Added ' + added + ' file(s) to ' + prefix;
             if (skipped > 0) {
                 message += ' (' + skipped + ' duplicate(s) skipped)';
             }
@@ -2048,7 +2063,7 @@ if (processPasteBtn) processPasteBtn.addEventListener('click', () => {
     if (added > 0) {
         renderMediaBadges();
         if (isEditingMode) debouncedAutoSave();
-        showFloatingNotification(`✓ Added ${added} media item(s)`);
+        showFloatingNotification(`Added ${added} media item(s)`);
     }
     pasteUrls.value = '';
     pasteArea.style.display = 'none';
@@ -2105,7 +2120,7 @@ if (cleanupBtn) {
         if (cleaned > 0) {
             renderAdminView();
             saveToServer();
-            showFloatingNotification(`✓ Cleaned ${cleaned} project(s)`);
+            showFloatingNotification(`Cleaned ${cleaned} project(s)`);
         } else {
             showFloatingNotification('No malformed links found');
         }
