@@ -12,5 +12,12 @@
     "reason": "Confirmed intentional: demo/demo-data.js's DEMO_CATEGORIES is a deliberately independent placeholder seed list for demo content, not meant to mirror categories.json's real categories.",
     "owner": "Tim Samoff",
     "review_by": "2027-09-10"
+  },
+  {
+    "category": "cleanupMalformedLinks triplication",
+    "file_scope": "admin.js",
+    "reason": "Function exists independently in admin.js, demo/demo-admin.js, and utilities/fix-links.js by design (no shared-module build step in this static site). Byte-diffed all three regex bodies directly on 2026-09-11: logic is identical across all three; utilities/fix-links.js carries two extra explanatory comments, nothing functional. Structural duplication risk (nothing enforces the three stay in sync going forward), not a current bug — re-verify manually whenever any one of the three is edited.",
+    "owner": "Tim Samoff",
+    "review_by": "2027-09-11"
   }
 ]

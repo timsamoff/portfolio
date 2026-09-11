@@ -1,0 +1,16 @@
+#!/bin/sh
+# Pre-push gate check: runs the full-repo scan (repo-wide-scan.js) once per
+# push rather than per commit — a full-repo scan is slow enough that
+# running it on every commit would either discourage small commits or get
+# bypassed. The pre-commit hook stays diff-scoped and unchanged; this is
+# additive, not a replacement.
+#
+# Thin shim -> real logic lives in .githooks/lib (Node), same pattern as
+# pre-commit/commit-msg.
+#
+# Enable once per clone with:
+#   git config core.hooksPath .githooks
+
+HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+node "$HOOK_DIR/lib/repo-wide-scan.js"
+exit $?
