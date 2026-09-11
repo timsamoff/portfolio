@@ -85,6 +85,36 @@ function run(msgFilePath) {
         }
     }
 
+    // Structure: per-line length alone doesn't catch a narrative made of
+    // several short-enough lines — multiple blank-line-separated paragraphs
+    // in the body is exactly that shape (a prose writeup broken into
+    // paragraphs), even if every individual line is under the length cap.
+    // Every real bullet-style body in this repo's history has at most one
+    // such block (or zero, i.e. no body); a wrapped one-sentence body (no
+    // bullet markers) is also fine as long as it's a SINGLE block.
+    if (bodyLines.length > 0) {
+        let blocks = 0;
+        let inBlock = false;
+        for (const line of filtered.slice(subjectIdx + 1)) {
+            if (line.trim() === '') {
+                inBlock = false;
+            } else if (!inBlock) {
+                blocks++;
+                inBlock = true;
+            }
+        }
+        if (blocks > 1) {
+            errors.push(`Body has ${blocks} separate paragraph blocks — that's a narrative writeup, not a short theme + bullets. Collapse it to either a single short paragraph, or a flat list of "- " bullets with no blank lines between them.`);
+        }
+
+        // "A few bullets", not a sprawling list -- 6 is comfortably above
+        // the largest legitimate bullet count seen in this repo's history (4).
+        const bulletLines = bodyLines.filter(l => /^[-*]\s/.test(l.trim()));
+        if (bulletLines.length > 6) {
+            errors.push(`Body has ${bulletLines.length} bullets — that's too many for a "short theme + a few bullets" summary. Trim it to the handful that actually matter; put finer detail in code comments or a findings doc instead.`);
+        }
+    }
+
     // Write back the stripped message (comments preserved, since git needs them
     // for its own diff-below-cutline display; stripping never touches those).
     const newContent = [...filtered, ...(commentLines.length ? [''] : []), ...commentLines].join('\n');
