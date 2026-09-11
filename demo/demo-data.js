@@ -18,8 +18,7 @@ const DEMO_CATEGORY_SHORTCUTS = {
 };
 
 function formatDemoCategory(cat) {
-    if (!cat) return '';
-    return cat.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    return formatCategoryForDisplay(cat);
 }
 
 function getDemoCategoryShortcut(cat) {

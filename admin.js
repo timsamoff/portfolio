@@ -105,7 +105,7 @@ function renderCategoryCheckboxes() {
     
     if (sortedCategories.length === 0) {
         const emptyMsg = document.createElement('div');
-        emptyMsg.style.cssText = 'padding: 0.5rem; color: var(--color-text-muted); font-size: 0.85rem; text-align: center;';
+        emptyMsg.className = 'category-empty-message';
         emptyMsg.textContent = 'No categories yet. Click "Manage" to add some.';
         categoryCheckboxList.appendChild(emptyMsg);
         return;
@@ -280,67 +280,27 @@ function saveCategoryData() {
 // ========================
 function convertToSmartQuotes(text) {
     if (!text) return '';
-    
+
     if (!/<[a-z][\s\S]*>/i.test(text)) {
         return convertPlainTextToSmartQuotes(text);
     }
-    
-    let result = '';
-    let inTag = false;
-    let inAttribute = false;
-    let attributeQuoteChar = '';
-    
-    const chars = text.split('');
-    
-    for (let i = 0; i < chars.length; i++) {
-        const char = chars[i];
-        const nextChar = chars[i + 1] || '';
-        const prevChar = chars[i - 1] || '';
-        
-        if (char === '<' && !inTag) {
-            inTag = true;
-            inAttribute = false;
-            result += char;
-            continue;
-        }
-        if (char === '>' && inTag) {
-            inTag = false;
-            inAttribute = false;
-            result += char;
-            continue;
-        }
-        
-        if (inTag) {
-            if (char === '"' || char === "'") {
-                if (!inAttribute) {
-                    inAttribute = true;
-                    attributeQuoteChar = char;
-                } else if (char === attributeQuoteChar) {
-                    inAttribute = false;
-                }
-                result += char;
-                continue;
-            }
-            result += char;
-            continue;
-        }
-        
-        if (inAttribute) {
-            result += char;
-            continue;
-        }
-        
-        if (char === '"') {
-            const isOpening = isOpeningQuote(text, i, result);
-            result += isOpening ? '“' : '”';
-        } else if (char === "'") {
-            result += convertApostrophe(text, i, result);
-        } else {
-            result += char;
-        }
-    }
-    
-    return result;
+
+    // Parse as real HTML so tag/attribute boundaries never need manual tracking —
+    // attribute values aren't text nodes, so a TreeWalker over SHOW_TEXT skips them
+    // automatically. Only visible text content gets smart-quoted.
+    const container = document.createElement('div');
+    container.innerHTML = text;
+
+    const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+    const textNodes = [];
+    let node;
+    while ((node = walker.nextNode())) textNodes.push(node);
+
+    textNodes.forEach(textNode => {
+        textNode.nodeValue = convertPlainTextToSmartQuotes(textNode.nodeValue);
+    });
+
+    return container.innerHTML;
 }
 
 function isOpeningQuote(text, position, processedResult) {
@@ -659,12 +619,7 @@ function insertLink() {
 
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'link-modal-overlay';
-    modalOverlay.style.cssText = `
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);
-        z-index: 20000; display: flex; align-items: center; justify-content: center;
-    `;
-    const preview = sel ? `<p style="font-size:0.8rem;color:var(--color-text-muted);margin-bottom:1rem;">Wrapping: <em>&ldquo;${escapeHtml(sel.length > 60 ? sel.slice(0,60)+'…' : sel)}&rdquo;</em></p>` : '';
+    const preview = sel ?`<p style="font-size:0.8rem;color:var(--color-text-muted);margin-bottom:1rem;">Wrapping: <em>&ldquo;${escapeHtml(sel.length > 60 ? sel.slice(0,60)+'…' : sel)}&rdquo;</em></p>` : '';
     modalOverlay.innerHTML = `
         <div style="background:var(--color-card);border:1px solid var(--color-border);border-radius:24px;padding:1.5rem;max-width:450px;width:90%;">
             <h3 style="margin-bottom:0.5rem;font-size:1.1rem;color:var(--color-text);">Insert Link</h3>
@@ -721,26 +676,9 @@ function showFloatingNotification(message, isSuccess = true) {
     }
     
     floatingNotification = document.createElement('div');
-    floatingNotification.style.cssText = `
-        position: fixed;
-        bottom: 24px;
-        right: 24px;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: ${isSuccess ? 'var(--color-success)' : 'var(--color-error)'};
-        color: white;
-        padding: 10px 20px;
-        border-radius: 40px;
-        font-size: 0.85rem;
-        font-weight: 500;
-        z-index: 10000;
-        box-shadow: var(--shadow-sm);
-        pointer-events: none;
-        animation: slideInRight 0.3s ease;
-    `;
+    floatingNotification.className = 'floating-notification ' + (isSuccess ? 'floating-notification--success' : 'floating-notification--error');
     const notifIcon = document.createElement('span');
-    notifIcon.style.cssText = 'display:inline-flex; flex-shrink:0;';
+    notifIcon.className = 'notification-icon';
     notifIcon.innerHTML = isSuccess ? ICONS.check : ICONS.warning;
     const notifText = document.createElement('span');
     notifText.textContent = message;
@@ -795,10 +733,6 @@ function normalizeCategoryName(name) {
     return normalized;
 }
 
-function formatCategoryForDisplay(cat) {
-    if (!cat) return '';
-    return cat.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ').replace(/&/g, '&');
-}
 
 function generateShortcutFromName(name) {
     if (!name) return '';
@@ -863,14 +797,7 @@ function renderCategoryList() {
         const shortcut = categoryData[cat]?.shortcut || '';
         
         const row = document.createElement('div');
-        row.style.cssText = `
-            display: grid;
-            grid-template-columns: 1fr 1fr auto;
-            gap: 0.75rem;
-            align-items: center;
-            padding: 0.5rem;
-            border-bottom: 1px solid var(--color-border);
-        `;
+        row.className = 'category-row';
         
         const nameSpan = document.createElement('span');
         nameSpan.textContent = displayName;
@@ -880,16 +807,6 @@ function renderCategoryList() {
         shortcutInput.type = 'text';
         shortcutInput.value = shortcut;
         shortcutInput.placeholder = 'No shortcut';
-        shortcutInput.style.cssText = `
-            padding: 0.3rem 0.6rem;
-            border-radius: 6px;
-            background: var(--color-bg);
-            border: 1px solid var(--color-border);
-            color: var(--color-text);
-            font-size: 0.85rem;
-            width: 100%;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        `;
         shortcutInput.dataset.category = cat;
         
         let saveTimeout = null;
@@ -962,17 +879,7 @@ function renderCategoryList() {
         
         const deleteBtn = document.createElement('button');
         deleteBtn.innerHTML = ICONS.close;
-        deleteBtn.style.cssText = `
-            display: inline-flex;
-            align-items: center;
-            background: none;
-            border: none;
-            color: var(--color-text-muted);
-            cursor: pointer;
-            padding: 0.2rem 0.5rem;
-            font-size: 1rem;
-            transition: color 0.2s;
-        `;
+        deleteBtn.className = 'category-delete-btn';
         deleteBtn.title = `Delete "${displayName}" category`;
         deleteBtn.addEventListener('mouseenter', () => {
             deleteBtn.style.color = 'var(--color-accent)';
@@ -1797,32 +1704,10 @@ function showEditMediaModal(currentUrl, index) {
     }
     
     const modalOverlay = document.createElement('div');
-    modalOverlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.85);
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
-        z-index: 20000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    `;
-    
+    modalOverlay.className = 'admin-modal-overlay';
+
     const modalContent = document.createElement('div');
-    modalContent.style.cssText = `
-        background: var(--color-card);
-        border: 1px solid var(--color-border);
-        border-radius: 24px;
-        padding: 1.5rem;
-        max-width: 500px;
-        width: 90%;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    `;
-    
+
     modalContent.innerHTML = `
         <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem; color: var(--color-text);">Edit Media URL</h3>
         <input type="text" id="edit-media-input" value="${escapeHtml(currentUrl)}" placeholder="Enter media URL..." style="
@@ -1953,7 +1838,7 @@ function showDirectoryPrompt(files) {
     const fileArray = Array.from(files);
     
     const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);z-index:20000;display:flex;align-items:center;justify-content:center;';
+    overlay.className = 'fullscreen-loading-overlay';
     const names = fileArray.map(f => f.name).join(', ');
     const truncated = names.length > 80 ? names.slice(0, 80) + '…' : names;
     overlay.innerHTML = `

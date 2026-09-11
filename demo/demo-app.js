@@ -164,25 +164,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (existing) existing.remove();
 
         const notification = document.createElement('div');
-        notification.className = 'card-share-notification';
+        notification.className = 'card-share-notification ' + (isError ? 'card-share-notification--error' : 'card-share-notification--success');
         notification.textContent = message;
-        notification.style.cssText = `
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: ${isError ? 'var(--color-error)' : 'var(--color-success)'};
-            color: white;
-            padding: 8px 16px;
-            border-radius: 24px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            z-index: 20;
-            white-space: nowrap;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            pointer-events: none;
-            animation: fadeInOut 1.5s ease forwards;
-        `;
 
         if (!document.querySelector('#share-animation-style')) {
             const style = document.createElement('style');
@@ -319,23 +302,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (existing) existing.remove();
 
         const notification = document.createElement('div');
-        notification.className = 'floating-notification';
+        notification.className = 'floating-notification ' + (isSuccess ? 'floating-notification--success' : 'floating-notification--error');
         notification.textContent = message;
-        notification.style.cssText = `
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background: ${isSuccess ? 'var(--color-success)' : 'var(--color-error)'};
-            color: white;
-            padding: 10px 20px;
-            border-radius: 40px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            z-index: 10000;
-            box-shadow: var(--shadow-sm);
-            pointer-events: none;
-            animation: slideInRight 0.3s ease;
-        `;
 
         if (!document.querySelector('#notification-style')) {
             const style = document.createElement('style');
@@ -729,16 +697,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100);
     }
 
-    // ========================================
-    // FORMATTING HELPERS
-    // ========================================
-    function formatCategoryForDisplay(cat) {
-        if (!cat) return '';
-        if (typeof window.formatDemoCategory === 'function') {
-            return window.formatDemoCategory(cat);
-        }
-        return cat.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ').replace(/&/g, '&');
-    }
 
     function escapeHtml(text) {
         const div = document.createElement('div');

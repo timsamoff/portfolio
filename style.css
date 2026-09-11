@@ -912,6 +912,65 @@ header.scrolled {
 }
 
 /* ========================================
+   NOTIFICATIONS
+   ======================================== */
+.card-share-notification {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 24px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    z-index: 20;
+    white-space: nowrap;
+    box-shadow: var(--shadow-sm);
+    pointer-events: none;
+    animation: fadeInOut 1.5s ease forwards;
+}
+
+.card-share-notification--success {
+    background: var(--color-success);
+}
+
+.card-share-notification--error {
+    background: var(--color-error);
+}
+
+.floating-notification {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 40px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    z-index: 10000;
+    box-shadow: var(--shadow-sm);
+    pointer-events: none;
+    animation: slideInRight 0.3s ease;
+}
+
+.floating-notification--success {
+    background: var(--color-success);
+}
+
+.floating-notification--error {
+    background: var(--color-error);
+}
+
+.notification-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+}
+
+/* ========================================
    CARD SWIPER (MINI CAROUSEL)
    ======================================== */
 .card-swiper-container {
@@ -2057,6 +2116,13 @@ header.scrolled {
     text-align: center;
 }
 
+.category-empty-message {
+    padding: 0.5rem;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    text-align: center;
+}
+
 /* ========================================
    ADMIN MEDIA MANAGER
    ======================================== */
@@ -2163,11 +2229,11 @@ header.scrolled {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 99998;
+    z-index: 20000;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
 }
@@ -2181,7 +2247,74 @@ header.scrolled {
     padding: 1.5rem;
     max-width: 500px;
     width: 90%;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.link-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+    z-index: 20000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.confirmation-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+}
+
+.confirmation-modal-content {
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: 24px;
+    padding: 1.5rem;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    position: relative;
+    z-index: 10000000;
+}
+
+.fullscreen-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    z-index: 20000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.inline-error {
+    color: var(--color-accent);
+    font-size: 0.7rem;
+    margin-top: 0.4rem;
+    padding-left: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
 }
 
 .admin-modal-overlay h3 {
@@ -2503,6 +2636,27 @@ header.scrolled {
     outline: none;
     border-color: var(--color-accent);
     box-shadow: 0 0 0 2px rgba(var(--color-accent-rgb), 0.15);
+}
+
+.category-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.category-delete-btn {
+    display: inline-flex;
+    align-items: center;
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    padding: 0.2rem 0.5rem;
+    font-size: 1rem;
+    transition: color 0.2s;
 }
 
 @keyframes fadeIn {
