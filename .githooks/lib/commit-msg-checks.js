@@ -30,6 +30,7 @@ function run(msgFilePath) {
     const lines = raw.split('\n');
 
     const errors = [];
+    const warnings = [];
     let strippedAny = false;
 
     // Separate real content from trailing git comment block (lines starting with #,
@@ -109,9 +110,13 @@ function run(msgFilePath) {
 
         // "A few bullets", not a sprawling list -- 6 is comfortably above
         // the largest legitimate bullet count seen in this repo's history (4).
+        // Non-blocking: a long bullet list is more often a sign the COMMIT
+        // itself is doing too much (should be split into smaller commits)
+        // than a message-formatting problem to fix by editing the message —
+        // so this warns instead of forcing a rewrite of the text in place.
         const bulletLines = bodyLines.filter(l => /^[-*]\s/.test(l.trim()));
         if (bulletLines.length > 6) {
-            errors.push(`Body has ${bulletLines.length} bullets — that's too many for a "short theme + a few bullets" summary. Trim it to the handful that actually matter; put finer detail in code comments or a findings doc instead.`);
+            warnings.push(`Body has ${bulletLines.length} bullets — consider whether this commit is doing too much and would be clearer split into smaller commits, rather than just trimming the list.`);
         }
     }
 
@@ -127,7 +132,7 @@ function run(msgFilePath) {
         errors.push('Commit message has no subject line.');
     }
 
-    return errors;
+    return { errors, warnings };
 }
 
 if (require.main === module) {
@@ -136,7 +141,11 @@ if (require.main === module) {
         console.error('[commit-msg] No commit message file path given.');
         process.exit(1);
     }
-    const errors = run(msgFilePath);
+    const { errors, warnings } = run(msgFilePath);
+    if (warnings.length > 0) {
+        console.log('\n[commit-msg] Warnings (non-blocking):');
+        for (const w of warnings) console.log(`  - ${w}`);
+    }
     if (errors.length > 0) {
         console.log('\n[commit-msg] BLOCKED — commit message convention violations:');
         for (const e of errors) console.log(`  - ${e}`);
