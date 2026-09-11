@@ -69,7 +69,6 @@ Projects are stored in `projects.json` with this structure:
     {
       "title": "Project Name",
       "categories": ["category_identifier", "another_category"],
-      "cardHeading": "Card Label",
       "media": ["media/image1.webp", "media/image2.webp"],
       "description": "Project description with <strong>HTML</strong> formatting.",
       "imageAlign": "center",

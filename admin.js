@@ -27,8 +27,6 @@ const descTextarea = document.getElementById('form-description');
 const charCounter   = document.getElementById('char-counter');
 
 // Legacy aliases so unchanged call-sites keep working
-const richTextEditor  = descTextarea;
-const hiddenDescription = descTextarea;
 
 const sortableListElement = document.getElementById('sortable-list');
 const addForm = document.getElementById('add-project-form');
@@ -49,7 +47,6 @@ const multiFileInput = document.getElementById('multi-file-input');
 const adminSearchInput = document.getElementById('admin-search-input');
 const adminFilterSelect = document.getElementById('admin-filter-select');
 const formTitle = document.getElementById('form-title');
-const formTag = document.getElementById('form-tag');
 const formSelected = document.getElementById('form-selected');
 const formPublished = document.getElementById('form-published');
 const formImageAlign = document.getElementById('form-image-align');
@@ -445,14 +442,21 @@ function cleanupMalformedLinks(html) {
     cleaned = cleaned.replace(/target=‘(_blank|_self|_parent|_top)’/g, 'target="$1"');
     cleaned = cleaned.replace(/rel=”(noopener noreferrer|nofollow|noopener)”/g, 'rel="$1"');
     cleaned = cleaned.replace(/rel=‘(noopener noreferrer|nofollow|noopener)’/g, 'rel="$1"');
-    
+
+    // Escaped-quote + malformed URL, e.g. href="https://samoff.com/portfolio/\"https://samoff.com/circuit-scout\""
+    cleaned = cleaned.replace(/href="https?:\/\/[^"]*\\"https?:\/\//g, function(match) {
+        const cleanMatch = match.replace(/\\"/g, '').replace(/https?:\/\/[^"]*?(https?:\/\/)/, '$1');
+        return 'href="' + cleanMatch;
+    });
+
+    cleaned = cleaned.replace(/\\"/g, '"');
+
     return cleaned;
 }
 
 // ========================
 // TEXTAREA EDITOR HELPERS
 // ========================
-function syncDescriptionToHidden() { /* no-op: textarea IS the store */ }
 
 function updateCharCount() {
     if (charCounter && descTextarea) {
@@ -1273,20 +1277,10 @@ function reapplySelectionHighlight() {
     if (selectedRow) {
         document.querySelectorAll('.sort-item').forEach(el => {
             el.classList.remove('editing');
-            el.style.borderColor = '';
-            el.style.borderWidth = '';
-            el.style.borderStyle = '';
-            el.style.boxShadow = '';
-            el.style.backgroundColor = '';
         });
-        
+
         selectedRow.classList.add('editing');
-        selectedRow.style.borderColor = 'var(--color-accent)';
-        selectedRow.style.borderWidth = '2px';
-        selectedRow.style.borderStyle = 'solid';
-        selectedRow.style.boxShadow = '0 0 0 2px rgba(var(--color-accent-rgb), 0.3)';
-        selectedRow.style.backgroundColor = 'var(--color-bg-secondary)';
-        
+
         setTimeout(() => {
             selectedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, 100);
@@ -1294,11 +1288,6 @@ function reapplySelectionHighlight() {
         currentlySelectedIndex = null;
         document.querySelectorAll('.sort-item').forEach(el => {
             el.classList.remove('editing');
-            el.style.borderColor = '';
-            el.style.borderWidth = '';
-            el.style.borderStyle = '';
-            el.style.boxShadow = '';
-            el.style.backgroundColor = '';
         });
     }
 }
@@ -1475,7 +1464,6 @@ function getCurrentFormData() {
     return {
         title: formTitle.value,
         categories: [...selectedCategories],
-        cardHeading: formTag ? formTag.value : '',
         media: [...currentMediaArray].filter(m => m && m.trim()),
         description: getEditorContent(),
         imageAlign: formImageAlign.value,
@@ -1514,8 +1502,7 @@ let autoSaveListenersActive = false;
 
 function setupAutoSaveListeners(enable) {
     const inputs = [formTitle, formImageAlign];
-    if (formTag) inputs.push(formTag);
-    
+
     const checkboxes = [formPublished, formSelected];
     const editor = descTextarea;
     
@@ -1543,7 +1530,6 @@ function setupAutoSaveListeners(enable) {
         if (enable) {
             editor.addEventListener('input', debouncedAutoSave);
             editor.addEventListener('blur', () => {
-                syncDescriptionToHidden();
                 if (isEditingMode) debouncedAutoSave();
             });
         } else {
@@ -1572,7 +1558,6 @@ function startNewProject() {
     selectedCategories = [];
     updateCategoryDisplay();
     renderCategoryCheckboxes();
-    if (formTag) formTag.value = "";
     formSelected.checked = false;
     formPublished.checked = false;
     formImageAlign.value = "center";
@@ -1582,13 +1567,8 @@ function startNewProject() {
     
     document.querySelectorAll('.sort-item').forEach(el => {
         el.classList.remove('editing');
-        el.style.borderColor = '';
-        el.style.borderWidth = '';
-        el.style.borderStyle = '';
-        el.style.boxShadow = '';
-        el.style.backgroundColor = '';
     });
-    
+
     if (newProjectBtn) newProjectBtn.style.display = 'none';
     if (submitBtn) submitBtn.style.display = 'block';
 }
@@ -1619,8 +1599,7 @@ function loadProjectIntoForm(index) {
     }
     updateCategoryDisplay();
     renderCategoryCheckboxes();
-    
-    if (formTag) formTag.value = target.cardHeading || target.tag || "";
+
     formSelected.checked = target.selected === true;
     formPublished.checked = target.published !== false;
     formImageAlign.value = target.imageAlign || 'center';
@@ -1635,22 +1614,12 @@ function loadProjectIntoForm(index) {
     
     document.querySelectorAll('.sort-item').forEach(el => {
         el.classList.remove('editing');
-        el.style.borderColor = '';
-        el.style.borderWidth = '';
-        el.style.borderStyle = '';
-        el.style.boxShadow = '';
-        el.style.backgroundColor = '';
     });
-    
+
     const selectedRow = document.querySelector(`.sort-item[data-index="${index}"]`);
     if (selectedRow) {
         selectedRow.classList.add('editing');
-        selectedRow.style.borderColor = 'var(--color-accent)';
-        selectedRow.style.borderWidth = '2px';
-        selectedRow.style.borderStyle = 'solid';
-        selectedRow.style.boxShadow = '0 0 0 2px rgba(var(--color-accent-rgb), 0.3)';
-        selectedRow.style.backgroundColor = 'var(--color-bg-secondary)';
-        
+
         setTimeout(() => {
             selectedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, 100);
@@ -2183,10 +2152,7 @@ if (descTextarea) {
 function init() {
     renderMediaBadges();
     loadData();
-    if (richTextEditor && hiddenDescription) {
-        syncDescriptionToHidden();
-        updateCharCount();
-    }
+    updateCharCount();
     const categoryManagerEl = document.getElementById('category-manager');
     const categoryFormGroup = document.getElementById('category-form-group');
     if (categoryManagerEl && categoryFormGroup) {
