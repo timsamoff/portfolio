@@ -399,173 +399,18 @@ header.scrolled {
 }
 
 /* ========================================
-   WAVES
+   HERO WAVEFORMS
+   Generated and animated entirely by hero-waveforms.js (randomized
+   sine/triangle/sawtooth/square/sample-and-hold "voices" with their own
+   independent spawn/fade/drift lifecycles). This block only supplies the
+   static per-path styling; every animated property (opacity, stroke-width,
+   the `d` attribute itself) is set inline by the script each frame.
    ======================================== */
-.wave {
+.hero-waveform path {
     fill: none;
+    stroke: var(--color-accent);
     stroke-linecap: round;
-    opacity: 0;
-    animation: waveFlow 12s ease-in-out infinite alternate;
-    transform-origin: center;
-    animation-fill-mode: forwards;
-}
-
-.wave-1 {
-    animation-duration: 14s;
-    animation-delay: 0.3s;
-}
-
-.wave-2 {
-    animation-duration: 16s;
-    animation-delay: 1s;
-}
-
-.wave-3 {
-    animation-duration: 18s;
-    animation-delay: 1.8s;
-}
-
-@keyframes waveFlow {
-    0% {
-        transform: translateX(-10px) translateY(0px) scale(1);
-        opacity: 0.05;
-    }
-    8% {
-        opacity: 0.2;
-    }
-    25% {
-        transform: translateX(10px) translateY(-8px) scale(1.01);
-        opacity: 0.5;
-    }
-    50% {
-        transform: translateX(-5px) translateY(6px) scale(0.99);
-        opacity: 0.35;
-    }
-    75% {
-        transform: translateX(15px) translateY(-3px) scale(1.005);
-        opacity: 0.45;
-    }
-    100% {
-        transform: translateX(-15px) translateY(10px) scale(0.995);
-        opacity: 0.2;
-    }
-}
-
-.wave-3 {
-    animation: waveFlowSlow 20s ease-in-out infinite alternate;
-    animation-delay: 2s;
-}
-
-@keyframes waveFlowSlow {
-    0% {
-        transform: translateX(-10px) translateY(0px) scale(1);
-        opacity: 0.05;
-    }
-    10% {
-        opacity: 0.15;
-    }
-    30% {
-        transform: translateX(10px) translateY(-8px) scale(1.01);
-        opacity: 0.4;
-    }
-    60% {
-        transform: translateX(-5px) translateY(6px) scale(0.99);
-        opacity: 0.3;
-    }
-    80% {
-        transform: translateX(15px) translateY(-3px) scale(1.005);
-        opacity: 0.35;
-    }
-    100% {
-        transform: translateX(-15px) translateY(10px) scale(0.995);
-        opacity: 0.15;
-    }
-}
-
-/* ========================================
-   ORBS
-   ======================================== */
-.orb {
-    animation: orbFloat 10s ease-in-out infinite alternate;
-    transform-origin: center;
-    opacity: 0;
-    animation-fill-mode: forwards;
-}
-
-.orb-1 {
-    animation-duration: 12s;
-    animation-delay: 0.3s;
-}
-
-.orb-2 {
-    animation-duration: 14s;
-    animation-delay: 0.8s;
-}
-
-.orb-3 {
-    animation-duration: 13s;
-    animation-delay: 1.3s;
-}
-
-.orb-4 {
-    animation-duration: 15s;
-    animation-delay: 1.8s;
-}
-
-@keyframes orbFloat {
-    0% {
-        transform: translate(0px, 0px) scale(1);
-        opacity: 0.3;
-    }
-    33% {
-        transform: translate(15px, -10px) scale(1.15);
-        opacity: 0.7;
-    }
-    66% {
-        transform: translate(-8px, 12px) scale(0.85);
-        opacity: 0.25;
-    }
-    100% {
-        transform: translate(10px, -5px) scale(1.05);
-        opacity: 0.5;
-    }
-}
-
-/* ========================================
-   PARTICLES
-   ======================================== */
-.particle {
-    animation: particleFloat 8s ease-in-out infinite alternate;
-    opacity: 0;
-    animation-fill-mode: forwards;
-}
-
-.particle-1 { animation-delay: 0.1s; }
-.particle-2 { animation-delay: 0.7s; }
-.particle-3 { animation-delay: 1.3s; }
-.particle-4 { animation-delay: 1.9s; }
-.particle-5 { animation-delay: 2.5s; }
-.particle-6 { animation-delay: 3.1s; }
-.particle-7 { animation-delay: 3.7s; }
-.particle-8 { animation-delay: 4.3s; }
-.particle-9 { animation-delay: 4.9s; }
-.particle-10 { animation-delay: 5.5s; }
-.particle-11 { animation-delay: 6.1s; }
-.particle-12 { animation-delay: 6.7s; }
-
-@keyframes particleFloat {
-    0% {
-        transform: translate(0px, 0px) scale(1);
-        opacity: 0.1;
-    }
-    50% {
-        transform: translate(8px, -10px) scale(1.5);
-        opacity: 0.35;
-    }
-    100% {
-        transform: translate(-5px, 5px) scale(0.8);
-        opacity: 0.08;
-    }
+    stroke-linejoin: round;
 }
 
 /* ========================================
