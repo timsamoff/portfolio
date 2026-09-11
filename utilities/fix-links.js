@@ -20,7 +20,7 @@ function cleanupMalformedLinks(html) {
     let cleaned = html;
 
     // href wrapped in smart quotes: href="”URL”" or href=”URL”
-    cleaned = cleaned.replace(/href=["'”‘’]\s*["'”‘’]?(https?:\/\/[^"'\s>]+)["'”‘’]\s*["'”‘’]?/g, 'href="$1"');
+    cleaned = cleaned.replace(/href=["'”‘’]\s*["'”‘’]?(https?:\/\/[^"'\s>]+)["'”‘’]["'”‘’]?/g, 'href="$1"');
     cleaned = cleaned.replace(/href=”(https?:\/\/[^”\s>]+)”/g, 'href="$1"');
     cleaned = cleaned.replace(/href=‘([^’\s>]+)’/g, 'href="$1"');
 
