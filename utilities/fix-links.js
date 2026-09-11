@@ -25,8 +25,8 @@ function cleanupMalformedLinks(html) {
     cleaned = cleaned.replace(/href=‘([^’\s>]+)’/g, 'href="$1"');
 
     // Double-wrapped URLs: href="http://domain.com/"http://actual.com""
-    cleaned = cleaned.replace(/href="https?:\/\/[^"]*?(https?:\/\/[^"]+)/g, function(match, captured) {
-        return 'href="' + captured;
+    cleaned = cleaned.replace(/href="(https?:\/\/[^"]*)"(https?:\/\/[^"]+)"*/g, function(match, firstUrl, secondUrl) {
+        return 'href="' + secondUrl + '"';
     });
 
     cleaned = cleaned.replace(/%E2%80%9C/g, '').replace(/%E2%80%9D/g, '');

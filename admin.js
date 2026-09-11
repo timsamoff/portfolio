@@ -437,8 +437,8 @@ function cleanupMalformedLinks(html) {
     cleaned = cleaned.replace(/href=["'”‘’]\s*["'”‘’]?(https?:\/\/[^"'\s>]+)["'”‘’]\s*["'”‘’]?/g, 'href="$1"');
     cleaned = cleaned.replace(/href=”(https?:\/\/[^”\s>]+)”/g, 'href="$1"');
     cleaned = cleaned.replace(/href=‘([^’\s>]+)’/g, 'href="$1"');
-    cleaned = cleaned.replace(/href="https?:\/\/[^"]*?(https?:\/\/[^"]+)/g, function(match, captured) {
-        return 'href="' + captured;
+    cleaned = cleaned.replace(/href="(https?:\/\/[^"]*)"(https?:\/\/[^"]+)"*/g, function(match, firstUrl, secondUrl) {
+        return 'href="' + secondUrl + '"';
     });
     cleaned = cleaned.replace(/%E2%80%9C/g, '').replace(/%E2%80%9D/g, '');
     cleaned = cleaned.replace(/%E2%80%98/g, '').replace(/%E2%80%99/g, '');
