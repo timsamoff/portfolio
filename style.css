@@ -358,7 +358,7 @@ header.scrolled {
     font-weight: 600;
     color: var(--color-text);
     line-height: 1.6;
-    max-width: 780px;
+    max-width: 860px;
     margin: 0 auto 0.75rem auto;
 }
 
@@ -367,7 +367,7 @@ header.scrolled {
     font-weight: 400;
     color: var(--color-text-secondary);
     line-height: 1.7;
-    max-width: 780px;
+    max-width: 860px;
     margin: 0 auto;
 }
 
