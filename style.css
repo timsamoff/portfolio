@@ -385,32 +385,23 @@ header.scrolled {
     overflow: hidden;
 }
 
-.hero-bg svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-    object-fit: contain;
-}
-
-@media (max-width: 768px) {
-    .hero-bg svg {
-        object-fit: cover;
-    }
-}
-
 /* ========================================
    HERO WAVEFORMS
-   Generated and animated entirely by hero-waveforms.js (randomized
-   sine/triangle/sawtooth/square/sample-and-hold "voices" with their own
-   independent spawn/fade/drift lifecycles). This block only supplies the
-   static per-path styling; every animated property (opacity, stroke-width,
-   the `d` attribute itself) is set inline by the script each frame.
+   Generated and animated entirely by hero-waveforms.js: one canvas per
+   depth plane (far / mid / near), appended into .hero-bg. Each canvas
+   overhangs the hero by 24px on every side (matching PAD in the script) so
+   pointer parallax never reveals an edge; .hero-bg clips the overhang and
+   any wave peaks past the top or bottom. Per-plane blur and the parallax
+   transform are set inline by the script.
    ======================================== */
-.hero-waveform path {
-    fill: none;
-    stroke: var(--color-accent);
-    stroke-linecap: round;
-    stroke-linejoin: round;
+.hero-plane {
+    position: absolute;
+    left: -24px;
+    top: -24px;
+    width: calc(100% + 48px);
+    height: calc(100% + 48px);
+    display: block;
+    will-change: transform, filter;
 }
 
 /* ========================================
